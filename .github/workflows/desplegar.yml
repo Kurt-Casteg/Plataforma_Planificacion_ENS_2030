@@ -24,7 +24,7 @@ jobs:
       url: ${{ steps.desplegar.outputs.page_url }}
     steps:
       - name: Obtener el código
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Verificar que no haya errores de sintaxis en el JavaScript
         run: |
@@ -41,6 +41,11 @@ jobs:
 
       - name: Preparar Pages
         uses: actions/configure-pages@v5
+        with:
+          # Habilita GitHub Pages automáticamente si el repositorio aún no lo tiene
+          # activado. Sin esto, el primer despliegue de un repositorio nuevo falla
+          # con "Get Pages site failed / Not Found".
+          enablement: true
 
       - name: Empaquetar el sitio
         uses: actions/upload-pages-artifact@v3

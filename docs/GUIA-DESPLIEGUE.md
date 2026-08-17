@@ -7,7 +7,7 @@ Está escrita para seguirse paso a paso sin experiencia previa.
 
 ## Opción recomendada: GitHub Pages
 
-Ya existe el repositorio `Kurt-Casteg/Mini_Plataforma`, así que se aprovecha ese.
+El repositorio es `Kurt-Casteg/Plataforma_Planificacion_ENS_2030`.
 
 ### Paso 1 · Subir los archivos
 
@@ -15,22 +15,31 @@ Desde la carpeta de la plataforma, en una terminal:
 
 ```bash
 git init                       # solo si la carpeta aún no es un repositorio
-git remote add origin https://github.com/Kurt-Casteg/Mini_Plataforma.git
+git remote add origin https://github.com/Kurt-Casteg/Plataforma_Planificacion_ENS_2030.git
 git add .
 git commit -m "Nueva versión de la plataforma de planificación"
 git branch -M main
 git push -u origin main
 ```
 
-> Si el repositorio ya tenía la versión anterior y quieres conservar su historial,
-> reemplaza el contenido y haz `git add . && git commit`. El historial se mantiene.
 
 ### Paso 2 · Activar GitHub Pages
+
+**Este paso es obligatorio y va antes del primer despliegue.**
 
 1. Entra al repositorio en github.com.
 2. **Settings** → **Pages** (menú lateral izquierdo).
 3. En **Source**, elige **GitHub Actions**.
 4. Listo. No hay que elegir carpeta ni rama.
+
+> **Si el despliegue falla con «Get Pages site failed» o «HttpError: Not Found»**,
+> es exactamente esto: Pages todavía no está activado en el repositorio. Haz los
+> pasos de arriba y vuelve a lanzar el flujo desde la pestaña **Actions** →
+> abre la ejecución fallida → **Re-run all jobs**.
+>
+> El flujo incluye `enablement: true`, que intenta activar Pages solo. Funciona
+> en la mayoría de los casos, pero si la cuenta u organización restringe esa
+> operación, hay que activarlo a mano como se indica arriba.
 
 ### Paso 3 · Esperar la publicación
 
@@ -38,7 +47,7 @@ git push -u origin main
 2. Verás el flujo «Desplegar en GitHub Pages» ejecutándose (1 a 2 minutos).
 3. Cuando termine con un visto verde, la dirección será:
 
-   `https://kurt-casteg.github.io/Mini_Plataforma/`
+   `https://kurt-casteg.github.io/Plataforma_Planificacion_ENS_2030/`
 
 ### Paso 4 · Actualizar en el futuro
 

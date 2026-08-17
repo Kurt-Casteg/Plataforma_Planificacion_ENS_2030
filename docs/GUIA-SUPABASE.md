@@ -53,7 +53,7 @@ Debe terminar con «Success». Esto crea:
    inmediato; si lo dejas activo, la persona confirma su correo una vez.
 4. **Authentication** → **URL Configuration**:
    - **Site URL**: la dirección pública de la plataforma
-     (ej. `https://kurt-casteg.github.io/Mini_Plataforma/`).
+     (ej. `https://kurt-casteg.github.io/Plataforma_Planificacion_ENS_2030/`).
    - **Redirect URLs**: agrega la misma dirección.
 
 > Sin este paso, el enlace de acceso que llega por correo no devuelve a la
