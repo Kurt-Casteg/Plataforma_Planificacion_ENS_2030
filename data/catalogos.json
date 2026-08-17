@@ -1,0 +1,442 @@
+{
+ "departamentos": [
+  {
+   "id": "auditoria_interna",
+   "nombre": "Auditoría Interna",
+   "nombreCorto": "Auditoría Interna"
+  },
+  {
+   "id": "compin",
+   "nombre": "COMPIN",
+   "nombreCorto": "COMPIN"
+  },
+  {
+   "id": "comunicaciones",
+   "nombre": "Comunicaciones",
+   "nombreCorto": "Comunicaciones"
+  },
+  {
+   "id": "dpto_control_gestion",
+   "nombre": "Departamento Control de Gestión",
+   "nombreCorto": "Control de Gestión"
+  },
+  {
+   "id": "dpto_accion_sanitaria",
+   "nombre": "Departamento de Acción Sanitaria",
+   "nombreCorto": "Acción Sanitaria"
+  },
+  {
+   "id": "dpto_administracion_finanzas",
+   "nombre": "Departamento de Administración y Finanzas",
+   "nombreCorto": "Admin. y Finanzas"
+  },
+  {
+   "id": "dpto_salud_publica",
+   "nombre": "Departamento de Salud Pública",
+   "nombreCorto": "Salud Pública"
+  },
+  {
+   "id": "dpto_juridico",
+   "nombre": "Departamento Jurídico",
+   "nombreCorto": "Jurídico"
+  },
+  {
+   "id": "emergencias_desastres",
+   "nombre": "Emergencias y Desastres",
+   "nombreCorto": "Emergencias y Desastres"
+  },
+  {
+   "id": "gabinete",
+   "nombre": "Gabinete",
+   "nombreCorto": "Gabinete"
+  },
+  {
+   "id": "laboratorio_salud_publica",
+   "nombre": "Laboratorio de Salud Pública",
+   "nombreCorto": "Lab. Salud Pública"
+  },
+  {
+   "id": "oirs",
+   "nombre": "OIRS",
+   "nombreCorto": "OIRS"
+  },
+  {
+   "id": "unidad_salud_ocupacional",
+   "nombre": "Unidad de Salud Ocupacional",
+   "nombreCorto": "Salud Ocupacional"
+  }
+ ],
+ "tiposActividad": [
+  {
+   "id": "alerta_sanitaria",
+   "nombre": "Alerta Sanitaria"
+  },
+  {
+   "id": "capacitacion",
+   "nombre": "Capacitación"
+  },
+  {
+   "id": "comision_equidad",
+   "nombre": "Comisión de Equidad"
+  },
+  {
+   "id": "coordinacion",
+   "nombre": "Coordinación"
+  },
+  {
+   "id": "evaluacion",
+   "nombre": "Evaluación"
+  },
+  {
+   "id": "fiscalizacion",
+   "nombre": "Fiscalización"
+  },
+  {
+   "id": "formalizacion",
+   "nombre": "Formalización"
+  },
+  {
+   "id": "investigacion",
+   "nombre": "Investigación"
+  },
+  {
+   "id": "monitoreo",
+   "nombre": "Monitoreo"
+  },
+  {
+   "id": "participacion_social",
+   "nombre": "Participación Social"
+  },
+  {
+   "id": "planificacion",
+   "nombre": "Planificación"
+  },
+  {
+   "id": "prevencion",
+   "nombre": "Prevención"
+  },
+  {
+   "id": "proa",
+   "nombre": "Programa de optimización uso antimicrobianos (PROA)"
+  },
+  {
+   "id": "promocion",
+   "nombre": "Promoción"
+  },
+  {
+   "id": "regulacion",
+   "nombre": "Regulación"
+  },
+  {
+   "id": "sgc_ssp",
+   "nombre": "Sistema de Gestión de Calidad (SGC - SSP)"
+  },
+  {
+   "id": "supervision",
+   "nombre": "Supervisión"
+  },
+  {
+   "id": "vigilancia",
+   "nombre": "Vigilancia"
+  },
+  {
+   "id": "otro",
+   "nombre": "Otro"
+  }
+ ],
+ "componentesTransversales": [
+  {
+   "id": "modelo_salud_integral",
+   "nombre": "Modelo de Salud Integral"
+  },
+  {
+   "id": "intersectorialidad",
+   "nombre": "Intersectorialidad"
+  },
+  {
+   "id": "enfoque_equidad",
+   "nombre": "Enfoque de Equidad"
+  },
+  {
+   "id": "perspectiva_curso_vida",
+   "nombre": "Perspectiva de Curso de Vida"
+  },
+  {
+   "id": "equidad_pueblos_indigenas",
+   "nombre": "Enfoque Equidad: Pueblos Indígenas"
+  },
+  {
+   "id": "equidad_personas_migrantes",
+   "nombre": "Enfoque Equidad: Personas Migrantes"
+  },
+  {
+   "id": "sin_componente",
+   "nombre": "Sin Componente Transversal"
+  }
+ ],
+ "categoriasProgramaticas": [
+  {
+   "id": "funcionamiento",
+   "nombre": "Funcionamiento"
+  },
+  {
+   "id": "emergentes",
+   "nombre": "Emergentes"
+  },
+  {
+   "id": "expansion",
+   "nombre": "Expansión"
+  },
+  {
+   "id": "salud_ocupacional",
+   "nombre": "Salud Ocupacional"
+  }
+ ],
+ "programasPorCategoria": {
+  "emergentes": [
+   "Continuidad / Chagas",
+   "Continuidad / Emergentes HTLV1",
+   "Continuidad / Hanta Virus",
+   "Continuidad / Hidatidosis",
+   "Continuidad / Marea Roja",
+   "Continuidad / Otras Emerg. Zoonosis y Control Vectorial",
+   "Continuidad / Otras Enfermedades Emergentes",
+   "Continuidad / Rabia",
+   "Expansión / Chagas",
+   "Expansión / Emergentes HTLV1",
+   "Expansión / Hanta Virus",
+   "Expansión / Hidatidosis",
+   "Expansión / Marea Roja",
+   "Expansión / Otras Enfermedades Emergentes",
+   "Expansión / Rabia"
+  ],
+  "funcionamiento": [
+   "Continuidad / AS Digital",
+   "Continuidad / Administración y Funciones de Apoyo",
+   "Continuidad / Aedes",
+   "Continuidad / Agua",
+   "Continuidad / Aire",
+   "Continuidad / Auxilio Extraordinario",
+   "Continuidad / Bienestar",
+   "Continuidad / COMPIN",
+   "Continuidad / CRIPAC Centro Regional de Información, Prevención y Consejería de VIH",
+   "Continuidad / Cardiovascular",
+   "Continuidad / Contingencias",
+   "Continuidad / Control Joven Sano",
+   "Continuidad / Convenio Proyecto Chile 400-OC Lucha contra el Tabaco",
+   "Continuidad / Cáncer",
+   "Continuidad / Discapacidad y Rehabilitación",
+   "Continuidad / ETESA",
+   "Continuidad / Elige Vivir Sano",
+   "Continuidad / Elige Vivir Sano - Empoderamiento y Participación Ciudadana",
+   "Continuidad / Elige Vivir Sano - Plan Comunicacional",
+   "Continuidad / Emergencias y Desastres",
+   "Continuidad / Encuestas Nacionales",
+   "Continuidad / Enfermedades Respiratorias Agudas",
+   "Continuidad / Enfermedades Transmitidas por la Sangre",
+   "Continuidad / Estadísticas de la Salud",
+   "Continuidad / Evaluación de Impacto Ambiental",
+   "Continuidad / FONIS",
+   "Continuidad / Fortalecimiento del programa Marea Roja",
+   "Continuidad / GES",
+   "Continuidad / Gestión Inmobiliaria",
+   "Continuidad / Género",
+   "Continuidad / Información para la Planificación y Evaluación Sanitaria",
+   "Continuidad / Inocuidad de los Alimentos",
+   "Continuidad / Inversión en TI",
+   "Continuidad / Laboratorios",
+   "Continuidad / Ley Isapre",
+   "Continuidad / Ley de Discapacidad",
+   "Continuidad / MIDAS",
+   "Continuidad / Marea Roja",
+   "Continuidad / Medicina Complementaria",
+   "Continuidad / Mejoramiento de los Ambientes: Higiene y Seguridad",
+   "Continuidad / Nutrición",
+   "Continuidad / Nutrición y Entornos Alimentarios",
+   "Continuidad / Otras Enfermedades Emergentes",
+   "Continuidad / Otros Programas de Salud Ambiental",
+   "Continuidad / PACAM",
+   "Continuidad / PNAC",
+   "Continuidad / PNI",
+   "Continuidad / Pesquisa Neonatal",
+   "Continuidad / Polimetales",
+   "Continuidad / Portal Integrado de Comercio Exterior (SICEX)",
+   "Continuidad / Prevención del Consumo de Tabaco",
+   "Continuidad / Prevención en Violencia Intrafamiliar",
+   "Continuidad / Programa Migrantes",
+   "Continuidad / Programa Nacional de Demencia",
+   "Continuidad / Programa Nacional de Prevención del Suicidio",
+   "Continuidad / Programa Salud y Pueblos Indígenas",
+   "Continuidad / Programa de Vigilancia y Control Población Expuesta a Contaminantes PECA",
+   "Continuidad / Programa de la Infancia",
+   "Continuidad / Programa en AS y AF para familias EVS-Salud",
+   "Continuidad / Programas Profesiones Médicas, Paramédicas y Farmacias",
+   "Continuidad / Promoción de la Salud",
+   "Continuidad / Receta Electrónica",
+   "Continuidad / Reglamento Sanitario Internacional",
+   "Continuidad / Rellenos Sanitarios",
+   "Continuidad / Residuos",
+   "Continuidad / Resistencia Antimicrobiana",
+   "Continuidad / SENAME",
+   "Continuidad / SIG Sanitario Ambiental",
+   "Continuidad / Salud Bucal",
+   "Continuidad / Salud Integral Adolescentes y Jóvenes",
+   "Continuidad / Salud Integral del Adulto",
+   "Continuidad / Salud Mental",
+   "Continuidad / Salud Responde",
+   "Continuidad / Salud Sexual y Prevención del VIH/ITS",
+   "Continuidad / Salud de la Mujer y del Recién Nacido",
+   "Continuidad / Salud del Adulto Mayor",
+   "Continuidad / Seguridad Química",
+   "Continuidad / Sistema Integrado de Atención Ciudadana (SIAC)",
+   "Continuidad / Sistema Trámite en Línea",
+   "Continuidad / Tenencia Responsable de Mascotas",
+   "Continuidad / Toma de Muestras",
+   "Continuidad / Tuberculosis",
+   "Continuidad / Vigilancia Epidemiológica",
+   "Continuidad / Vigilancia Epidemiológica Ambiental",
+   "Continuidad / Zoonosis y Control de Vectores",
+   "Expansión / Aedes",
+   "Expansión / Agua",
+   "Expansión / Fortalecimiento del programa Marea Roja",
+   "Expansión / Laboratorios",
+   "Expansión / Marea Roja",
+   "Expansión / Pesquisa Neonatal",
+   "Expansión / Programa Migrantes",
+   "Expansión / Receta Electrónica",
+   "Expansión / Salud Mental",
+   "Expansión / Tenencia Responsable de Mascotas",
+   "Expansión / Vigilancia Epidemiológica Ambiental",
+   "LEY RICARTE SOTO",
+   "Ley de Etiquetado de Alimentos"
+  ],
+  "expansion": [
+   "Aedes",
+   "Expansión / AS Digital",
+   "Expansión / Administración y funciones de apoyo",
+   "Expansión / Agua",
+   "Expansión / Aire",
+   "Expansión / Auxilio Extraordinario",
+   "Expansión / Bienestar",
+   "Expansión / COMPIN",
+   "Expansión / CRIPAC Centro Regional de Información, Prevención y Consejería de VIH",
+   "Expansión / Cardiovascular",
+   "Expansión / Control Joven Sano",
+   "Expansión / Convenio Proyecto Chile 400-OC Lucha contra el Tabaco",
+   "Expansión / Cáncer",
+   "Expansión / Discapacidad y Rehabilitación",
+   "Expansión / ETESA",
+   "Expansión / Elige Vivir Sano",
+   "Expansión / Emergencias y Desastres",
+   "Expansión / Encuesta Nacionales",
+   "Expansión / Enfermedades Respiratorias Agudas",
+   "Expansión / Enfermedades Transmitidas por la Sangre",
+   "Expansión / Estadísticas de la Salud",
+   "Expansión / Evaluación de Impacto Ambiental",
+   "Expansión / FONIS",
+   "Expansión / GES",
+   "Expansión / Gestión Inmobiliaria",
+   "Expansión / Género",
+   "Expansión / Información para la Planificación y Evaluación Sanitaria",
+   "Expansión / Inocuidad de los Alimentos",
+   "Expansión / Inversión en TI",
+   "Expansión / Laboratorio",
+   "Expansión / Ley Isapre",
+   "Expansión / Ley de Discapacidad",
+   "Expansión / Marea Roja",
+   "Expansión / Medicina Complementaria",
+   "Expansión / Mejoramiento de los Ambientes: Higiene y Seguridad",
+   "Expansión / Nutrición",
+   "Expansión / Otros Programas de Salud Ambiental",
+   "Expansión / PACAM",
+   "Expansión / PNAC",
+   "Expansión / PNI",
+   "Expansión / Polimetales",
+   "Expansión / Portal Integrado de Comercio Exterior (SICEX)",
+   "Expansión / Prevención del Consumo de Tabaco",
+   "Expansión / Prevención en Violencia Intrafamiliar",
+   "Expansión / Prog. De Vigilancia y Control Población Expuesta a Contaminantes PECA",
+   "Expansión / Programa Nacional de Demencia",
+   "Expansión / Programa Salud y Pueblos Indígenas",
+   "Expansión / Programa de la Infancia",
+   "Expansión / Programas Profesiones Médicas, Paramédicas y Farmacias",
+   "Expansión / Promoción de la Salud",
+   "Expansión / Reglamento Sanitario Internacional",
+   "Expansión / Rellenos Sanitarios",
+   "Expansión / Residuos",
+   "Expansión / Resistencia Antimicrobiana",
+   "Expansión / SENAME",
+   "Expansión / SIG Sanitario Ambiental",
+   "Expansión / Salud Bucal",
+   "Expansión / Salud Integral Adolescentes y Jóvenes",
+   "Expansión / Salud Integral del Adulto",
+   "Expansión / Salud Responde",
+   "Expansión / Salud Sexual y Prevención del VIH/ITS",
+   "Expansión / Salud de la Mujer y del Recién Nacido",
+   "Expansión / Salud del Adulto Mayor",
+   "Expansión / Seguridad Química",
+   "Expansión / Sistema Integrado de Atención Ciudadana (SIAC)",
+   "Expansión / Sistema Trámite en Línea",
+   "Expansión / Suero de Hanta",
+   "Expansión / Tuberculosis",
+   "Expansión / Vigilancia Epidemiológica",
+   "Expansión / Zoonosis y Control de Vectores"
+  ],
+  "salud_ocupacional": [
+   "Continuidad / Prestaciones Médicas",
+   "Continuidad / Rehabilitación",
+   "Continuidad / Salud Ocupacional",
+   "Continuidad / Seguro Escolar",
+   "Continuidad / Subsidios por Incapacidad Laboral",
+   "Continuidad / Trabajador Temporal y Agrícola",
+   "Expansión / Prestaciones Médicas",
+   "Expansión / Rehabilitación",
+   "Expansión / Salud Ocupacional",
+   "Expansión / Seguro Escolar",
+   "Expansión / Subsidios por Incapacidad Laboral",
+   "Expansión / Trabajador Temporal y Agrícola"
+  ]
+ },
+ "subtitulos": [
+  {
+   "id": "21",
+   "nombre": "Subtítulo 21 - Gastos en Personal",
+   "descripcion": "Incluye remuneraciones, aportes del empleador y otros gastos relacionados con el personal en actividad (viáticos, entre otros)."
+  },
+  {
+   "id": "22",
+   "nombre": "Subtítulo 22 - Bienes y Servicios de Consumo",
+   "descripcion": "Gastos por adquisición de bienes de consumo y servicios no personales necesarios para el funcionamiento de los organismos del sector público."
+  }
+ ],
+ "mediosVerificacion": [
+  {
+   "tipo": "Cursos y talleres",
+   "detalle": "Planilla de asistencia con fecha. Opcionalmente convocatoria y registros fotográficos."
+  },
+  {
+   "tipo": "Informes",
+   "detalle": "Técnicos, de supervisión, vigilancia o monitoreo. Estructura mínima: título, antecedentes y desarrollo. Debe incluir fecha, firma y nombre de quien realiza, revisa y aprueba."
+  },
+  {
+   "tipo": "Reportes",
+   "detalle": "Planillas con registros puntuales. Incluir fecha y nombre de quien reporta."
+  },
+  {
+   "tipo": "Actas de reunión",
+   "detalle": "Fecha, nombre de quien elabora, participantes, motivo de la reunión y temas tratados."
+  },
+  {
+   "tipo": "Actas de supervisión o fiscalización",
+   "detalle": "Fecha, nombre de quien la elabora y timbre."
+  },
+  {
+   "tipo": "Planes, protocolos y evaluaciones",
+   "detalle": "Fecha y nombre de quien realiza, revisa y aprueba. Secciones: introducción, objetivo, alcance, metodología, resultados, evaluación y referencias."
+  },
+  {
+   "tipo": "Campañas de difusión",
+   "detalle": "Resumen de campaña, población objetivo y registros audiovisuales (imágenes, enlaces, audio o video)."
+  }
+ ]
+}

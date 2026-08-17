@@ -1,0 +1,19 @@
+# Respaldos con datos reales
+respaldo-*.json
+*-2026-*.xlsx
+*-2026-*.csv
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editores
+.vscode/
+.idea/
+*.swp
+
+# Node (no se usa para construir, solo para actualizar vendor/)
+node_modules/
+package-lock.json
+*.tgz

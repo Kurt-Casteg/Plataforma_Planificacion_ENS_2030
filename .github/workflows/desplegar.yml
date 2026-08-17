@@ -1,0 +1,52 @@
+name: Desplegar en GitHub Pages
+
+# Cada vez que se sube un cambio a la rama principal, el sitio se publica solo.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:      # permite lanzarlo a mano desde la pestaña Actions
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Si se empujan dos cambios seguidos, se publica el último y se cancela el anterior.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.desplegar.outputs.page_url }}
+    steps:
+      - name: Obtener el código
+        uses: actions/checkout@v4
+
+      - name: Verificar que no haya errores de sintaxis en el JavaScript
+        run: |
+          for archivo in $(find js config.js -name "*.js"); do
+            node --check "$archivo"
+          done
+
+      - name: Verificar que los catálogos JSON sean válidos
+        run: |
+          for archivo in data/*.json; do
+            node -e "JSON.parse(require('fs').readFileSync('$archivo','utf8'))"
+            echo "OK $archivo"
+          done
+
+      - name: Preparar Pages
+        uses: actions/configure-pages@v5
+
+      - name: Empaquetar el sitio
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: Desplegar
+        id: desplegar
+        uses: actions/deploy-pages@v4

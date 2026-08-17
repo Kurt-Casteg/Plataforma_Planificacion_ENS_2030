@@ -1,0 +1,2657 @@
+{
+ "1.1.1": [
+  {
+   "codigo": "1",
+   "nombre": "Número de campañas de prevención del VIH/SIDA para la población",
+   "formula": "Número de campañas de prevención del VIH/SIDA para la población",
+   "fuente": "Reporte entregado por el Departamento Programa Nacional de Prevención y Control del VIH/SIDA e ITS",
+   "lineaBase": "1 anual",
+   "anioLineaBase": "2021",
+   "meta2030": "1 anual",
+   "periodicidad": "Anual",
+   "responsable": "Departamento Programa Nacional de Prevención y Control del VIH/SIDA e ITS. División de Prevención y Control de Enfermedades"
+  }
+ ],
+ "1.1.2": [
+  {
+   "codigo": "1",
+   "nombre": "Cobertura de tamizaje de examen de VIH en población iniciadasexualmente",
+   "formula": "(Número de personas de 15 a 29 años iniciadas sexualmente que declaran haberse realizado el examen de pesquisa de VIH alguna vez / Número de personas de 15 a 29 años iniciadas sexualmente) * 100",
+   "fuente": "Encuesta Nacional de Juventud (INJUV)",
+   "lineaBase": "49,3%",
+   "anioLineaBase": "2022",
+   "meta2030": "57,7%",
+   "periodicidad": "Cada 3 años",
+   "responsable": "Instituto Nacional de la Juventud"
+  }
+ ],
+ "1.1.3": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de personas de 15 a 49 años que viven con VIH que son notificadas con CD4 < 200 cel/ul",
+   "formula": "(Número de personas de 15 a 49 años que viven con VIH que son notificadas con CD4 < 200 cel/µl / Número de personas de 15 a 49 años que viven con VIH notificadas con recuento de CD4) * 100",
+   "fuente": "Ficha Clínica-Plataforma EPIVIGILA",
+   "lineaBase": "37,6%",
+   "anioLineaBase": "2021",
+   "meta2030": "28,6%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Epidemiología. División de Planificación Sanitaria"
+  }
+ ],
+ "1.2.1": [
+  {
+   "codigo": "1",
+   "nombre": "Proporción de contactos que terminan su tratamiento para la tuberculosis latente",
+   "formula": "(Número de contactos que completa tratamiento de TB latente / Número de contactos que inicia tratamiento de TB latente)*100",
+   "fuente": "Registro Nacional de Tuberculosis",
+   "lineaBase": "75%",
+   "anioLineaBase": "2022",
+   "meta2030": "90%",
+   "periodicidad": "Anual",
+   "responsable": "Programa de Control y Eliminación de Tuberculosis (PROCET). División de Prevención y Control de Enfermedades"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Porcentaje de personas con VIH que terminan su tratamiento de la infección tuberculosa latente (ITL)",
+   "formula": "(Número de personas con VIH que completa tratamiento de TB latente / Número de personas con VIH que inicia tratamiento de TB latente) * 100",
+   "fuente": "Registro Nacional de Tuberculosis",
+   "lineaBase": "65%",
+   "anioLineaBase": "2021",
+   "meta2030": "90%",
+   "periodicidad": "Anual",
+   "responsable": "Programa de Control y Eliminación de Tuberculosis (PROCET). División de Prevención y Control de Enfermedades"
+  }
+ ],
+ "1.2.2": [
+  {
+   "codigo": "1",
+   "nombre": "Rendimiento de la localización de casos",
+   "formula": "(Número de casos de TB pulmonar confirmada diagnosticados / Número casos de TB pulmonar confirmada estimados) * 100",
+   "fuente": "Registro Nacional de Tuberculosis",
+   "lineaBase": "75%",
+   "anioLineaBase": "2020",
+   "meta2030": "90%",
+   "periodicidad": "Anual",
+   "responsable": "Programa de Control y Eliminación de Tuberculosis (PROCET). División de Prevención y Control de Enfermedades"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Pesquisa en atención primaria",
+   "formula": "(Número de casos de tuberculosis pulmonar confirmados por bacteriología que fueron pesquisados en la Atención Primaria/Número de casos de tuberculosis pulmonar confirmados por bacteriología) *100",
+   "fuente": "Registro Nacional de Tuberculosis",
+   "lineaBase": "39,5%",
+   "anioLineaBase": "2020",
+   "meta2030": "50%",
+   "periodicidad": "Anual",
+   "responsable": "Programa de control y eliminación de Tuberculosis (PROCET). División de Prevención y Control de Enfermedades"
+  }
+ ],
+ "1.2.3": [
+  {
+   "codigo": "1",
+   "nombre": "Proporción de pacientes con tuberculosis activa sensible a fármacos que son dados de alta del tratamiento",
+   "formula": "(Número de pacientes con tuberculosis activa sensible con alta exitosa del tratamiento / Número de pacientes con tuberculosis activa sensible)*100",
+   "fuente": "Registro Nacional de Tuberculosis",
+   "lineaBase": "75,4%",
+   "anioLineaBase": "2020",
+   "meta2030": "90%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Enfermedades Transmisibles. División de Prevención y Control de Enfermedades"
+  }
+ ],
+ "1.3.1": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje casos-brotes notificados de zoonosis emergentes y reemergentes priorizadas con investigación epidemiológica-ambiental, realizadas dentro de plazos definidos en los documentos normativos correspondientes",
+   "formula": "(Número de casos-brotes de enfermedades zoonóticas y vectoriales con investigación epidemiológica ambiental oportuna / Número de casos-brotes de enfermedades zoonóticas y vectoriales) * 100",
+   "fuente": "Informes de investigación epidemiológica/Registro de enfermedades de notificación obligatoria",
+   "lineaBase": "100%",
+   "anioLineaBase": "2020",
+   "meta2030": "100%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Epidemiología. División de Planificación Sanitaria"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Porcentaje anual de controles vectoriales de foco y perifoco iniciados dentro de las 24 horas hábiles en regiones con detecciones de mosquitos de importancia sanitaria",
+   "formula": "(Número de controles vectoriales de foco y perifoco iniciados dentro de las 24 horas hábiles en regiones con detecciones de mosquitos de importancia sanitaria / Número de controles vectoriales de foco y perifoco iniciados en regiones con detecciones de mosquitos de importancia sanitaria) * 100",
+   "fuente": "Registros del Programa Nacional de Vigilancia, Prevención y Control de Mosquitos de Importancia Sanitaria (Resolucion N°1442 del 14 de noviembre 2017), tanto en MIDAS como de informes locales",
+   "lineaBase": "100%",
+   "anioLineaBase": "2021",
+   "meta2030": "100%",
+   "periodicidad": "Anual",
+   "responsable": "Oficina de Zoonosis y Control de Vectores. División de Políticas Públicas Saludables y Promoción"
+  }
+ ],
+ "1.3.2": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de embarazadas que ingresan a control prenatal tamizadas para enfermedad de Chagas",
+   "formula": "(Número de embarazadas que ingresan a control prenatal tamizadas para enfermedad de Chagas / Número de embarazadas que ingresan a control prenatal) * 100",
+   "fuente": "Resumen estadístico mensual. Resumen Estadístico Mensual de Atenciones de Salud para Establecimientos Privados. Departamento de Estadísticas e Información de Salud",
+   "lineaBase": "71%",
+   "anioLineaBase": "2021",
+   "meta2030": "80%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Porcentaje de mujeres en edad fértil en programa preconcepcional y control de la fecundidad tamizadas para enfermedad de Chagas en regiones priorizadas",
+   "formula": "(Número de mujeres en edad fértil que ingresan a control preconcepcional y programa de fecundidad tamizadas para enfermedad de Chagas / Número de mujeres en edad fértil que ingresan a control preconcepcional y programa de fecundidad) * 100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud",
+   "lineaBase": "Se calculará durante el 2025",
+   "anioLineaBase": "Se calculará durante el 2025",
+   "meta2030": "Aumentar 60% sobre la Línea base",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  },
+  {
+   "codigo": "3",
+   "nombre": "Porcentaje de intervenciones ambientales de prevención y control en casos notificados de hidatidosis de menores de 15 años",
+   "formula": "(Número de intervenciones ambientales de prevención y control en casos notificados de hidatidosis de menores de 15 años / Número de casos notificados de hidatidosis en menores de 15 años) * 100",
+   "fuente": "Informes de intervención ambiental realizadas por SEREMI de Salud, informadas a nivel central",
+   "lineaBase": "100%",
+   "anioLineaBase": "2021",
+   "meta2030": "100%",
+   "periodicidad": "Anual",
+   "responsable": "Oficina de Zoonosis y control de vectores. División de Políticas Públicas Saludables y Promoción"
+  }
+ ],
+ "1.3.3": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de niños(as) menores de 2 años con enfermedad de Chagas congénita que ingresan a tratamiento farmacológico",
+   "formula": "(Número de niño(as) menores de 2 años con enfermedad de Chagas congénita que ingresan a tratamiento farmacológico / Número de niño(as) menores de 2 años con enfermedad de Chagas congénita) * 100",
+   "fuente": "Registro de evaluaciones del tratamiento de enfermedad de Chagas",
+   "lineaBase": "72%",
+   "anioLineaBase": "2021",
+   "meta2030": "90%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Enfermedades Transmisibles. División de Prevención y Control de Enfermedades"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Porcentaje de mujeres en edad fertil confirmadas con enfermedad de Chagas que ingresan a tratamiento farmacológico",
+   "formula": "(Número de mujeres en edad fertil con enfermedad de Chagas que ingresan a tratamiento farmacológico / Número de mujeres en edad fertil con enfermedad de Chagas) * 100",
+   "fuente": "Registro de evaluaciones del tratamiento de enfermedad de Chagas",
+   "lineaBase": "11%",
+   "anioLineaBase": "2021",
+   "meta2030": "40%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Enfermedades Transmisibles. División de Prevención y Control de Enfermedades"
+  }
+ ],
+ "1.4.1": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de niños(as) de 1 año con esquema primario completo de vacunación hexavalente (poliomielitis, hepatitis B, difteria, tétanos, tos convulsiva, H. influenzae B)",
+   "formula": "(Número de niños(as) de 1 año con esquema primario completo de vacunación Hexavalente / Número de nacidos vivos) * 100",
+   "fuente": "Registro Nacional de Inmunizaciones/Registro Civil",
+   "lineaBase": "97,8%",
+   "anioLineaBase": "2021",
+   "meta2030": "Mayor o igual a 95%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Porcentaje de niños(as) de 1 año con 1 dosis de vacunación tres vírica (sarampión, rubéola y paperas)",
+   "formula": "(Número de niños(as) de 1 año con una dosis de vacuna SRP / Número de nacidos vivos) * 100",
+   "fuente": "Registro Nacional de Inmunizaciones/Registro Civil",
+   "lineaBase": "97,1%",
+   "anioLineaBase": "2021",
+   "meta2030": "Mayor o igual a 95%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "1.4.2": [
+  {
+   "codigo": "1",
+   "nombre": "Cobertura de medidas de bloqueo de contactos de casos confirmados de enfermedades transmisibles de sarampión,rubéola y poliomielitis",
+   "formula": "(Número de casos confirmados de enfermedades transmisibles seleccionadas donde se aplican medidas de bloqueo en contactos / Número de casos confirmados de enfermedades transmisibles seleccionadas) * 100",
+   "fuente": "Registro de Enfermedades Transmisibles. Departamento de Epidemiología",
+   "lineaBase": "100%",
+   "anioLineaBase": "2021",
+   "meta2030": "100%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Epidemiología. División de Planificación Sanitaria"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Proporción de casos sospechosos de sarampión, poliomielitis, difteria, tétanos neonatal, rubéola congénita y cólera que tienen estudio epidemiológico",
+   "formula": "(Número de casos sospechosos de sarampión, poliomielitis, difteria, tétanos neonatal, rubéola congénita y cólera con estudio epidemiológico / Número de casos sospechosos de sarampión, poliomielitis, difteria, tétanos neonatal, rubéola congénita y cólera) *100",
+   "fuente": "Registro de Enfermedades Transmisibles. Departamento de Epidemiología",
+   "lineaBase": "Sarampión-Rubéola: 46% Poliomielitis: 96% Difteria: 100% Sd. Rubéola Congénita: 0% Cólera: 100% Tétanos neonatal (no hubieron casos sospechosos 2021)",
+   "anioLineaBase": "2021",
+   "meta2030": "100%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Epidemiología. División de Planificación Sanitaria"
+  }
+ ],
+ "1.4.3": [
+  {
+   "codigo": "1",
+   "nombre": "Proporción de casos confirmados por hepatitis C que inician tratamiento",
+   "formula": "(Número de casos confirmados por hepatitis C que inician tratamiento / Número de casos confirmados por hepatitis C) *100",
+   "fuente": "Plataforma SIGGES",
+   "lineaBase": "92,3%",
+   "anioLineaBase": "2021",
+   "meta2030": "Mayor a 90%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Enfermedades Transmisibles. División de Prevención y Control de Enfermedades"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Cobertura de tratamiento inicial de la sífilis en gestantes",
+   "formula": "(Número de gestantes seropositivas para sífilis, que reciben el tratamiento inicial / Número de mujeres seropositivas sífilis) * 100",
+   "fuente": "Reportería directa al Programa Nacional de Prevención y Control del VIH/SIDA e ITS. División de Prevención y Control de Enfermedades",
+   "lineaBase": "87,9%",
+   "anioLineaBase": "2021",
+   "meta2030": "95%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento Programa Nacional de Prevención y Control del VIH/SIDA e ITS. División de Prevención y Control de Enfermedades"
+  }
+ ],
+ "1.4.4": [
+  {
+   "codigo": "1",
+   "nombre": "Número de campañas comunicacionales sobre las enfermedades transmisibles en eliminación ejecutadas",
+   "formula": "Número de campañas comunicacionales sobre las enfermedades transmisibles en eliminación ejecutadas",
+   "fuente": "Reporte entregado por Departamento de Epidemiología",
+   "lineaBase": "0",
+   "anioLineaBase": "2021",
+   "meta2030": "1 anual",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Comunicaciones y departamentos técnicos"
+  }
+ ],
+ "1.5.1": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de personas mayores que reciben vacunación anti-influenza",
+   "formula": "(Número de adultos de 65 y más años que reciben vacuna anti-influenza / Número de personas de 65 y más años proyectada por INE ) * 100",
+   "fuente": "Registro Nacional de Inmunizaciones/Proyecciones de población del INE",
+   "lineaBase": "72%",
+   "anioLineaBase": "2021",
+   "meta2030": "85%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Porcentaje acumulado de personas adultas mayores (65 años y más) que reciben vacunación antineumocócica",
+   "formula": "(Número acumulado de adultos de 65 y más años que han recibido vacuna antineumocócica / Número de personas de 65 y más años proyectada por INE) * 100",
+   "fuente": "Registro Nacional de Inmunizaciones/Proyecciones de población INE",
+   "lineaBase": "60%",
+   "anioLineaBase": "2020",
+   "meta2030": "80%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Inmunizaciones. División de Prevención y Control de Enfermedades"
+  },
+  {
+   "codigo": "3",
+   "nombre": "Porcentaje de niños(as) de 1 año con esquema completo de vacunación antineumocócica",
+   "formula": "(Número niños y niñas de 1 año con esquema completo de vacuna antineumocócica para el año t / Número nacidos vivos registrados en SRC eI el año t-1) * 100",
+   "fuente": "Registro Nacional de Inmunizaciones/Registro Civil",
+   "lineaBase": "94,5%",
+   "anioLineaBase": "2020",
+   "meta2030": "Mayor a 95%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "1.5.2": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de niños menores de 12 meses con riesgo severo de morir por neumonía que reciben visita domiciliario integral",
+   "formula": "(Número de niños(as) menores de 12 meses con riesgo severo de morir por neumonía que reciben visita domiciliaria integral / Número de niños(as) menores de 12 meses con riesgo severo de morir por neumonía) * 100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud",
+   "lineaBase": "36%",
+   "anioLineaBase": "2021",
+   "meta2030": "55%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Proporción de menores de 5 años que ingresan al GES de IRA de manejo ambulatorio y reciben atención kinésica dentro de 24 horas desde que son diagnosticados",
+   "formula": "(Número de menores de 5 años que ingresan al GES de IRA de manejo ambulatorio y que tienen indicación médica de atención kinésica y reciben la atención dentro de 24 horas desde que son diagnosticados/ Número de menores de 5 años que ingresan al GES de IRA de manejo ambulatorio y que tienen indicación médica de atención kinésica) *100",
+   "fuente": "SIGGES",
+   "lineaBase": "95%",
+   "anioLineaBase": "2021",
+   "meta2030": "99%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Análisis e Información para la Gestión. División de Gestión de la Red Asistencial"
+  },
+  {
+   "codigo": "3",
+   "nombre": "Proporción de personas de 65 años y más que ingresan al GES de neumonía adquirida en la comunidad de manejo ambulatorio que tienen confirmación diagnóstica dentro de las 48 horas desde la sospecha",
+   "formula": "(Número de personas de 65 años y más que ingresan al GES de Neumonía adquirida en la comunidad de manejo ambulatorio que tienen confirmación diagnóstica dentro de las 48 horas desde la sospecha / Número de personas de 65 años y más que ingresan al GES de Neumonía adquirida en la comunidad de manejo ambulatorio)*100",
+   "fuente": "SIGGES",
+   "lineaBase": "99%",
+   "anioLineaBase": "2021",
+   "meta2030": "99%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Análisis e Información para la Gestión. División de Gestión de la Red Asistencial"
+  }
+ ],
+ "1.5.3": [
+  {
+   "codigo": "1",
+   "nombre": "Cobertura de centros centinelas para el monitoreo de la circulación de virus que causan enfermedades respiratorias",
+   "formula": "(Número de personas inscritas en el centro centinela Etiológico Atención Primaria en Salud (respiratorio) / Número de personas beneficiarias FONASA) * 100",
+   "fuente": "Registros centinelas epidemiología.Instituto de Salud Pública/FONASA",
+   "lineaBase": "19%",
+   "anioLineaBase": "2021",
+   "meta2030": "20%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Epidemiología. División de Planificación Sanitaria"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Proporción de la población que se realiza screening a influenza mediante métodos moleculares",
+   "formula": "(Número de personas que ingresan a la vigilancia IRAG y se realiza screening a influenza mediante métodos moleculares / Número de personas ingresadas a vigilancia IRAG)*100",
+   "fuente": "Reporte entregado por el Departamento de Epidemiología",
+   "lineaBase": "76%",
+   "anioLineaBase": "2021",
+   "meta2030": "85%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Epidemiología. División de Planificación Sanitaria"
+  }
+ ],
+ "2.1.1": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de regiones que cuentan con registro poblacional de cáncer",
+   "formula": "(Número de regiones que cuentan con registro poblacional de cáncer / Número de regiones) * 100",
+   "fuente": "Reporte entregado por Oficina de Vigilancia de Cáncer. Departamento de Epidemiología",
+   "lineaBase": "31,3%",
+   "anioLineaBase": "2021",
+   "meta2030": "50%",
+   "periodicidad": "Anual",
+   "responsable": "Oficina de Vigilancia de Cáncer. Departamento de Epidemiología. División de Planificación Sanitaria"
+  }
+ ],
+ "2.1.2": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de población de 15 años con esquema completo de vacunación de VPH",
+   "formula": "(Población de 15 años con esquema completo de vacunación de VPH / Número de personas de 15 años) * 100",
+   "fuente": "Registro Nacional de Inmunizaciones (RNI)/Proyecciones de Población (INE)",
+   "lineaBase": "74%",
+   "anioLineaBase": "2020",
+   "meta2030": "90%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "2.1.3": [
+  {
+   "codigo": "1",
+   "nombre": "Cobertura de tamizaje de cáncer de cuello uterino en mujeres de 25 a 64 años",
+   "formula": "(Número de mujeres y trans masculinos de 25 a 64 años con tamizaje de cáncer de cuello uterino vigente / Número de mujeres de 25 a 64 años inscritas validada) * 100",
+   "fuente": "Resumen Estadístico Mensual. Departamento de Estadísticas e Información de Salud /Población inscrita validada",
+   "lineaBase": "44,8%",
+   "anioLineaBase": "2021",
+   "meta2030": "≥ 70%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Cobertura de tamizaje de cáncer de mama en mujeres de 50 a 69 años",
+   "formula": "(Número de mujeres de 50 a 69 años con tamizaje de cáncer de mama vigente / Número de mujeres de 50 a 69 años inscritas validadas) * 100",
+   "fuente": "Resumen Estadístico Mensual. Departamento de Estadísticas e Información de Salud /Población inscrita validada",
+   "lineaBase": "34,7%",
+   "anioLineaBase": "2021",
+   "meta2030": "≥ 70%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "2.1.4": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de cumplimiento de garantía de oportunidad de confirmación diagnóstica GES oncológicos",
+   "formula": "(Número de garantías de oportunidad cumplidas +exceptuadas de confirmación diagnóstica oncológicas / Número de garantías de oportunidad cumplidas + exceptuadas + incumplidas atendidas + incumplidas no atendidas + retrasadas acumuladas de confirmación diagnóstica oncológicas) * 100",
+   "fuente": "SIGGES",
+   "lineaBase": "70%",
+   "anioLineaBase": "2020",
+   "meta2030": "100%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de GES y Redes Integradas. División de Gestión de la Red Asistencial"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Porcentaje de cumplimiento garantía de oportunidad de inicio de tratamiento GES oncológicos",
+   "formula": "(Número de garantías de oportunidad cumplidas +exceptuadas de inicio de tratamiento oncológicas / Número de garantías de oportunidad cumplidas + exceptuadas +incumplidas atendidas + incumplidas no atendidas + etrasadas acumuladas de inicio de tratamiento oncológicas) * 100",
+   "fuente": "SIGGES",
+   "lineaBase": "83%",
+   "anioLineaBase": "2020",
+   "meta2030": "100%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de GES y Redes Integradas. División de Gestión de la Red Asistencial"
+  },
+  {
+   "codigo": "3",
+   "nombre": "Porcentaje de ingresos a rehabilitación integral por causa oncológica",
+   "formula": "(Número de ingresos a rehabilitación integral por causa oncológica en todos los grupos etarios / Estimación incidencia anual de cáncer en la población general) * 100",
+   "fuente": "GLOBOCAN",
+   "lineaBase": "12%",
+   "anioLineaBase": "2020",
+   "meta2030": "22%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Epidemiología. División de Planificación Sanitaria Departamento de Rehabilitación y Discapacidad. División de Prevención y Control de Enfermedades"
+  }
+ ],
+ "2.2.1": [
+  {
+   "codigo": "1",
+   "nombre": "Cobertura de prevención secundaria con estatinas en personas con antecedentes de enfermedad cardiovascular y cerebrovascular",
+   "formula": "(Número de personas bajo control con antecedente de enfermedad cardiovascular y cerebrovascular en tratamiento con estatinas/ Número de personas bajo control con antecedente de enfermedad cardiovascular y cerebrovascular)*100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud",
+   "lineaBase": "52,9%",
+   "anioLineaBase": "2021",
+   "meta2030": "80%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Cobertura de prevención secundaria con antiagregante plaquetario en personas con antecedente de enfermedad cardiovascular y cerebrovascular",
+   "formula": "(Número de personas bajo control con antecedente de enfermedad cardiovascular y cerebrovascular en tratamiento con antiagregante plaquetario / Número de personas bajo control con antecedente de enfermedad cardiovascular y cerebrovascular)* 100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud",
+   "lineaBase": "45,7%",
+   "anioLineaBase": "2021",
+   "meta2030": "70%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "2.2.2": [
+  {
+   "codigo": "1",
+   "nombre": "Cobertura efectiva de hipertensión arterial en atención primaria",
+   "formula": "(Número de personas bajo control programa de salud cardiovascular de 15 a 79 años con presión arterial < 140/90 mmHg y número de personas con hipertensión de 80 y más años con presión arterial <150/90 mmHg, según último control vigente / Número de personas de 15 años y más con hipertensión arterial, inscrita y validada, esperada según prevalencia) * 100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud/Población inscrita validada",
+   "lineaBase": "34,4%",
+   "anioLineaBase": "2021",
+   "meta2030": "80%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Tasa de hospitalizaciones por hipertensión arterial",
+   "formula": "(Número de personas de 15 años y más egresadas por hipertesión arterial / Número de personas de 15 años y más proyectada) * 100.000",
+   "fuente": "Egresos hospitalarios. Departamento de Estadísticas e Información de Salud/Proyección poblaciones INE",
+   "lineaBase": "22,5 por 100.000 habitantes",
+   "anioLineaBase": "2021",
+   "meta2030": "12,4 por 100.000 habitantes",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "2.2.3": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de personas que se hospitalizaron por ataque cerebrovascular isquémico, que recibieron trombólisis intravenosa y/o trombectomía mecánica",
+   "formula": "(Número de personas egresadas por accidente cerebrovascular isquémico que recibieron tratamiento de trombolisis intravenosa o trombectomía mecánica / Número de personas egresadas por accidente cerebrovascular isquémico) * 100",
+   "fuente": "Grupo relacionado a diagnóstico (GRD)",
+   "lineaBase": "8,7%",
+   "anioLineaBase": "2021",
+   "meta2030": "12%",
+   "periodicidad": "Anual",
+   "responsable": "División de Gestión de la Red Asistencial"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Porcentaje de personas que se hospitalizaron por infarto agudo de miocardio (IAM) con supradesnivel del segmento ST, que recibieron trombólisis intravenosa o angioplastia",
+   "formula": "(Número de personas que egresaron por infarto agudo al miocardio con supradesnivel del segmento ST que recibieron trombólisis intravenosa o angioplastia / Número de personas que egresaron por infarto agudo al miocardio con supradesnivel del segmento ST) * 100",
+   "fuente": "Grupo relacionado a diagnóstico (GRD)",
+   "lineaBase": "100%",
+   "anioLineaBase": "2021",
+   "meta2030": "100%",
+   "periodicidad": "Anual",
+   "responsable": "División de Gestión de la Red Asistencial"
+  }
+ ],
+ "2.2.4": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de cobertura de rehabilitación en atención cerrada en personas hospitalizadas por enfermedades cardíacas",
+   "formula": "(Número de personas que ingresan a rehabilitación por enfermedad cardiaca en atención cerrada (camas medias y básicas) / Número de personas egresadas de hospitalización por enfermedades cardíacas)* 100",
+   "fuente": "Resumen estadístico mensual/Egresos hospitalarios. Departamento de Estadísticas e Información de Salud",
+   "lineaBase": "15,8%",
+   "anioLineaBase": "2021",
+   "meta2030": "30%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Porcentaje de cobertura de rehabilitación en atención cerrada en personas hospitalizadas por ataque cerebrovascular (ACV)",
+   "formula": "(Número de personas que ingresan a rehabilitación por ACV en atención cerrada (camas medias y básicas) / Número de personas egresadas de hospitalización por ACV)* 100",
+   "fuente": "Resumen estadístico mensual/Egresos hospitalarios. Departamento de Estadísticas e Información de Salud",
+   "lineaBase": "66%",
+   "anioLineaBase": "2021",
+   "meta2030": "90%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "2.3.1": [
+  {
+   "codigo": "1",
+   "nombre": "Cobertura efectiva de diabetes mellitus 2 en personas de 15 y más años, en atención primaria de salud",
+   "formula": "(Número de personas con diabetes mellitus 2, bajo control programa salud cardiovascular, de 15 a 79 años con HbA1c bajo 7% y personas con diabetes mellitus 2 de 80 años y más con HbA1c bajo 8%, según último control vigente, en los ultimos 12 meses / Número de personas con diabetes mellitus 2 de 15 y más años inscrita validada, esperados según prevalencia por grupo etario) * 100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud/Población inscrita validada /Encuesta Nacional de Salud",
+   "lineaBase": "21,8%",
+   "anioLineaBase": "2021",
+   "meta2030": "80%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "2.3.2": [
+  {
+   "codigo": "1",
+   "nombre": "Tasa observada de hospitalizaciones evitables",
+   "formula": "(Número de egresos hospitalarios en mayores de 15 y más años con el diagnóstico principal de diabetes (CIE-10: E10-E14) / Número de personas de 15 y más años proyectadas INE )*100.000",
+   "fuente": "Egresos hospitalarios. Departamento de Estadísticas e Información de Salud/ Población proyectada INE",
+   "lineaBase": "121,2 por 100.000 habitantes de 15 y más años",
+   "anioLineaBase": "2019",
+   "meta2030": "97,6 por 100.000 habitantes de 15 y más años",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Tasa de amputación por diabetes mellitus tipo 2",
+   "formula": "(Número de egresos hospitalarios por amputaciones relacionadas a diabetes mellitus en personad de 15 y más años / Número de personas de 15 y más años proyectadas INE) * 100.000",
+   "fuente": "Egresos hospitalarios. Departamento de Estadísticas e Información de Salud/Población proyectada INE",
+   "lineaBase": "22,6 por 100.000 habitantes",
+   "anioLineaBase": "2019",
+   "meta2030": "20,3 por 100.000 habitantes",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "2.3.3": [
+  {
+   "codigo": "1",
+   "nombre": "Cobertura de fondo de ojo en personas con diabetes mellitus tipo 2",
+   "formula": "(Número de personas bajo control con diabetes mellitus 2 con examen fondo de ojo anual vigente / Número de personas bajo control con diabetes mellitus 2) * 100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud",
+   "lineaBase": "27%",
+   "anioLineaBase": "2021",
+   "meta2030": "≥ 80%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Cobertura de estratificación de riesgo de ulceración en personas con diabetes mellitus tipo 2",
+   "formula": "(Número de personas bajo control con diabetes mellitus 2 con estratificación de riesgo de ulceración vigente/ Número de personas bajo control con diabetes mellitus 2) * 100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud",
+   "lineaBase": "63%",
+   "anioLineaBase": "2021",
+   "meta2030": "≥ 90%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  },
+  {
+   "codigo": "3",
+   "nombre": "Cobertura de ECG vigente en personas con diabetes mellitus tipo 2",
+   "formula": "(Número de personas bajo control con diabetes mellitus 2 con ECG vigente/ Número de personas bajo control con diabetes mellitus 2) * 100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud",
+   "lineaBase": "28,6%",
+   "anioLineaBase": "2021",
+   "meta2030": "≥ 80%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "2.4.1": [
+  {
+   "codigo": "1",
+   "nombre": "Plan anual de estrategia comunicacional respecto a enfermedades no transmisibles en SEREMIs y Servicios de Salud",
+   "formula": "(Número de Servicios de Salud y SEREMIs con plan anual de estrategia comunicacional respecto a enfermedades no transmisibles, incorporando al menos ERC, DM, HTA, IAM, ACV, elaborado e implementado de manera conjunta / Número de Servicios de Salud y SEREMIs) * 100",
+   "fuente": "Reporte entregado por Departamento de Enfermedades No Transmisibles",
+   "lineaBase": "24%",
+   "anioLineaBase": "2022",
+   "meta2030": "100%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Enfermedades No Transmisibles. División de Prevención y Control de Enfermedades"
+  }
+ ],
+ "2.4.2": [
+  {
+   "codigo": "1",
+   "nombre": "Cobertura de tamizaje de enfermedad renal crónica en pacientes con DM tipo 2 bajo control",
+   "formula": "(Número de personas con diabetes mellitus tipo 2 bajo control en el programa de salud cardiovascular que tienen un examen de velocidad de filtración glomerular estimada (VFGe) y razón albúmina creatinina (RAC) vigente / Número de personas con diabetes mellitus tipo 2 bajo control en el programa de salud cardiovascular) * 100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria",
+   "lineaBase": "57%",
+   "anioLineaBase": "2022",
+   "meta2030": "90%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "2.4.3": [
+  {
+   "codigo": "1",
+   "nombre": "Cobertura de atención de telenefrología en personas con enfermedad renal crónica etapa 3 b",
+   "formula": "(Número de personas con enfermedad renal crónica etapa 3b que recibieron atención de telenefrología / Número de personas con enfermedad renal crónica etapa 3b) * 100",
+   "fuente": "Base de datos de control de gestión Departamento de Salud Digital",
+   "lineaBase": "3,2%",
+   "anioLineaBase": "2021",
+   "meta2030": "≥ 16%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Salud Digital. Subsecretaría de Redes Asitenciales Departamento de Enfermedades No Transmisibles. División de Prevención y Control de Enfermedades"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Cobertura de tratamiento con IECA o ARA II en personas con enfermedad renal crónica y diabetes mellitus tipo 2 que están bajo control en el programa de salud cardiovascular en atención primaria de salud",
+   "formula": "(Número de personas bajo control en el programa de salud cardiovascular con diabetes mellitus tipo 2 y enfermedad renal crónica en tratamiento farmacológico con IECA o ARA II / Número de personas bajo control en el programa de salud cardiovascular con diabetes mellitus tipo 2 y enfermedad renal crónica) * 100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria",
+   "lineaBase": "Se calculará durante el 2025",
+   "anioLineaBase": "Se calculará durante el 2025",
+   "meta2030": "80%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "2.5.1": [
+  {
+   "codigo": "1",
+   "nombre": "Cobertura de vacunación para la influenza en personas con asma (15 años y más) y EPOC (40 años y más)",
+   "formula": "(Número de personas con asma (15 años y más) y EPOC (40 años y más) vacunadas contra la influenza/ Número de personas con asma (15 años y más) y EPOC (40 años y más)) * 100",
+   "fuente": "Registro Nacional de Inmunización SIGGES",
+   "lineaBase": "67,1%",
+   "anioLineaBase": "2021",
+   "meta2030": "85%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Cobertura de vacunación polisacarida 23 valente en personas de 65 años y más con asma y EPOC",
+   "formula": "(Número de personas de 65 años y más con asma y EPOC vacunados con polisacarida 23 valente/ Número de personas de 65 años y más con asma y EPOC)*100",
+   "fuente": "Registro Nacional de Inmunización SIGGES",
+   "lineaBase": "66,2%",
+   "anioLineaBase": "2021",
+   "meta2030": "85%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "2.5.2": [
+  {
+   "codigo": "1",
+   "nombre": "Cobertura efectiva de enfermedades respiratorias crónicas (asma y EPOC) en atención primaria",
+   "formula": "(Número de personas con EPOC ≥ 40 años más el número de personas con asma ≥ 5 años bajo control en el programa de salud respiratoria de atención primaria compensadas/ Número de personas con EPOC ≥ 40 años más el número de personas con asma ≥ 5 años esperadas según prevalencia en población inscrita y validada) * 100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud/Población inscrita validada",
+   "lineaBase": "10,8%",
+   "anioLineaBase": "2021",
+   "meta2030": "≥ 22%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "2.5.3": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje personas con diagnóstico de EPOC que finalizan programa de rehabilitación pulmonar en sala IRA-ERA",
+   "formula": "(Número de personas de 40 años y más con diagnostico de EPOC que se encuentran bajo control en el programa de salud respiratoria (IRA/ERA), que han finalizado el programa de Rehabilitación Pulmonar (“egreso por término de ciclo”) / Número de personas de 40 años y más con diagnóstico de EPOC A, que se encuentran bajo control en el programa de enfermedades respiratorias del adulto) * 100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud",
+   "lineaBase": "1,4%",
+   "anioLineaBase": "2021",
+   "meta2030": "≥ 5%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "2.6.1": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de estudiantes con diagnóstico de escoliosis y dorso curvo ingresados al programa de servicios médicos de JUNAEB",
+   "formula": "(Número de estudiantes atendidos por médico traumatólogo al ingreso del programa diagnosticados con escoliosis y/o dorso curvo / Número de estudiantes atendidos por traumatólogo al ingreso del programa) * 100",
+   "fuente": "Plataforma iInformáticas JUNAEB",
+   "lineaBase": "2,3%",
+   "anioLineaBase": "2019",
+   "meta2030": "3,0%",
+   "periodicidad": "Anual",
+   "responsable": "JUNAEB"
+  }
+ ],
+ "2.6.2": [
+  {
+   "codigo": "1",
+   "nombre": "Tasa de ingresos a rehabilitación en APS por condiciones de salud musculoesquelético que causan dolor, en población de 15 y más años",
+   "formula": "(Número de ingresos a rehabilitación por condiciones musculoesqueléticas de 15 y más años / Número de personas inscrita validada de 15 y más años) * 100.000",
+   "fuente": "Resumen estadístico mensual/ Población inscrita validada",
+   "lineaBase": "1.589 por 100.000 inscritos de 15 y más años",
+   "anioLineaBase": "2019",
+   "meta2030": "1.986 por 100.000 inscritos de 15 y más años",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "2.6.3": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de personas con diagnóstico médico de origen musculoesquelético que presentan más de 60 días de reposo laboral otorgados en el último año",
+   "formula": "(Número de personas con diagnósticos médicos de origen musculoesquelético que presentan más de 60 días de reposo laboral otorgados en el último año / Número de personas con diagnósticos médicos de origen musculoesqueléticos en el último año) * 100",
+   "fuente": "Reporte Comisión de Medicina Preventiva e Invalidez (COMPIN)",
+   "lineaBase": "8,7%",
+   "anioLineaBase": "2022",
+   "meta2030": "≤ 7%",
+   "periodicidad": "Anual",
+   "responsable": "COMPIN Nacional"
+  }
+ ],
+ "2.7.1": [
+  {
+   "codigo": "1",
+   "nombre": "Tasa de horas médicas y profesionales de salud mental de especialidad ambulatoria por población beneficiaria",
+   "formula": "(Sumatoria de horas programadas médicos psiquiatras y profesionales no médicos en cada centro de especialidad ambulatoria / Número de personas beneficiarias FONASA) * 50.000",
+   "fuente": "Información Servicios de Salud/Población beneficiaria FONASA",
+   "lineaBase": "380 por 50.000 beneficiarios FONASA",
+   "anioLineaBase": "2022",
+   "meta2030": "500 por 50.000 beneficiarios FONASA",
+   "periodicidad": "Anual",
+   "responsable": "Departamento GES y Redes Integradas. División de Gestión de la Red Asistencial"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Promedio anual de consultorías de salud mental efectuadas por establecimientos de salud",
+   "formula": "(Número de actividades de consultorías de salud mental recibidas/ Número de establecimientos que reciben consultorías de salud mental)",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud",
+   "lineaBase": "13 consultorías por establecimiento",
+   "anioLineaBase": "2021",
+   "meta2030": "19 consultorías por establecimiento",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "2.7.2": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de regiones que desarrollan instancias de salud mental participativas",
+   "formula": "(Número de regiones que desarrollan instancias de salud mental participativas / Número de regiones) * 100",
+   "fuente": "Reporte Departamento de Salud Mental",
+   "lineaBase": "100%",
+   "anioLineaBase": "2021",
+   "meta2030": "100%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Salud Mental. División de Prevención y Control de Enfermedades"
+  }
+ ],
+ "2.7.3": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de regiones que tienen establecimientos de atención primaria de salud que implementan estrategias de reducción del estigma hacia la salud mental, dirigidas a trabajadores de salud",
+   "formula": "(Número de regiones que tienen establecimientos de APS que implementan estrategias de reducción del estigma hacia la salud mental en trabajadores de salud / Número de regiones) *100",
+   "fuente": "Reporte Departamento de Salud Mental",
+   "lineaBase": "0%",
+   "anioLineaBase": "2021",
+   "meta2030": "50%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Salud Mental. División de Prevención y Control de Enfermedades"
+  }
+ ],
+ "2.8.1": [
+  {
+   "codigo": "1",
+   "nombre": "Prevalencia de uso de pasta dental con flúor dos o más veces al día en población de 15 o más años",
+   "formula": "(Número de personas de 15 o más años con una frecuencia de uso de pasta dental con flúor de dos o más veces al día / Número de personas de 15 y más años encuestada) * 100",
+   "fuente": "Encuesta Nacional de Salud y Calidad de Vida (ENCAVI)",
+   "lineaBase": "Incluida en ENCAVI 2024",
+   "anioLineaBase": "Incluida en ENCAVI 2024",
+   "meta2030": "≥ 70%",
+   "periodicidad": "Cada 5 años",
+   "responsable": "Departamento de Epidemiología. División de Planificación Sanitaria"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Porcentaje de población infantil (0 a 9 años) en control odontológico con bajo riesgo de caries",
+   "formula": "(Número de personas de 0 a 9 en control odontológico con bajo riesgo de caries / Número de personas de 0 a 9 en evaluación de riesgo odontológico) * 100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud",
+   "lineaBase": "47,7%",
+   "anioLineaBase": "2021",
+   "meta2030": "≥ 55%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  },
+  {
+   "codigo": "3",
+   "nombre": "Porcentaje de población adolescente (10 a 19 años) en control odontológico con bajo riesgo de caries",
+   "formula": "(Número de personas de 10 a 19 años en control odontológico con bajo riesgo de caries / Número de personas de 10 a 19 años en en evaluación de riesgo odontológico) * 100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud",
+   "lineaBase": "29,7%",
+   "anioLineaBase": "2021",
+   "meta2030": "≥ 30%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "2.8.2": [
+  {
+   "codigo": "1",
+   "nombre": "Prevalencia de visita al odontólogo en el último año en población de 15 o más años",
+   "formula": "(Número de personas de 15 o más años que han visitado al odontólogo en el último año / Número de personas de 15 o más años encuestadas) * 100",
+   "fuente": "Encuesta Nacional de Salud (ENS)",
+   "lineaBase": "45,6%",
+   "anioLineaBase": "2017",
+   "meta2030": "≥ 49%",
+   "periodicidad": "Cada 5 años",
+   "responsable": "Departamento de Epidemiología. División de Planificación Sanitaria"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Cobertura de necesidad de atención odontológica resuelta en población de 15 o más años en los últimos 6 meses",
+   "formula": "(Número de personas de 15 o más años que recibió atención odontológica en los últimos 6 meses / Número de personas de 15 años o más que necesitó atención odontológica en los últimos 6 meses) * 100",
+   "fuente": "Encuesta Nacional de Salud (ENS)",
+   "lineaBase": "57,5%",
+   "anioLineaBase": "2017",
+   "meta2030": "≥ 64%",
+   "periodicidad": "Cada 5 años",
+   "responsable": "Departamento de Epidemiología. División de Planificación Sanitaria"
+  },
+  {
+   "codigo": "3",
+   "nombre": "Cobertura de examen de salud bucal (medido por registro COPD/ceod) en población infantil (0 a 9 años) inscrita validada",
+   "formula": "(Número de personas de 0 a 9 años inscrita validada que se han sometido a un examen de salud bucal (medido por registro COPD/ceod) / Número de personas inscritas validadas de 0 a 9 años) * 100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud/Población inscrita validada",
+   "lineaBase": "28,2%",
+   "anioLineaBase": "2021",
+   "meta2030": "≥ 50%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  },
+  {
+   "codigo": "4",
+   "nombre": "Cobertura de examen de salud bucal (medido por registro COPD/ceod) en población adolescente (10 a 19) inscrita validada",
+   "formula": "(Número de personas de 10 a 19 años inscrita validada que se han sometido a un examen de salud bucal (medido por registro COPD/ceod) / Número de personas inscritas validadas de 10 a 19 años) * 100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud/Población inscrita validada FONASA",
+   "lineaBase": "9,1%",
+   "anioLineaBase": "2021",
+   "meta2030": "≥ 20%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  },
+  {
+   "codigo": "5",
+   "nombre": "Cobertura de examen de salud bucal (medido por registro COPD/ceod) en población adulta (20 a 64 años) inscrita validada",
+   "formula": "(Número de personas de 20 a 64 años inscrita validada que se han sometido a un examen de salud bucal (medido por registro COPD/ceod) / Número de personas inscritas validadas de 20 a 64 años) * 100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud/Población inscrita validada FONASA",
+   "lineaBase": "1,7%",
+   "anioLineaBase": "2021",
+   "meta2030": "≥ 7%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  },
+  {
+   "codigo": "6",
+   "nombre": "Cobertura de examen de salud bucal (medido por registro COPD/ceod) en población adulta mayor (65 y más) inscrita validada",
+   "formula": "(Número de personas de 65 y más años inscrita validada que se han sometido a un examen de salud bucal (medido por registro COPD/ceod) / Número de personas inscritas validadas de 65 y más años) * 100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud/Población inscrita validada FONASA",
+   "lineaBase": "1,0%",
+   "anioLineaBase": "2021",
+   "meta2030": "≥ 7%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "2.9.1": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de personas con discapacidad que utiliza ayudas técnicas de movilidad y preservación de tejidos (muleta o bastón, andadores, silla de ruedas, cojines y/o colchones antiescaras)",
+   "formula": "(Número de personas con discapacidad que utiliza ayudas técnicas de movilidad y preservación de tejidos (muleta o bastón, andadores, silla de ruedas, cojines y/o colchones antiescaras) / Número de personas con discapacidad encuestadas) * 100",
+   "fuente": "Estudio Nacional de la Discapacidad. Servicio Nacional de la Discapacidad",
+   "lineaBase": "31,5%",
+   "anioLineaBase": "2022",
+   "meta2030": "32,8%",
+   "periodicidad": "Cada 7 años",
+   "responsable": "Servicio Nacional de la Discapacidad"
+  }
+ ],
+ "2.9.2": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de mujeres de 15 y más años con discapacidad que cuentan con tamizaje vigente para cáncer cervicouterino",
+   "formula": "(Número de mujeres de 15 y más años con discapacidad que cuentan con tamizaje vigente para cáncer cervicouterino / Número de mujeres de 15 y más años con discapacidad) * 100",
+   "fuente": "Encuesta Nacional de Salud y Sexualidad Encuesta Nacional de Salud",
+   "lineaBase": "70,4%",
+   "anioLineaBase": "2024",
+   "meta2030": "≥ 80%",
+   "periodicidad": "Cada 5 años",
+   "responsable": "Departamento de Epidemiología. División de Planificación Sanitaria"
+  }
+ ],
+ "2.9.3": [
+  {
+   "codigo": "1",
+   "nombre": "Cobertura programa de atención a la dependencia severa",
+   "formula": "(Número de personas de 20 y más años con dependencia severa que forman parte del programa de atención domicialiaria de dependencia severa /Número de personas de 20 y más años con dependencia severa) * 100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud/ Encuesta Nacional de Discapacidad y Dependencia",
+   "lineaBase": "33%",
+   "anioLineaBase": "2023",
+   "meta2030": "≥ 40%",
+   "periodicidad": "Cada 5 años",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria Departamento de Rehabilitación y Discapacidad. División de Prevención y Control de Enfermedades"
+  }
+ ],
+ "2.10.1": [
+  {
+   "codigo": "1",
+   "nombre": "Proporción de niños y niñas con MCHAT- R/F alterado que ingresan a tratamiento con diagnóstico de Trastorno del Espectro Autista",
+   "formula": "(Número de niños y niñas con M-CHAT-R/F alterado / Número de niños y niñas que ingresan a tratamiento con diagnóstico de Trastorno del Espectro Autista) * 100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud",
+   "lineaBase": "Por calcular 2025",
+   "anioLineaBase": "Por calcular 2025",
+   "meta2030": "60%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "2.10.2": [
+  {
+   "codigo": "1",
+   "nombre": "Contar con un modelo de atención integral para personas con enfermedades poco frecuentes, raras o huérfanas en los distintos niveles de atención y en los establecimientos públicos y privados",
+   "formula": "Existencia del modelo de atención (Sí / No)",
+   "fuente": "Reporte Oficina Nacional de Condiciones Crónicas Complejas y Enfermedades Poco Frecuentes",
+   "lineaBase": "No existe modelo",
+   "anioLineaBase": "2021",
+   "meta2030": "Modelo de atención creado e implementado",
+   "periodicidad": "Una vez finalizando la década",
+   "responsable": "Oficina Nacional de Condiciones Crónicas Complejas y Enfermedades Poco Frecuentes. División de Prevención y Control de Enfermedades"
+  }
+ ],
+ "2.10.3": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de personas con artritis reumatoide que accede a servicios de rehabilitación",
+   "formula": "(Número de ingresos a rehabilitación por artritis reumatoide/Número de personas con diagnóstico de artritis reumatoide en tratamiento) * 100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud/SIGGES",
+   "lineaBase": "4%",
+   "anioLineaBase": "2023",
+   "meta2030": "7%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria Departamento de Análisis e Información para la Gestión. División de Gestión de la Red Asistencial"
+  }
+ ],
+ "2.10.4": [
+  {
+   "codigo": "1",
+   "nombre": "Tasa nacional de trasplantes de órganos sólidos",
+   "formula": "(Número total de trasplantes de órganos sólidos / Número de personas proyectadas INE) * 1.000.000",
+   "fuente": "Sistema Integrado de Donación y Trasplante SIDOT",
+   "lineaBase": "28 por millón de habitantes",
+   "anioLineaBase": "2019",
+   "meta2030": "32,2 por millón de habitantes",
+   "periodicidad": "Anual",
+   "responsable": "Coordinación Nacional de Donación, Procuramiento y Trasplantes de Órganos y Tejidos"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Tasa de donantes efectivos en muerte encefálica",
+   "formula": "(Número de donantes efectivos en muerte encefálica / Número de personas proyectadas INE) * 1.000.000",
+   "fuente": "Sistema Integrado de Donación y Trasplante SIDOT",
+   "lineaBase": "10,4 donantes por millón de habitantes",
+   "anioLineaBase": "2019",
+   "meta2030": "18 donantes por millón de habitantes",
+   "periodicidad": "Anual",
+   "responsable": "Coordinación Nacional de Donación, Procuramiento y Trasplantes de Órganos y Tejidos"
+  }
+ ],
+ "3.1.1": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje del uso de sistemas de retención infantiles",
+   "formula": "(Número de niños que utilizan sistemas de retención infantiles / Número de niños en la población objetivo) * 100",
+   "fuente": "Reporte entregado por la Comisión Nacional de Seguridad de Tránsito",
+   "lineaBase": "33%",
+   "anioLineaBase": "2021",
+   "meta2030": "75%",
+   "periodicidad": "Cada 3 años",
+   "responsable": "Comisión Nacional de Seguridad de Tránsito"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Porcentaje de controles negativos de drogas",
+   "formula": "(Número de control de drogas negativos / Número de control de drogas realizado) * 100",
+   "fuente": "Reportes entregados por Servicio Nacional para la Prevención y Rehabilitación del Consumo de Drogas y Alcohol (SENDA)",
+   "lineaBase": "78%",
+   "anioLineaBase": "2021",
+   "meta2030": "90%",
+   "periodicidad": "Trienal",
+   "responsable": "Servicio Nacional para la Prevención y Rehabilitación del Consumo de Drogas y Alcohol (SENDA)"
+  },
+  {
+   "codigo": "3",
+   "nombre": "Porcentaje de uso de sistemas de retención (cinturón de seguridad conductor)",
+   "formula": "(Número de conductores que utilizan cinturón de seguridad / Número de conductores) * 100",
+   "fuente": "Reporte entregado por la Comisión Nacional de Seguridad de Tránsito",
+   "lineaBase": "86%",
+   "anioLineaBase": "2021",
+   "meta2030": "95%",
+   "periodicidad": "Trienal",
+   "responsable": "Comisión Nacional de Seguridad de Tránsito"
+  },
+  {
+   "codigo": "4",
+   "nombre": "Porcentaje de uso de casco en conductor de moto",
+   "formula": "(Número de conductores de moto que utilizan casco / Número de conductores de moto) * 100",
+   "fuente": "Reporte entregado por la Comisión Nacional de Seguridad de Tránsito",
+   "lineaBase": "95%",
+   "anioLineaBase": "2021",
+   "meta2030": "99%",
+   "periodicidad": "Trienal",
+   "responsable": "Comisión Nacional de Seguridad de Tránsito"
+  }
+ ],
+ "3.1.2": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de llamadas contestadas antes de 10 segundos",
+   "formula": "(Número llamadas contestadas antes de 10 segundos / Número de llamadas recibidas en centro regulador o call center de emergencia) * 100",
+   "fuente": "Reportes entregados por el Servicio de Atención Médica de Urgencia",
+   "lineaBase": "76%",
+   "anioLineaBase": "2021",
+   "meta2030": "90%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento Red de Urgencia, Atención Cerrada y Proceso Quirúrgico. División de Gestión de la Red Asistencial"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Tasa de ambulancias de rescate por población",
+   "formula": "(Número de ambulancias de rescate básico / Número de habitantes país) * 50.000 habitantes (Número de ambulancias de rescate avanzado / Número de habitantes país) * 70.000 habitantes",
+   "fuente": "Reporte entregado por el Servicio de Atención Médica de Urgencia/Población proyectada INE",
+   "lineaBase": "Ambulancias rescate básico 1 cada 98.178 habitantes Ambulancias rescate avanzado 1 cada 128.277 habitantes",
+   "anioLineaBase": "2021",
+   "meta2030": "1 ambulancia de rescate básico cada 50.000 habitantes 1 ambulancia de rescate avanzado cada 70.000 habitantes",
+   "periodicidad": "Anual",
+   "responsable": "Departamento Red de Urgencia, Atención Cerrada y Proceso Quirúrgico. División de Gestión de la Red Asistencial"
+  }
+ ],
+ "3.1.3": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de eventos hospitalarios (egresos) con diagnóstico de accidente de tránsito cuya condición al momento de egreso es vivo",
+   "formula": "(Número de eventos hospitalarios (egresos) con diagnóstico de accidente de tránsito cuya condición al momento del egreso es vivo/ Número de eventos hospitalarios (egresos) con diagnóstico de accidente de tránsito) * 100",
+   "fuente": "Egresos Hospitalarios. Departamento De Estadística e Información de Salud",
+   "lineaBase": "0.98",
+   "anioLineaBase": "2021",
+   "meta2030": "98%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadística e Información de Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "3.2.1": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de comunas que cuentan con gestoras comunitarias en salud para el abordaje de las violencias de género",
+   "formula": "(Número de comunas que cuentan con gestoras comunitarias en salud para el abordaje de las violencias de género/ Número de comunas) * 100",
+   "fuente": "Registro Departamento de DD.HH y Género",
+   "lineaBase": "7,2%",
+   "anioLineaBase": "2024",
+   "meta2030": "33%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de DDHH y Género. Gabinete Ministerial"
+  }
+ ],
+ "3.2.2": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de personas usuarias categorizadas como C2 al consultar por violencia de género en los servicios de urgencia (UEH, SAPU, SAR, SUR) del país",
+   "formula": "(Número de personas usuarias que se ingresan en la Red de Urgencias APS y hospitalarias cuyas atenciones se asocien a códigos CIE-10 X85 -Y09, y son categorizadas como C2 /Número de personas usuarias cuyas atenciones se asocien a códigos CIE-10 X85 -Y09) * 100",
+   "fuente": "Plataforma Convergente datos de urgencia",
+   "lineaBase": "Se calculará durante el 2025",
+   "anioLineaBase": "Se calculará durante el 2025",
+   "meta2030": "100%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento Red de Urgencia. División de Gestión de Redes Asistenciales"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Porcentaje de personas atendidas por agresión sexual aguda dentro de 72 horas en servicios de urgencias",
+   "formula": "(Número de personas atendidas en Servicios Urgencias por violencia sexual dentro de 72 horas o menos/Número de personas atendidas por violencia sexual) *100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud",
+   "lineaBase": "76,7%",
+   "anioLineaBase": "2020",
+   "meta2030": "≥ 90%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento Estadísticas e Información en Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "3.3.1": [
+  {
+   "codigo": "1",
+   "nombre": "Proporción de servicios de urgencias que cuentan con capacidad de notificación en sistema nacional de vigilancia de lesiones autoinfligidas e intentos por suicidio",
+   "formula": "(Número de servicios de urgencias que cuentan con la capacidad de notificación en el sistema nacional de vigilancia de lesiones autoinfligidas e intentos por suicidio / Número de servicios de urgencias)*100",
+   "fuente": "Vigilancia Lesiones Auto Infligidas (LAIN)",
+   "lineaBase": "86%",
+   "anioLineaBase": "2024",
+   "meta2030": "100%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Epidemiología. División de Planificación Sanitaria"
+  }
+ ],
+ "3.3.2": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de notificaciones en el sistema de gestión en ideación o intento de suicidio (SIGIIS) gestionadas por la red asistencial de salud (APS y SM especialidad ambulatoria)",
+   "formula": "(Número de notificaciones SIGIIS gestionadas por la red asistencial de salud (APS) y salud mental especialidad ambulatoria) / Número de notificaciones SIGIIS recibidas) * 100",
+   "fuente": "Sistema de Gestión en Ideación o Intento Suicida de Hospital Digital (SIGIIS)",
+   "lineaBase": "51,3%",
+   "anioLineaBase": "2024",
+   "meta2030": "90%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Salud Digital. Subsecretaría de Redes Asistenciales"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Porcentaje de personas usuarias en riesgo de suicidio categorizadas como C2 en servicios de urgencia",
+   "formula": "(Número de personas usuarias con riesgo suicida categorizadas C2 en la Red de Urgencias hospitalaria y de atención primaria /Número de personas usuarias con riesgo suicida sin categorización C1 que consultan en las Red de Urgencias hospitalaria y de atención primaria) *100",
+   "fuente": "Plataforma Convergente datos de urgencia",
+   "lineaBase": "36,2%",
+   "anioLineaBase": "2024",
+   "meta2030": "95%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento Red de Urgencia. División de Gestión de Redes Asistenciales"
+  },
+  {
+   "codigo": "3",
+   "nombre": "Porcentaje de actores clave comunitarios capacitados en detección y primera respuesta a personas en riesgo suicida que obtienen más del 60% en la evaluación final",
+   "formula": "(Número de actores clave comunitarios capacitados en detección y primera respuesta a personas en riesgo suicida que obtienen más del 60% en la evaluación final / Número de actores clave comunitarios capacitados en detección y primera respuesta a personas en riesgo suicida) * 100",
+   "fuente": "Registro monitoreo de capacitación a actores comunitarios del Programa Nacional de Prevención del Suicidio",
+   "lineaBase": "Se calculará durante 2025",
+   "anioLineaBase": "Se calculará durante 2025",
+   "meta2030": "85%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Salud Mental. División de Prevención y Control de Enfermedades"
+  }
+ ],
+ "4.1.1": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de personas que consideran su barrio o vecindario, como un lugar bueno o muy bueno para vivir",
+   "formula": "(Número de personas que consideran su barrio o vecindario como un lugar bueno o muy bueno para vivir / Número de personas encuestadas) * 100",
+   "fuente": "Encuesta Nacional de Calidad de Vida y Salud (ENCAVI)",
+   "lineaBase": "75,4%",
+   "anioLineaBase": "2016",
+   "meta2030": "Mayor a 75,4%",
+   "periodicidad": "Cada 5 años",
+   "responsable": "Departamento de Epidemiología. División de Planificación Sanitaria"
+  }
+ ],
+ "4.1.2": [
+  {
+   "codigo": "1",
+   "nombre": "Prevalencia de consumo de legumbres en personas de 15 y más años",
+   "formula": "(Número de personas de 15 años y más que declaran un consumo de legumbres de al menos 2 veces por semana/ Número de personas de 15 años y más encuestadas) *100",
+   "fuente": "Encuesta Nacional de Salud (ENS)",
+   "lineaBase": "24,4%",
+   "anioLineaBase": "2017",
+   "meta2030": "Mayor a 24,4%",
+   "periodicidad": "Cada 5 años",
+   "responsable": "Departamento de Epidemiología. División de Planificación Sanitaria"
+  }
+ ],
+ "4.1.3": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de personas que participa activamente en organizaciones asociadas a salud",
+   "formula": "(Número de personas que participan activa o frecuentemente en grupos de autoayuda en salud/ Número de personas encuestadas) *100",
+   "fuente": "Encuesta Nacional de Calidad de Vida y Salud (ENCAVI)",
+   "lineaBase": "1,5%",
+   "anioLineaBase": "2016",
+   "meta2030": "≥ 10%",
+   "periodicidad": "Cada 5 años",
+   "responsable": "Departamento de Epidemiología. División de Planificación Sanitaria"
+  }
+ ],
+ "4.1.4": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de personas que poseen examen de medicina preventiva vigente",
+   "formula": "(Número de personas inscritas de 20 a 64 años con examen de medicina preventiva vigente / Número de personas inscritas validadas de 20 a 64 años) *100",
+   "fuente": "Resumen Estadístico Mensual. Departamento de Estadísticas e Información de Salud/ Población inscrita y validada",
+   "lineaBase": "4%",
+   "anioLineaBase": "2021",
+   "meta2030": "≥ 25%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "4.2.1": [
+  {
+   "codigo": "1",
+   "nombre": "Edad promedio de inicio de consumo de tabaco en Chile",
+   "formula": "(Suma de edad de inicio de consumo de tabaco / Número de personas encuestadas)",
+   "fuente": "Estudio Nacional de Drogas en Población Escolar de Chile, 8º Básico a 4º Medio (ENDPE). Servicio Nacional para la Prevención y Rehabilitación del Consumo de Drogras y Alcohol",
+   "lineaBase": "13,9 años",
+   "anioLineaBase": "2021",
+   "meta2030": "14,1 años",
+   "periodicidad": "Cada 2 años",
+   "responsable": "Servicio Nacional para la Prevención y Rehabilitación del Consumo de Drogas y Alcohol"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Proporción de personas que declaran estar expuestas al humo de tabaco en su hogar",
+   "formula": "(Número de personas que declaran exposición al humo de tabaco en su hogar / Número de personas encuestadas en su hogar)* 100",
+   "fuente": "Encuesta Nacional de Calidad de Vida y Salud (ENCAVI)",
+   "lineaBase": "28,1%",
+   "anioLineaBase": "2016",
+   "meta2030": "17%",
+   "periodicidad": "Cada 5 años",
+   "responsable": "Departamento de Epidemiología. División de Planificación Sanitaria"
+  }
+ ],
+ "4.2.2": [
+  {
+   "codigo": "1",
+   "nombre": "Incidencia de consumo de tabaco en población escolar en el último año",
+   "formula": "(Número de escolares que declaran haber iniciado el consumo de tabaco en el último año / Número de escolares encuestados) * 100",
+   "fuente": "Estudio Nacional de Drogas en Población Escolar de Chile, 8º Básico a 4º Medio (ENDPE). Servicio Nacional para la Prevención y Rehabilitación del Consumo de Drogas y Alcohol",
+   "lineaBase": "9,8%",
+   "anioLineaBase": "2021",
+   "meta2030": "7%",
+   "periodicidad": "Cada 2 años",
+   "responsable": "Servicio Nacional para la Prevención y Rehabilitación del Consumo de Drogas y Alcohol"
+  }
+ ],
+ "4.2.3": [
+  {
+   "codigo": "1",
+   "nombre": "Tasa de cesación tabáquica a los 12 meses",
+   "formula": "(Numero de personas con cesación tabáquica a los 12 meses/Numero de personas ingresadas a cesasión tabaquica)*100",
+   "fuente": "SIGGES",
+   "lineaBase": "Se calculará el 2026",
+   "anioLineaBase": "2026",
+   "meta2030": "30%",
+   "periodicidad": "Anual",
+   "responsable": "División de Gestión de la Red Asistencial"
+  }
+ ],
+ "4.3.1": [
+  {
+   "codigo": "1",
+   "nombre": "Edad de inicio de consumo de alcohol en Chile",
+   "formula": "(Suma de edad de inicio de consumo de alcohol en población encuestada / Número de personas encuestadas)",
+   "fuente": "Estudio Nacional de Drogas en Población Escolar de Chile, 8º Básico a 4º Medio (ENDPE). Servicio Nacional para la Prevención y Rehabilitación del Consumo de Drogas y Alcohol",
+   "lineaBase": "13,9 años",
+   "anioLineaBase": "2021",
+   "meta2030": "13,4 años",
+   "periodicidad": "Cada 2 años",
+   "responsable": "Servicio Nacional para la Prevención y Rehabilitación del Consumo de Drogas y Alcohol"
+  }
+ ],
+ "4.3.2": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de comunas que cumplen con la cantidad de licencias de expendio de alcohol permitidas de acuerdo con lo establecido en la Ley 19.925 sobre expendio y comercialización de bebidas alcohólicas",
+   "formula": "(Número de comunas que cumplen con la cantidad de licencias de expendio de alcohol permitidas de acuerdo con lo establecido en la Ley 19.92 / Número de comunas)*100",
+   "fuente": "Reportes entregados por Servicio Nacional para la Prevención y Rehabilitación del Consumo de Drogas y Alcohol y municipios",
+   "lineaBase": "0.32",
+   "anioLineaBase": "2017",
+   "meta2030": "1",
+   "periodicidad": "Cada 3 años",
+   "responsable": "Servicio Nacional para la Prevención y Rehabilitación del Consumo de Drogas y Alcohol"
+  }
+ ],
+ "4.3.3": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de personas tamizadas por consumo de alcohol (AUDIT) en atención primaria de salud que tienen entre 15 y 44 años",
+   "formula": "(Número de personas entre 15 y 44 años tamizadas por consumo de alcohol (AUDIT) / Número de personas tamizadas por consumo de alcohol (AUDIT)*100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud",
+   "lineaBase": "41%",
+   "anioLineaBase": "2021",
+   "meta2030": "50%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "4.4.1": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de personas que perciben riesgo asociado al consumo experimental de marihuana (probar una o dos veces en la vida)",
+   "formula": "(Número de personas que perciben riesgo asociado al consumo experimental de marihuana / Número de personas encuestadas) * 100",
+   "fuente": "Estudio Nacional de Drogas en Población General",
+   "lineaBase": "41,8%",
+   "anioLineaBase": "2022",
+   "meta2030": "50%",
+   "periodicidad": "Cada 2 años",
+   "responsable": "Servicio Nacional para la Prevención y Rehabilitación del Consumo de Drogas y Alcohol"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Porcentaje de personas tamizadas por consumo de drogas (CRAFFT/ASSIST) en atención primaria que tienen entre 10 y 24 años",
+   "formula": "(Número de personas entre 10 y 24 años tamizadas por consumo de drogas (CRAFFT/ASSIST) / Número de personas tamizadas por consumo de drogas (CRAFFT/ASSIST))*100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud",
+   "lineaBase": "70%",
+   "anioLineaBase": "2020",
+   "meta2030": "75%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "4.4.2": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de personas de 10 a 44 años que han sido tamizadas por consumo riesgoso de drogas",
+   "formula": "(Número de personas de 10 a 44 años que han sido tamizadas por consumo riesgoso de drogas / Número de personas inscrita validada entre 10 a 44 años) * 100",
+   "fuente": "Resumen Estadístico Mensual. Departamento de Estadísticas e Información de Salud / Población inscrita validada",
+   "lineaBase": "2,4%",
+   "anioLineaBase": "2020",
+   "meta2030": "3,0%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "4.5.1": [
+  {
+   "codigo": "1",
+   "nombre": "Tasa anual de entrega de preservativos en consejería individual en los espacios amigables o diferenciados en adolescentes de 15 a 19 años",
+   "formula": "Número de preservativos entregados en consejería individual en los espacios amigables o diferenciados para adolescentes de 15 a 19 años / Número de consejería individual en los espacios amigables o diferenciados para adolescentes",
+   "fuente": "Resumen Estadístico Mensual. Departamento de Estadísticas e Información de Salud",
+   "lineaBase": "0,3 preservativos por consejería",
+   "anioLineaBase": "2023",
+   "meta2030": "2 preservativos por consejería",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "4.6.1": [
+  {
+   "codigo": "1",
+   "nombre": "Prevalencia de lactancia materna exclusiva (en el control de salud infantil del 6to mes)",
+   "formula": "(Número de lactantes de 6 meses que reciben lactancia materna exclusiva / Número de lactantes de 6 meses evaluados en el control de salud infantil) * 100",
+   "fuente": "Resumen Estadístico Mensual. Departamento de Estadísticas e Información de Salud",
+   "lineaBase": "57,2%",
+   "anioLineaBase": "2021",
+   "meta2030": "62%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "4.6.2": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje anual de cumplimiento con la regulación de la Ley 20.606 en establecimientos educacionales",
+   "formula": "(Número de establecimientos educacionales que cumplen la regulación en el año t / Número de establecimientos educacionales fiscalizados en el año t) * 100",
+   "fuente": "Registro de inspecciones en MIDAS",
+   "lineaBase": "77%",
+   "anioLineaBase": "2021",
+   "meta2030": "90%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Nutrición y Alimentos. División de Políticas Públicas Saludables y Promoción"
+  }
+ ],
+ "4.7.1": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de uso de bicicleta o caminata como principal transporte, una vez a la semana",
+   "formula": "(Número de personas que usan bicicleta o caminata como principal transporte, una vez a la semana / Número personas encuestadas)*100",
+   "fuente": "Encuesta Nacional de Salud (ENS)",
+   "lineaBase": "20,7%",
+   "anioLineaBase": "2017",
+   "meta2030": "50%",
+   "periodicidad": "Cada 5 años",
+   "responsable": "Departamento de Epidemiología. División de Planificación Sanitaria"
+  }
+ ],
+ "4.8.1": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de establecimientos de APS que cuentan con agentes comunitarios formados en estrategias para la promoción y prevención en salud mental",
+   "formula": "(Número de establecimientos de APS que cuentan con agentes comunitarios formados en salud mental / Número de establecimientos de APS) * 100",
+   "fuente": "Reportes entregados por la División de Atención Primaria",
+   "lineaBase": "Se calculará durante el 2025",
+   "anioLineaBase": "Se calculará durante el 2025",
+   "meta2030": "50%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Cuidados Integrales en Salud. División de Atención Primaria"
+  }
+ ],
+ "4.8.2": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de gestantes con puntaje alterado en primera aplicación de escala de Edimburgo derivadas a evaluación de salud mental en APS",
+   "formula": "(Número de gestantes con 1era aplicación escala Edimburgo y puntaje alterado derivadas a evaluación de salud mental en APS / Número de gestantes con puntajes alterados en la 1° evaluación escala Edimburgo) * 100",
+   "fuente": "Resumen Estadístico Mensual. Departamento de Estadísticas e Información de Salud",
+   "lineaBase": "86,9%",
+   "anioLineaBase": "2021",
+   "meta2030": "95%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "5.1.1": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de gestantes bajo control prenatal con sobrepeso y obesidad, con consulta nutricional",
+   "formula": "(Número de gestantes bajo control prenatal con sobrepeso y obesidad que han recibido consulta nutricional / Número de gestantes bajo control con sobrepeso y obesidad) * 100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud",
+   "lineaBase": "45,1%",
+   "anioLineaBase": "2021",
+   "meta2030": "90%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Porcentaje de gestantes que acceden a ecografía 11 a 14 semanas en atención primaria",
+   "formula": "(Número de gestantes que acceden a ecografía entre las 11 y 14 semanas en atención primaria / Número de gestantes bajo control en atención primaria) * 100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud",
+   "lineaBase": "71%",
+   "anioLineaBase": "2021",
+   "meta2030": "90%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  },
+  {
+   "codigo": "3",
+   "nombre": "Porcentaje de gestantes que acceden a ecografía 22 a 24 semanas en atención primaria",
+   "formula": "(Número de gestantes que acceden a ecografía entre las 22 y 24 semanas en atención primaria / Número de gestantes bajo control en atención primaria) * 100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud",
+   "lineaBase": "45%",
+   "anioLineaBase": "2021",
+   "meta2030": "75%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "5.1.2": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de mujeres con preeclampsia severa durante el parto",
+   "formula": "(Número de casos de morbilidad materna grave asociada a preeclampsia severa durante el parto / Número de partos en el año) *100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud",
+   "lineaBase": "1,5%",
+   "anioLineaBase": "2023",
+   "meta2030": "≤ 1,4%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "5.1.3": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de nacidos vivos con puntaje APGAR bajo (menor de 6 a los 5 minutos)",
+   "formula": "(Número de nacidos vivos con APGAR bajo (menor de 6 a los 5 minutos) / Número de nacidos vivos) * 100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud",
+   "lineaBase": "1,2%",
+   "anioLineaBase": "2021",
+   "meta2030": "≤ 0,8%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Porcentaje de recién nacidos con peso > 2.500 gr que cuentan con lactancia materna precoz en la primera hora de vida",
+   "formula": "(Número de recién nacidos > 2.500 gramos que reciben lactancia materna en la primera hora de vida / Número de recién nacidos > 2.500 gramos) * 100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud",
+   "lineaBase": "47%",
+   "anioLineaBase": "2021",
+   "meta2030": "80%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "5.1.4": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de cumplimiento de auditorías de muertes maternas (Norma 100)",
+   "formula": "(Número de auditorías de muertes maternas realizadas / Número de muertes maternas) * 100",
+   "fuente": "Reportes entregados por el Departamento de Estadísticas e Información de Salud.",
+   "lineaBase": "86,6%",
+   "anioLineaBase": "2021",
+   "meta2030": "100%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "5.2.1": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de madres, padres y/o cuidadores que reciben educación grupal con foco en el desarrollo infantil y habilidades parentales (Taller Nadie es Perfecto)",
+   "formula": "(Número de niños/as de 0 a 59 meses bajo control cuyas madres, padres y/o cuidadores ingresan a taller de habilidades parentales (taller nadie es perfecto) / Número de niños/as de 0 a 59 meses bajo control) * 100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud",
+   "lineaBase": "5%",
+   "anioLineaBase": "2019",
+   "meta2030": "10%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información en Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "5.2.2": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de niños y niñas de la población bajo control con evaluación del DSM realizado según edades",
+   "formula": "(Número de niñas y niños de 0 a 47 meses con aplicación de instrumentos según normativa vigente, primera evaluación / Número de niñas y niños de 0 a 47 meses bajo control) * 100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud",
+   "lineaBase": "62,6%",
+   "anioLineaBase": "2019",
+   "meta2030": "68,8%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información en Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "5.2.3": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de cumplimiento de pertinencia en la derivación de niños y niñas a neurología pediátrica",
+   "formula": "(Número de consultas de neurología pediátrica en niños y niñas igual o menor de 18 años pertinentes según criterio clínico en box / Número de consultas de neurología pediátrica en niños y niñas igual o menor de 18 años)*100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud",
+   "lineaBase": "Se calculará durante 2025",
+   "anioLineaBase": "Se calculará durante 2025",
+   "meta2030": "Mayor o igual 90%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información en Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "5.2.4": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de niños y niñas con alteración al desarrollo (déficit) ingresados a las modalidades de apoyo al desarrollo infantil (MADIS), según normativa vigente",
+   "formula": "(Número de niños y niñas 0 a 47 meses ingresados a Modalidades de Apoyo al Desarrollo Infantil (MADIS) con alteración al desarrollo de acuerdo a normativa / Número de niños y niñas de 0 a 47 meses con alteración al desarrollo) * 100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud",
+   "lineaBase": "88,1%",
+   "anioLineaBase": "2019",
+   "meta2030": "93%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información en Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "5.3.1": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de personas de 35 a 44 años que acceden a consulta en salud sexual en APS",
+   "formula": "(Número de personas 35 a 44 años que acceden a consulta en salud sexual / Número de personas de 35 a 44 años inscrita validada) * 100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud/Población inscrita y validada",
+   "lineaBase": "0,44%",
+   "anioLineaBase": "2021",
+   "meta2030": "5%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "5.3.2": [
+  {
+   "codigo": "1",
+   "nombre": "Cobertura de adolescentes entre 15 a 19 años en control en APS que utilizan métodos de regulación de fecundidad",
+   "formula": "(Número de adolescentes de 15 a 19 años en control que utilizan métodos de regulación de fecundidad / (Número de adolescente de 15 a 19 años inscrita validada po 0,49)) * 100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud/Población inscrita validada",
+   "lineaBase": "32%",
+   "anioLineaBase": "2021",
+   "meta2030": "49%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Porcentaje de mujeres de 45 a 64 años bajo control en APS con aplicación pauta Menopause Rating Scale (MRS)",
+   "formula": "(Número de mujeres de 45-64 años bajo control con aplicación pauta MRS / Número de mujeres de 45-64 años bajo control de climaterio)* 100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud",
+   "lineaBase": "41,9%",
+   "anioLineaBase": "2021",
+   "meta2030": "60%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "5.3.3": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de cesárea",
+   "formula": "(Número de partos por cesárea / Número de partos) * 100",
+   "fuente": "Egresos hospitalarios. Departamento de Estadísticas e Información de Salud",
+   "lineaBase": "58,2%",
+   "anioLineaBase": "2021",
+   "meta2030": "30%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Porcentaje de aplicación de Escala de Edimburgo en mujeres durante el postparto, en control de salud infantil de los 2 meses en APS",
+   "formula": "(Número de aplicaciones de escala de Edimburgo en mujeres posparto en control de salud infantil de los 2 meses/ Número de controles de salud infantil de 2 meses)*100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud",
+   "lineaBase": "88,1%",
+   "anioLineaBase": "2021",
+   "meta2030": "95%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "5.3.4": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de Servicios de Salud que incluyen paquete de servicios iniciales mínimos para la salud sexual y reproductiva en emergencias (MISP) en Planes de Respuesta a Emergencias en Salud",
+   "formula": "(Número de Servicios de Salud que incluyen MISP en planes de respuesta a emergencias en salud / Número de Servicios de Salud) * 100",
+   "fuente": "Reporte de los Servicios de salud que será enviado al equipo de Emergencia y Desastres",
+   "lineaBase": "0%",
+   "anioLineaBase": "2021",
+   "meta2030": "100%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Gestión del Riesgo en Emergencias y Desastres. Gabinete Ministerial"
+  }
+ ],
+ "5.4.1": [
+  {
+   "codigo": "1",
+   "nombre": "Cobertura de Ley 16.744 en trabajadores/as",
+   "formula": "(Número de trabajadores en Organismos Administradores de la Ley (OAL)/ Número de trabajadores) * 100",
+   "fuente": "Estadística Seguridad Social. Superintendencia de Seguridad Social (SUSESO)/Encuesta Nacional de Empleo (ENE). Instituto Nacional de Estadísticas (INE)",
+   "lineaBase": "82%",
+   "anioLineaBase": "2021",
+   "meta2030": "83,6%",
+   "periodicidad": "Anual",
+   "responsable": "Superintendencia de Seguridad Social (SUSESO) Instituto Nacional de Estadísticas (INE)"
+  }
+ ],
+ "5.4.2": [
+  {
+   "codigo": "1",
+   "nombre": "Proporción de empresas que cumplen con protocolos de vigilancia de riesgos ocupacionales",
+   "formula": "(Número de empresas fiscalizadas sin observaciones o incumplimientos / Número de empresas fiscalizadas) * 100",
+   "fuente": "Registro MIDAS. Subsecretaría de Salud Pública",
+   "lineaBase": "29,7%",
+   "anioLineaBase": "2022",
+   "meta2030": "31%",
+   "periodicidad": "Anual",
+   "responsable": "Modernización de la Información Digital de la Autoridad Sanitaria (MIDAS). Subsecretaria de Salud Pública"
+  }
+ ],
+ "5.4.3": [
+  {
+   "codigo": "1",
+   "nombre": "Cobertura de fiscalización de agentes y factores de riesgos ocupacionales protocolizados",
+   "formula": "(Número de centros de trabajo fiscalizados / Número de centros de trabajo registrados en MIDAS) * 100",
+   "fuente": "Registro MIDAS. Subsecretaría de Salud Pública",
+   "lineaBase": "0,8%",
+   "anioLineaBase": "2022",
+   "meta2030": "0,84%",
+   "periodicidad": "Anual",
+   "responsable": "Modernización de la Información Digital de la Autoridad Sanitaria (MIDAS). Subsecretaría de Salud Pública"
+  }
+ ],
+ "5.5.1": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de personas mayores de 65 años y más con pesquisa para el riesgo de perder capacidad funcional según norma vigente en APS",
+   "formula": "(Número de personas mayores de 65 años que tienen pesquisa para el riesgo de perder capacidad funcional según norma vigente / Número de personas mayores de 65 años bajo control) * 100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud",
+   "lineaBase": "18,2%",
+   "anioLineaBase": "2021",
+   "meta2030": "50%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Porcentaje de personas mayores de 65 años y más con EMPAM según norma vigente en APS",
+   "formula": "(Número de personas mayores de 65 años y más que tienen EMPAM según norma vigente / Número de personas mayores de 65 años y más inscrita validada) * 100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud/ Población inscrita validada de 65 y más",
+   "lineaBase": "3,8%",
+   "anioLineaBase": "2021",
+   "meta2030": "30%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "5.5.2": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de personas mayores en riesgo de dependencia que accede a servicios, planes y programas preventivos",
+   "formula": "(Número de personas mayores de 65 años y más, autovalentes con riesgo y en riesgo de dependencia que accede a servicios, planes y programas preventivos enfocados en retardar la progresión en el deterioro de la capacidad funcional / Número de personas mayores autovalentes con riesgo y en riesgo de dependencia según instrumento vigente en APS) * 100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud",
+   "lineaBase": "14,9%",
+   "anioLineaBase": "2021",
+   "meta2030": "30%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "6.1.1": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de comunas priorizadas que presenta más del 10% de su población en condiciones de aislamiento",
+   "formula": "(Número de comunas priorizadas que presentan más del 10% de su pobación en condiciones de aislamiento / Número de comunas priorizadas) * 100",
+   "fuente": "Estudio identificación de localidades en condición de aislamiento. Subsecretaría de Desarrollo Regional y Administrativo",
+   "lineaBase": "19,1%",
+   "anioLineaBase": "2021",
+   "meta2030": "Menor a 19,1%",
+   "periodicidad": "Cada 8 años",
+   "responsable": "Subsecretaría de Desarrollo Regional y Administrativo"
+  }
+ ],
+ "6.1.2": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de personas que presentan condiciones de salud garantizadas los últimos 12 meses y que se encuentran efectivamente cubiertas por el régimen GES",
+   "formula": "(Número de personas que estan en tratamiento por condiciones de salud garantizadas y cubiertas por GES los últimos 12 meses / Número de personas que estan en tratamiento por condiciones de salud garantizadas por GES los últimos 12 meses) * 100",
+   "fuente": "Encuesta CASEN",
+   "lineaBase": "77,2%",
+   "anioLineaBase": "2022",
+   "meta2030": "90%",
+   "periodicidad": "Anual",
+   "responsable": "Ministerio de Desarrollo Social y Familia"
+  }
+ ],
+ "6.2.1": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de establecimientos de salud con instancias de participación indígena formalizadas mediante acto administrativo",
+   "formula": "(Número de establecimientos de salud con instancias de participación indígena formalizadas mediante acto administrativo / Número de establecimientos de salud) * 100",
+   "fuente": "Base nacional de modelo de salud intercultural. Departamento de Salud y Pueblos Indígenas e Interculturalidad",
+   "lineaBase": "16%",
+   "anioLineaBase": "2024",
+   "meta2030": "100%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Salud y Pueblos Indígenas e Interculturalidad. División de Políticas Públicas Saludables y Promoción"
+  }
+ ],
+ "6.2.2": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de la población indígena que accede a atención médica y reporta algún problema de acceso",
+   "formula": "(Número de personas indígenas que tuvieron problema de salud que accedieron atención médica y reportan algún problema de acceso/ Número de personas indígenas encuestadas que tuvieron problema de salud) * 100",
+   "fuente": "Encuesta de Caracterización Socioeconómica Nacional (CASEN)",
+   "lineaBase": "42,6%",
+   "anioLineaBase": "2022",
+   "meta2030": "38,3%",
+   "periodicidad": "Cada 2 años",
+   "responsable": "Departamento de Salud y Pueblos Indígenas e Interculturalidad. División de Políticas Públicas Saludables y Promoción"
+  }
+ ],
+ "6.2.3": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de establecimientos que cuenten con facilitador intercultural",
+   "formula": "(Número de establecimientos que cuentan con facilitador intercultural / Número de establecimientos) * 100",
+   "fuente": "Reporte entregado por Departamento de Salud y Pueblos Indígenas e Interculturalidad",
+   "lineaBase": "30%",
+   "anioLineaBase": "2023",
+   "meta2030": "60%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Salud y Pueblos Indígenas e Interculturalidad. División de Políticas Públicas Saludables y Promoción"
+  }
+ ],
+ "6.2.4": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de sistemas de registros de salud priorizados desagregados por personas pertenecientes a pueblos indígenas, que son complementados con datos de otras instituciones",
+   "formula": "(Número de sistemas de registros de salud priorizados, desagregados por personas pertenecientes a pueblos indígenas, que son complementados con datos de otras instituciones / Número de sistemas de registros de salud priorizados desagregados por personas pertenecientes a pueblos indígenas) * 100",
+   "fuente": "Reporte entregado por Departamento de Salud y Pueblos Indígenas e Interculturalidad",
+   "lineaBase": "20%",
+   "anioLineaBase": "2023",
+   "meta2030": "60%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Salud y Pueblos Indígenas e Interculturalidad. División de Políticas Públicas Saludables y Promoción"
+  }
+ ],
+ "6.3.1": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de personas migrantes que tuvieron problema de salud que accedieron a atención médica y reportan algún problema de acceso",
+   "formula": "(Número de personas migrantes que tuvieron problema de salud que accedieron a atención médica y reportan algún problema de acceso / Número de personas migrantes encuestadas que tuvieron problema de salud) * 100",
+   "fuente": "Encuesta de Caracterización Socioeconómica Nacional (CASEN)",
+   "lineaBase": "1,7%",
+   "anioLineaBase": "2017",
+   "meta2030": "1,5%",
+   "periodicidad": "Cada 2 años",
+   "responsable": "Ministerio del Desarrollo Social y Familia"
+  }
+ ],
+ "6.3.2": [
+  {
+   "codigo": "1",
+   "nombre": "Proporción de funcionarios de la red de salud capacitados y aprobados en interculturalidad y derechos de salud de las personas migrantes",
+   "formula": "(Número de funcionarios de la APS capacitados y aprobados en interculturalidad y derechos de salud de las personas migrantes / Número de funcionarios de la APS capacitados en interculturalidad y derechos de salud de las personas migrantes)* 100",
+   "fuente": "Reporte anual de ejecución PRAPS de acceso a la atención de salud a personas migrantes",
+   "lineaBase": "Se calculará durante 2025",
+   "anioLineaBase": "Se calculará durante 2025",
+   "meta2030": "80%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Desarrollo e Integración. División de Atención Primaria"
+  }
+ ],
+ "6.3.3": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de Secretarías Regionales Ministeriales de Salud que cuentan con instancias de participación de personas migrantes y comunidad local formalizadas e implementadas anualmente",
+   "formula": "(Número de SEREMI de Salud que cuentan con instancias de participación de personas migrantes y comunidad local formalizadas e implementadas anualmente / Número de SEREMI de Salud) * 100",
+   "fuente": "Reporte entregado por Departamento de Salud y Pueblos Indígenas e Interculturalidad",
+   "lineaBase": "0%",
+   "anioLineaBase": "2021",
+   "meta2030": "100%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Salud y Pueblos Indígenas e Interculturalidad. División de Políticas Públicas Saludables y Promoción"
+  }
+ ],
+ "7.1.1": [
+  {
+   "codigo": "1",
+   "nombre": "Proporción de ciudades con media anual de PM 2.5 >20 ug/m3",
+   "formula": "(Número de ciudades con media anual de PM 2.5 > 20 µg/m³ /Número de ciudades que cuentan con estaciones de monitoreo) *100",
+   "fuente": "Reporte entregado por Ministerio del Medio Ambiente",
+   "lineaBase": "59,1%",
+   "anioLineaBase": "2021",
+   "meta2030": "45%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Epidemiología. División de Planificación Sanitaria"
+  }
+ ],
+ "7.1.2": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de población de suelo urbana con servicios de disposición final adecuada de residuos sólidos",
+   "formula": "(Número de personas en suelo urbano con acceso a servicios de disposición final adecuada de residuos sólidos / Número de personas en suelo urbano) * 100",
+   "fuente": "Encuesta de Caracterización Socioeconómica Nacional (CASEN)",
+   "lineaBase": "99,1%",
+   "anioLineaBase": "2022",
+   "meta2030": "99,5%",
+   "periodicidad": "Cada 2 años",
+   "responsable": "Ministerio de Desarrollo Social y Familia"
+  }
+ ],
+ "7.1.3": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de cumplimiento de calidad de agua potable (bacteriología y cloro libre residual)",
+   "formula": "(Número de muestras de agua potable que cumplen con los estándares de calidad para bacteriología y cloro libre residual / Número de muestras de agua potable analizadas) * 100",
+   "fuente": "Reporte entregado por Departamento de Salud Ambiental. División de Políticas Públicas Saludables y Promoción",
+   "lineaBase": "99,85%",
+   "anioLineaBase": "2021",
+   "meta2030": "99,9%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Salud Ambiental. División de Políticas Públicas Saludables y Promoción"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Porcentaje de hogares que cuentan con sistema de eliminación de aguas servidas reglamentario",
+   "formula": "(Número de hogares que cuentan con un sistema de eliminación de aguas servidas reglamentario / Número de hogares) * 100",
+   "fuente": "Encuesta de Caracterización Socioeconómica Nacional (CASEN)",
+   "lineaBase": "98%",
+   "anioLineaBase": "2022",
+   "meta2030": "98,5%",
+   "periodicidad": "Cada 2 años",
+   "responsable": "Ministerio de Desarrollo Social y Familia"
+  }
+ ],
+ "7.1.4": [
+  {
+   "codigo": "1",
+   "nombre": "Proporción comunas con áreas verdes suficientes",
+   "formula": "(Número de comunas con áreas verdes suficientes / Número de comunas)* 100",
+   "fuente": "Catastro de Áreas Verde entregado por el Instituto Nacional de Estadísticas y el Consejo Nacional de Desarrollo Urbano",
+   "lineaBase": "17,9%",
+   "anioLineaBase": "2018",
+   "meta2030": "mayor a 17,9%",
+   "periodicidad": "Según disponibilidad del catastro de Áreas Verdes",
+   "responsable": "Ministerio de Vivienda y Urbanismo de Chile/Instituto Nacional de Estadísiticas"
+  }
+ ],
+ "7.2.1": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de brotes ETA notificados con investigación epidemiológica",
+   "formula": "(Número de brotes de ETA investigados por las SEREMI de Salud/ Número de brotes de ETA notificados a las SEREMI de Salud desde la Red Asistencial) * 100",
+   "fuente": "Sistema RAKIN/ Registro de enfermedades de notificación obligatoria",
+   "lineaBase": "100%",
+   "anioLineaBase": "2021",
+   "meta2030": "100%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Epidemiología. División de Planificación Sanitaria"
+  }
+ ],
+ "7.3.1": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de dosis diaria por 1.000 habitantes-día en sistema público de salud de los antibacterianos del grupo acceso de la clasificación AWaRe",
+   "formula": "(Dosis Diaria por 1.000 habitantes-día en sistema público de salud de los antibacterianos del grupo acceso / Dosis Diaria por 1000 habitantes-día en sistema público de salud de los antibacterianos totales) * 100",
+   "fuente": "Informe de Vigilancia de consumo de Antimicrobianos en Chile, Plan Nacional Contra la Resistencia a los Antimicrobianos",
+   "lineaBase": "Se construirá durante la primera medición",
+   "anioLineaBase": "Se construirá durante la primera medición",
+   "meta2030": "70%",
+   "periodicidad": "Anual",
+   "responsable": "Referente Plan RAM. División de Planificación Sanitaria"
+  }
+ ],
+ "7.3.2": [
+  {
+   "codigo": "1",
+   "nombre": "Tasa de neumonías asociadas a ventilación mecánica invasiva en adultos que se deben a bacterias productoras de carbapenemasas",
+   "formula": "(Número de casos de neumonías asociadas a ventilación mecánica invasiva en pacientes adultos debidas a agentes productores de carbapenemasas en hospitales públicos/ Número de días de exposición a ventilación invasiva de pacientes adultos en hospitales públicos) * 1000",
+   "fuente": "Reporte entregado por el Programa de Prevención y Control de las Infecciones Asociadas a la Atención en Salud",
+   "lineaBase": "Adultos 6,96 por 1.000 días",
+   "anioLineaBase": "2022",
+   "meta2030": "Adultos 5,57 por 1.000 días",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Calidad y Seguridad de la Atención. División de Gestión de la Red Asistencial"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Tasa de neumonías asociadas a ventilación mecánica invasiva en pacientes pediátricos que se deben a bacterias productoras de carbapenemasas",
+   "formula": "(Número de casos de neumonías asociadas a ventilación mecánica invasiva en pacientes pediátricos debidas a agentes productores de carbapenemasas en hospitales públicos/ Número de días de exposición a ventilación invasiva de pacientes pediátricos en hospitales públicos) * 1000",
+   "fuente": "Reporte entregado por el Programa de Prevención y Control de las Infecciones Asociadas a la Atención en Salud",
+   "lineaBase": "Pediátricos 3,34 por 1.000 días",
+   "anioLineaBase": "2022",
+   "meta2030": "Pediátricos 2,67 por 1.000 días",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Calidad y Seguridad de la Atención. División de Gestión de la Red Asistencial"
+  },
+  {
+   "codigo": "3",
+   "nombre": "Tasa de neumonías asociadas a ventilación mecánica invasiva en neonatos que se deben a bacterias productoras de carbapenemasas",
+   "formula": "(Número de casos de neumonías asociadas a ventilación mecánica invasiva en pacientes neonatales debidas a agentes productores de carbapenemasas en hospitales públicos/ Número de días de exposición a ventilación invasiva de pacientes neonatales en hospitales públicos) * 1000",
+   "fuente": "Reporte entregado por el Programa de Prevención y Control de las Infecciones Asociadas a la Atención en Salud",
+   "lineaBase": "Neonatos 6,55 por 1.000 días",
+   "anioLineaBase": "2022",
+   "meta2030": "Neonatos 5,00 por 1.000 días",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Calidad y Seguridad de la Atención. División de Gestión de la Red Asistencial"
+  }
+ ],
+ "7.4.1": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de SEREMIs de Salud y Servicios de Salud que disponen de matrices de riesgo actualizadas y que incorporan amenazas asociadas al cambio climático",
+   "formula": "(Número de SEREMIs de Salud y Servicios de Salud que disponen de matrices de riesgo actualizadas y que incorporan amenazas asociadas al Cambio Climático / Número de SEREMIs de Salud y Servicios de Salud) * 100",
+   "fuente": "Reporte entregado Departamento de Gestión de Riesgos en Emergencia y Desastres",
+   "lineaBase": "0%",
+   "anioLineaBase": "2020",
+   "meta2030": "100%",
+   "periodicidad": "Cada 2 años",
+   "responsable": "Departamento de Gestión de Riesgos en Emergencia y Desastres. Gabinete Ministerial"
+  }
+ ],
+ "7.4.2": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de establecimientos de salud que hayan implementado medidas de mitigación de los efectos de temperaturas extremas en sus instalaciones",
+   "formula": "(Número de establecimientos de salud que hayan implementado medidas de mitigación de los efectos de temperaturas extremas en sus instalaciones / Número de establecimientos de salud) * 100",
+   "fuente": "Reporte entregado Departamento de Gestión de Riesgos en Emergencia y Desastres",
+   "lineaBase": "0%",
+   "anioLineaBase": "2020",
+   "meta2030": "100%",
+   "periodicidad": "Cada 2 años",
+   "responsable": "Departamento de Gestión de Riesgos en Emergencia y Desastres. Gabinete Ministerial"
+  }
+ ],
+ "7.4.3": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de funcionarios del sector salud que hayan completado capacitación en cambio climático y salud/adaptación al cambio climático y salud/mitigación y cambio climático en salud",
+   "formula": "(Número de funcionarios del sector Salud que hayan completado capacitación en cambio climático y salud/adaptación al cambio climático y salud/mitigación y cambio climático en salud / Número de funcionarios del sector salud) * 100",
+   "fuente": "Reporte entregado Departamento de Gestión de Riesgos en Emergencia y Desastres",
+   "lineaBase": "0%",
+   "anioLineaBase": "2020",
+   "meta2030": "100%",
+   "periodicidad": "Cada 2 años",
+   "responsable": "Departamento de Gestión de Riesgos en Emergencia y Desastres. Gabinete Ministerial"
+  }
+ ],
+ "8.1.1": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de Servicios de Salud y Secretarías regionales ministeriales que cuentan con un comité de gobernanza de datos, con un delegado protección de datos y un plan institucional en gobernanza",
+   "formula": "(Número de Servicios de Salud y SEREMIs de Salud que cuentan con un comité de gobernanza de datos, con un delegado protección de datos y un plan institucional en gobernanza / Número de Servicios de Salud y SEREMIs de Salud) * 100",
+   "fuente": "Reporte entregado por Departamento de Tecnologías de la Información y Comunicación y Departamento de Estadísticas e Información de Salud",
+   "lineaBase": "Se calculará 2025",
+   "anioLineaBase": "Se calculará 2025",
+   "meta2030": "100%",
+   "periodicidad": "Cada 5 años",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "8.1.2": [
+  {
+   "codigo": "1",
+   "nombre": "Proporción de Servicios de Salud que interoperan con los servicios de registros centralizados de la plataforma de interoperabilidad MINSAL (índice maestro de pacientes, directorio de prestadores individuales e institucionales y servicios terminológicos)",
+   "formula": "(Número de Servicios de Salud que interoperan con los servicios de registros centralizados de la plataforma de Interoperabilidad MINSAL (índice maestro de pacientes, directorio de prestadores individuales e institucionales y servicios terminológicos) / Número de Servicios de Salud) * 100",
+   "fuente": "Reporte entregado por Departamento de Tecnologías de la Información y Comunicación",
+   "lineaBase": "Se calculará 2025",
+   "anioLineaBase": "Se calculará 2025",
+   "meta2030": "100%",
+   "periodicidad": "Cada 2 años",
+   "responsable": "Departamento de Tecnologías de la Información y Comunicación. Gabinete Ministerial"
+  }
+ ],
+ "8.1.3": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de egresos hospitalarios y defunciones codificadas utilizando CIE-11 en los sistemas estadísticos",
+   "formula": "(Número de de egresos hospitalarios y defunciones codificadas utilizando CIE-11 en los sistemas estadísticos / Número de de egresos hospitalarios y defunciones codificadas)*100",
+   "fuente": "Reporte entregado por Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria",
+   "lineaBase": "Se calculará 2025",
+   "anioLineaBase": "Se calculará 2025",
+   "meta2030": "100%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Estadísticas e Información de Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "8.2.1": [
+  {
+   "codigo": "1",
+   "nombre": "Proporción de establecimientos de salud que cuentan con Unidad u Oficina de Salud del Trabajador o análogas",
+   "formula": "(Número de establecimientos de salud que cuentan con Unidad de Salud del Trabajador / Número de establecimientos de salud) * 100",
+   "fuente": "Reporte entregado por Departamento de Desarrollo Organizacional y Calidad de Vida Laboral",
+   "lineaBase": "20,4%",
+   "anioLineaBase": "2021",
+   "meta2030": "22,4%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Desarrollo Organizacional y Calidad de Vida Laboral. División de Gestión y Desarrollo de las Personas"
+  }
+ ],
+ "8.2.2": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de funcionarios que aprueban actividades del programa anual de capacitación en áreas priorizadas",
+   "formula": "(Número de funcionarios que aprueban cursos del plan anual de capacitación / Número de funcionarios que participan de cursos del plan anual de capacitación) * 100",
+   "fuente": "Reporte entregado por Departamento de Capacitación, Formación y Educación Continua",
+   "lineaBase": "88,2%",
+   "anioLineaBase": "2021",
+   "meta2030": "90%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Capacitación, Formación y Educación Continua. División de Gestión y Desarrollo de las Personas"
+  }
+ ],
+ "8.2.3": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de reparticiones públicas de salud que cuentan con salas cunas institucionales, acreditadas de acuerdo a la ley N°20.832 del MINEDUC para sus funcionarias/os",
+   "formula": "(Número de reparticiones públicas de salud (hospitales y servicios) que cuentan con Salas Cunas institucionales, acreditadas de acuerdo a la ley N°20.832 del MINEDUC para sus funcionarias/os / Número de reparticiones públicas (hospitales y servicios)) * 100",
+   "fuente": "Reporte entregado por Departamento de Gestión de Recursos Humanos",
+   "lineaBase": "5,9%",
+   "anioLineaBase": "2021",
+   "meta2030": "40%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Gestión de Recursos Humanos. División de Gestión y Desarrollo de las Personas"
+  }
+ ],
+ "8.3.1": [
+  {
+   "codigo": "1",
+   "nombre": "Proporción de proyectos al día de acuerdo a lo planificado para la década",
+   "formula": "(Número de proyectos terminados en etapa de Estudios, Diseño y Construcción / Número de proyectos programados para termino en etapa de Estudios, Diseño y Construcción) *100",
+   "fuente": "Reporte División de Inversiones",
+   "lineaBase": "Se calculará 2025",
+   "anioLineaBase": "Se calculará 2025",
+   "meta2030": "Mayor a 85%",
+   "periodicidad": "Cada 2 años",
+   "responsable": "División de Inversiones. Subsecretaría de Redes Asistenciales"
+  }
+ ],
+ "8.3.2": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de establecimientos con sistema de gestión de mantenimiento preventivo operativo",
+   "formula": "(Número de establecimientos con sistema de gestión de mantenimiento preventivo operativo / Número de establecimientos de la red asistencial) * 100",
+   "fuente": "Reporte División de Inversiones",
+   "lineaBase": "20%",
+   "anioLineaBase": "2019",
+   "meta2030": "100%",
+   "periodicidad": "Anual",
+   "responsable": "División de Inversiones. Subsecretaría de Redes Asistenciales"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Porcentaje de ejecución del programa de reposición anual de equipos médicos, equipos industriales y vehículos",
+   "formula": "(( (Número de equipos médicos repuestos en el período de medición / Número de equipos considerados en el programa de reposición de equipos médicos) * 100)*0,4) )+ (((Número de equipos industriales repuestos en el período de medición / Número de equipos considerados en el programa de reposición de equipos industriales) * 100) *0,3) + ((( (Número de vehículos repuestos en el período de medición / Número de vehículos considerados en el programa de reposición de vehículos) * 100)*0,3)",
+   "fuente": "Reporte División de Inversiones",
+   "lineaBase": "98%",
+   "anioLineaBase": "2019",
+   "meta2030": "100%",
+   "periodicidad": "Anual",
+   "responsable": "División de Inversiones. Subsecretaría de Redes Asistenciales"
+  }
+ ],
+ "8.3.3": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de iniciativas en desarrollo que se encuentran incorporadas en el plan anual de inversiones, que responden a la priorización de necesidades efectuada conforme al manual de criterios de priorización",
+   "formula": "(Número de iniciativas en desarrollo que se encuentran priorizadas conforme a los criterios establecidos en el manual de priorización / Número de iniciativas que se encuentran incorporadas en el plan anual de inversiones, que responden a la priorización de necesidades efectuada conforme al manual de criterios de priorización) * 100",
+   "fuente": "Reporte División de Inversiones",
+   "lineaBase": "Pendiente del manual de priorización",
+   "anioLineaBase": "Pendiente del manual de priorización",
+   "meta2030": "80%",
+   "periodicidad": "Anual",
+   "responsable": "División de Inversiones. Subsecretaría de Redes Asistenciales"
+  }
+ ],
+ "8.4.1": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de gasto de bolsillo en salud sobre el gasto total en salud",
+   "formula": "(Gasto de bolsillo / Gasto total en salud) * 100",
+   "fuente": "Estadísticas Económicas en Salud. Departamento de Economía de la Salud",
+   "lineaBase": "32,6%",
+   "anioLineaBase": "2021",
+   "meta2030": "26%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Economía de la Salud. División de Planificación Sanitaria"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Porcentaje del ingreso bruto por cotizante destinado a copagos de sus beneficiarios (cotizante y cargas) por seguro de salud",
+   "formula": "(Suma del ingreso bruto por cotizante destinado a copagos de sus beneficiarios (cotizante y cargas) por seguro de salud / Ingreso bruto total de los cotizantes) * 100",
+   "fuente": "Estadísticas Económicas en Salud. Departamento de Economía de la Salud",
+   "lineaBase": "2,36%",
+   "anioLineaBase": "2021",
+   "meta2030": "1,90%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Economía de la Salud. División de Planificación Sanitaria"
+  }
+ ],
+ "8.4.2": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje del gasto público en salud utilizado en mecanismos de pago agrupados por riesgo clínico",
+   "formula": "(Gasto público en salud destinado a mecanismos de pago agrupados por riesgo clínico / Gasto público en salud) * 100",
+   "fuente": "Reporte entregado por División de Presupuesto",
+   "lineaBase": "40%",
+   "anioLineaBase": "2021",
+   "meta2030": "41,5%",
+   "periodicidad": "Anual",
+   "responsable": "División de Presupuesto. Subsecretaría de Redes Asistenciales"
+  }
+ ],
+ "8.5.1": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de directores y directoras de Servicios de Salud y Establecimientos EAR que participan en el fortalecimiento de mecanismos de participación social y rendición de cuentas",
+   "formula": "(Número de directores y directoras de Servicios de Salud y Establecimientos EAR que participan en el fortalecimiento de mecanismos de participación social y rendición de cuentas / Número de directores y directoras de Servicios de Salud y Establecimientos EAR) * 100",
+   "fuente": "Reporte entregado por Departamento de Participación Ciudadana y Trato al Usuario",
+   "lineaBase": "100%",
+   "anioLineaBase": "2023",
+   "meta2030": "100%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Participación Social y Gestión usuaria. Gabinete Subsecretaría de Redes Asistenciales"
+  }
+ ],
+ "8.5.2": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de Servicios de Salud que planifican e implementan al menos 6 actividades con participación de las personas usuarias, comunidad organizada o no organizada y organizaciones de la sociedad civil con perspectiva de género e inclusión de grupos históricamente excluidos de la toma de decisiones en materias de salud",
+   "formula": "(Número de Servicios de Salud que planifican e implementan al menos 6 actividades con participación de las personas usuarias,comunidad organizada o no organizada y organizaciones de la sociedad civil con perspectiva de género e inclusión de grupos históricamente excluidos de la toma de decisiones en materias de salud/ Número de Servicios de Salud)*100",
+   "fuente": "Reporte Departamento de Participación Ciudadana y Trato al Usuario",
+   "lineaBase": "Se calculará 2025",
+   "anioLineaBase": "Se calculará 2025",
+   "meta2030": "100%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Participación Social y Gestión usuaria. Gabinete Subsecretaría de Redes Asistenciales"
+  }
+ ],
+ "8.5.3": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de Servicios de Salud que implementan a lo menos un programa anual de formación para el desarrollo de capacidades, competencias y habilidades en metodologías participativas destinados a actores involucrados",
+   "formula": "(Número de Servicios de Salud que implementan a lo menos un programa anual de formación para el desarrollo decapacidades, competencias y habilidades en metodologías participativas destinados a actores involucrados/Número de Servicios de Salud) *100",
+   "fuente": "Reporte Departamento de Participación Ciudadana y Trato al Usuario",
+   "lineaBase": "50%",
+   "anioLineaBase": "2024",
+   "meta2030": "70%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Participación Social y Gestión usuaria. Gabinete Subsecretaría de Redes Asistenciales"
+  }
+ ],
+ "8.6.1": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de comunas que implementan plan de mejora en universalización de APS",
+   "formula": "(Número de comunas que implementan un plan de mejora en la universalización de la APS / Número de comunas con APS universal) *100",
+   "fuente": "Reporte entregado por la División de Atención Primaria",
+   "lineaBase": "100%",
+   "anioLineaBase": "2023",
+   "meta2030": "100%",
+   "periodicidad": "Anual",
+   "responsable": "División de Atención Primaria"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Porcentaje de comunas universalizadas que implementan o cuentan con equipo motor comunal que lidera el trabajo intersectorial en salud",
+   "formula": "(Número de comunas APS universal que implementan o cuentan con un equipo motor comunal que lidera el trabajo intersectorial en salud / Número de comunas APS universal) *100",
+   "fuente": "Reporte entregado por la División de Atención Primaria",
+   "lineaBase": "100%",
+   "anioLineaBase": "2023",
+   "meta2030": "100%",
+   "periodicidad": "Anual",
+   "responsable": "División de Atención Primaria"
+  }
+ ],
+ "8.6.2": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de establecimientos que implementan la Estrategia de Cuidados Integrales Centrados en las Personas (ECICEP)",
+   "formula": "(Número de establecimientos que implementan la Estrategia de Cuidados Integrales Centrados en las Personas / Número de establecimientos) * 100",
+   "fuente": "Resumen estadístico mensual. Departamento de Estadísticas e Información de Salud",
+   "lineaBase": "20%",
+   "anioLineaBase": "2024",
+   "meta2030": "80%",
+   "periodicidad": "Anual",
+   "responsable": "División de Atención Primaria"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Porcentaje de servicios de salud que incorpora al programa anual del Consejo Integrado de la Red Asistencial (CIRA), temas vinculados a la continuidad de los cuidados dentro de la red de salud",
+   "formula": "(Número de Servicios de Salud que incorpora al programa anual del Consejo Integrado de la Red Asistencial (CIRA), temas vinculados a la continuidad de los cuidados dentro de la red de salud / Número de Servicios de Salud) *100",
+   "fuente": "Reporte entregado por División de Gestión de la Red Asistencial",
+   "lineaBase": "Se calculará durante el 2025",
+   "anioLineaBase": "Se calculará durante el 2025",
+   "meta2030": "80%",
+   "periodicidad": "Anual",
+   "responsable": "División de Atención Primaria División de Gestión de la Red Asistencial"
+  },
+  {
+   "codigo": "3",
+   "nombre": "Porcentaje de programas de formación para profesional de pregrado que incorporan en su malla curricular el cuidado integral centrado en la persona, familia y comunidades",
+   "formula": "(Número de programas de formación de pregrado (1) que incorporan en su malla curricular el cuidado integral centrado en la persona, familia y comunidades / Número de programas de formación de pregrado (1))*100",
+   "fuente": "Reporte entregado por la División de Atención Primaria",
+   "lineaBase": "Se calculará durante 2025",
+   "anioLineaBase": "Se calculará durante 2025",
+   "meta2030": "Mayor o igual a 20%",
+   "periodicidad": "Anual",
+   "responsable": "División de Atención Primaria"
+  }
+ ],
+ "8.6.3": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de establecimiento de atención primara certificados en el Modelo de Atención Integral de Salud Familiar y Comunitaria",
+   "formula": "(Número de establecimiento de atención primaria certificados en el Modelo de Atención Integral de Salud Familiar y Comunitaria / Número de establecimientos de atención primaria) *100",
+   "fuente": "Reporte entregado por la División de Atención Primaria",
+   "lineaBase": "44%",
+   "anioLineaBase": "2024",
+   "meta2030": "60%",
+   "periodicidad": "Anual",
+   "responsable": "División de Atención Primaria"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Porcentaje de Servicios de salud que incorpora capacitación en torno al Modelo de Atención Integral de Salud Familiar y Comunitaria para los establecimientos de salud bajo su jurisdicción en su plan anual de capacitación",
+   "formula": "(Número de Servicios de Salud que incorpora capacitación en torno al Modelo de Atención Integral de Salud Familiar y Comunitaria para los establecimientos de salud bajo su jurisdicción en su plan anual de capacitación / Número de Servicios de Salud)*100",
+   "fuente": "Reporte entregado por la División de Atención Primaria",
+   "lineaBase": "Se calculará durante 2025",
+   "anioLineaBase": "Se calculará durante 2025",
+   "meta2030": "100%",
+   "periodicidad": "Anual",
+   "responsable": "División de Atención Primaria"
+  }
+ ],
+ "8.7.1": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de avance de implementación de la norma de telemedicina",
+   "formula": "(Número de etapas finalizadas del desarrollo de implementación de la norma de telemedicina / Número de etapas para el desarrollo de implementación de la norma de telemedicina) *100",
+   "fuente": "Reporte entregado por Departamento de Salud Digital",
+   "lineaBase": "0%",
+   "anioLineaBase": "2021",
+   "meta2030": "100%",
+   "periodicidad": "Cada 3 años",
+   "responsable": "Departamento de Salud Digital. Subsecretaría de Redes Asitenciales"
+  }
+ ],
+ "8.7.2": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de usuarios que reportan satisfacción de la atención o experiencia en salud digital",
+   "formula": "(Número de usuarios que reportan satisfacción de la atención o experiencia en salud digital / Número de usuarios encuestados) * 100",
+   "fuente": "Reporte entregado por Departamento de Salud Digital",
+   "lineaBase": "80%",
+   "anioLineaBase": "2022",
+   "meta2030": "93%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Salud Digital. Subsecretaría de Redes Asitenciales"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Porcentaje de profesionales del sector público de salud con participación en congresos, seminarios y/o capacitación en salud digital a los 5 años",
+   "formula": "(Número de profesionales del sector público de salud con participación en congresos, seminarios y/o capacitación en salud digital a los 5 años / Número de trabajadores del sector público de salud) * 100",
+   "fuente": "Reporte entregado por Departamento de Salud Digital",
+   "lineaBase": "0,1%",
+   "anioLineaBase": "2021",
+   "meta2030": "20%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Salud Digital. Subsecretaría de Redes Asitenciales"
+  }
+ ],
+ "8.8.1": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje anual de actividades planificadas en la agenda internacional que son efectivamente ejecutadas",
+   "formula": "(Número de actividades ejecutadas en la agenda internacional/Número de actividades planificadas en la agenda internacional)* 100",
+   "fuente": "Reporte entregado por Oficina de Cooperación y Asuntos Internacionales",
+   "lineaBase": "77,8%",
+   "anioLineaBase": "2019",
+   "meta2030": "90%",
+   "periodicidad": "Anual",
+   "responsable": "Oficina de Cooperación y Asuntos Internacionales. Gabinete Ministerial"
+  }
+ ],
+ "8.8.2": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de secciones que incluyen difusión de actividades de cooperación y relaciones internacionales en el portal www.ocai.cl",
+   "formula": "(Número de secciones de difusión virtual activas y actualizadas / Número de secciones de difusión virtual) * 100",
+   "fuente": "Reporte entregado por Oficina de Cooperación y Asuntos Internacionales",
+   "lineaBase": "Se calculará durante 2025",
+   "anioLineaBase": "Se calculará durante 2025",
+   "meta2030": "90%",
+   "periodicidad": "Anual",
+   "responsable": "Oficina de Cooperación y Asuntos Internacionales. Gabinete Ministerial"
+  }
+ ],
+ "8.9.1": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje anual de proyectos con financiamiento FONIS que cuenten con reportes breves destinados a los tomadores de decisión",
+   "formula": "(Número de proyectos con financiamiento FONIS que cuenten con reportes breves destinados a los tomadores de decisión / Número de proyectos con financiamiento FONIS) * 100",
+   "fuente": "Reporte entregado por Oficina de vinculación con la academia",
+   "lineaBase": "Se calculará durante 2025",
+   "anioLineaBase": "Se calculará durante 2025",
+   "meta2030": "50%",
+   "periodicidad": "Anual",
+   "responsable": "Oficina de vinculación con la academia. DIPLAS"
+  }
+ ],
+ "8.9.2": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de preguntas priorizadas por el Ministerio de Salud que sean abordadas en proyectos de investigación con financiamiento público",
+   "formula": "(Número de preguntas priorizadas por el Ministerio de Salud que sean abordadas en proyectos de investigación con financiamiento público / Número de preguntas priorizadas por el Ministerio de Salud) * 100",
+   "fuente": "Reporte entregado por Oficina de vinculación con la academia",
+   "lineaBase": "Se calculará durante 2025",
+   "anioLineaBase": "Se calculará durante 2025",
+   "meta2030": "50%",
+   "periodicidad": "Anual",
+   "responsable": "Oficina de vinculación con la academia. DIPLAS"
+  }
+ ],
+ "8.10.1": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de SEREMIs de Salud que cuentan con Departamento de Gestión de Riesgo en Emergencias y Desastres, con profesionales formados en la gestión del riesgo de desastres",
+   "formula": "(Número de SEREMIs de Salud que cuentan con Departamento de Gestión de Riesgo en Emergencias y Desastres con al menos un profesional formado en la gestión del riesgo de desastres / Número de SEREMIs de Salud) * 100",
+   "fuente": "Reporte entregado por Departamento Gestión de Riesgos en Emergencias y Desastres",
+   "lineaBase": "0%",
+   "anioLineaBase": "2024",
+   "meta2030": "50%",
+   "periodicidad": "Cada 5 años",
+   "responsable": "Departamento Gestión de Riesgos en Emergencias y Desastres. Gabiente Ministerial"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Porcentaje de Servicios de Salud que cuentan con Departamento de Gestión de Riesgo en Emergencias y Desastres, con profesionales formados en la gestión del riesgo de desastres",
+   "formula": "(Número de Servicios de Salud que cuentan con Departamento de Gestión de Riesgo en Emergencias y Desastres con al menos un profesional formado en la gestión del riesgo de desastres / Número de Servicios de Salud) * 100",
+   "fuente": "Reporte entregado por Departamento Gestión de Riesgos en Emergencias y Desastres",
+   "lineaBase": "3%",
+   "anioLineaBase": "2024",
+   "meta2030": "28%",
+   "periodicidad": "Cada 5 años",
+   "responsable": "Departamento Gestión de Riesgos en Emergencias y Desastres. Gabiente Ministerial"
+  },
+  {
+   "codigo": "3",
+   "nombre": "Porcentaje de SEREMIs y Servicios de Salud que cuentan con un Plan de Respuesta a Emergencias",
+   "formula": "(Número de SEREMIs y Servicios de Salud que cuentan con un Plan de Respuesta a Emergencias / Número de SEREMIs y Servicios de Salud de Salud) * 100",
+   "fuente": "Reporte entregado por Departamento Gestión de Riesgos en Emergencias y Desastres",
+   "lineaBase": "0%",
+   "anioLineaBase": "2024",
+   "meta2030": "100%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento Gestión de Riesgos en Emergencias y Desastres. Gabiente Ministerial"
+  },
+  {
+   "codigo": "4",
+   "nombre": "Porcentaje de hospitales que cuentan con un Plan de Respuesta a Emergencias",
+   "formula": "(Número de hospitales que cuentan con un Plan de Respuesta a Emergencias / Número de hospitales) * 100",
+   "fuente": "Reporte entregado por Departamento Gestión de Riesgos en Emergencias y Desastres",
+   "lineaBase": "0%",
+   "anioLineaBase": "2024",
+   "meta2030": "75%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento Gestión de Riesgos en Emergencias y Desastres. Gabiente Ministerial"
+  }
+ ],
+ "8.10.2": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de profesionales de la salud que cuentan con capacitación para enfrentamiento de amenazas y emergencias",
+   "formula": "(Número de profesionales de la salud que cuentan con capacitación para enfrentamiento de amenazas y emergencias / Número de profesionales de la salud que se espera capacitar) *100",
+   "fuente": "Reporte entregado por Departamento Gestión de Riesgos en Emergencias y Desastres",
+   "lineaBase": "1,6%",
+   "anioLineaBase": "2021",
+   "meta2030": "35%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento Gestión de Riesgos en Emergencias y Desastres. Gabiente Ministerial"
+  }
+ ],
+ "8.10.3": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de establecimientos de salud que cuentan con implementación de estrategias ISH",
+   "formula": "(Número de hospitales que cuentan con implementación de estrategias ISH / Número de hospitales) * 100",
+   "fuente": "Reporte entregado por Departamento Gestión de Riesgos en Emergencias y Desastres",
+   "lineaBase": "3%",
+   "anioLineaBase": "2024",
+   "meta2030": "26%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento Gestión de Riesgos en Emergencias y Desastres. Gabiente Ministerial"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Porcentaje de establecimientos de salud que cuentan con implementación de estrategias INGRID-H",
+   "formula": "(Número de hospitales que cuentan con implementación de estrategias INGRID-H / Número de hospitales) * 100",
+   "fuente": "Reporte entregado por Departamento Gestión de Riesgos en Emergencias y Desastres",
+   "lineaBase": "4%",
+   "anioLineaBase": "2024",
+   "meta2030": "18%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento Gestión de Riesgos en Emergencias y Desastres. Gabiente Ministerial"
+  },
+  {
+   "codigo": "3",
+   "nombre": "Porcentaje de Servicios de Salud que cuenta con infraestructura, equipamiento y stock crítico desplegable para atención de salud",
+   "formula": "(Número de Servicios de Salud que cuenta con equipamiento desplegable y stock critico desplegable para atención de Salud / Número de Servicios de Salud) * 100",
+   "fuente": "Reporte entregado por Departamento Gestión de Riesgos en Emergencias y Desastres",
+   "lineaBase": "0%",
+   "anioLineaBase": "2024",
+   "meta2030": "52%",
+   "periodicidad": "Cada 2 años",
+   "responsable": "Departamento Gestión de Riesgos en Emergencias y Desastres. Gabiente Ministerial"
+  }
+ ],
+ "9.1.1": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de Servicios de Salud con protocolo de referencia y contrarreferencia en red para diabetes mellitus en centros de especialidades ambulatorias en salud",
+   "formula": "(Número de Servicios de Salud con protocolos de referencia y contrarreferencia en red para diabetes mellitus en centros de especialidades ambulatorias en salud / Número de Servicios de Salud) * 100",
+   "fuente": "Reporte entregado por Departamento Procesos Clínicos y Gestión Hospitalaria",
+   "lineaBase": "Se calculará durante 2025",
+   "anioLineaBase": "Se calculará durante 2025",
+   "meta2030": "100%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento Procesos Clínicos y Gestión Hospitalaria. División de Gestión de la Red Asistencial"
+  }
+ ],
+ "9.1.2": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de hospitales autogestionados que tienen una utilización de camas básicas de entre 80 y 90%.",
+   "formula": "(Número de Establecimientos Autogestionados en Red que tienen una utilización de camas básicas de entre 80% y 90% / Número de Establecimientos Autogestionados en Red en el periodo de medición) *100",
+   "fuente": "Indicadores de la Red Asistencial. Departamento de Estadísticas e Información de Salud",
+   "lineaBase": "49%",
+   "anioLineaBase": "2019",
+   "meta2030": "80%",
+   "periodicidad": "Anual",
+   "responsable": "División de Gestión de la Red Asistencial"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Porcentaje de hospitales autogestionados con un 85% o más de horas disponible de pabellones quirúrgicos que son ocupadas (horas electivas)",
+   "formula": "(Número de hospitales autogestionados con un 85% o más de horas disponibles ocupadas de los quirófanos de cirugía mayor electiva / Número de hospitales autogestionados que cuentan con quirófanos de cirugía mayor electiva) *100",
+   "fuente": "Indicadores de la red asistencial. Departamento de Estadísticas e Información de Salud",
+   "lineaBase": "32%",
+   "anioLineaBase": "2019",
+   "meta2030": "85%",
+   "periodicidad": "Anual",
+   "responsable": "División de Gestión de la Red Asistencial"
+  }
+ ],
+ "9.2.1": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de la población que declara insuficiencia en servicios básicos de salud",
+   "formula": "(Número de personas que declaran insuficiencia en servicios básicos de salud / Número de personas encuestadas) * 100",
+   "fuente": "Encuesta Nacional de Calidad de Vida y Salud (ENCAVI)",
+   "lineaBase": "21,8%",
+   "anioLineaBase": "2023 - 2024",
+   "meta2030": "Menor a 21,8%",
+   "periodicidad": "Cada 5 años",
+   "responsable": "Departamento de Epidemiología. División de Planificación Sanitaria"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Tiempo promedio de desplazamiento a establecimiento de salud primaria más cercano en zonas aisladas según su Servicio de Salud",
+   "formula": "Sumatoria de las horas de desplazamiento a establecimiento de salud primaria más cercano en zonas aisladas/Número de zonas aisladas",
+   "fuente": "Estudio identificación de localidades en condición de aislamiento. Subsecretaría de Desarrollo Regional y Administrativo",
+   "lineaBase": "2,38 horas",
+   "anioLineaBase": "2021",
+   "meta2030": "Menor a 2,38 horas",
+   "periodicidad": "Cada 8 años",
+   "responsable": "Subsecretaría de Desarrollo Regional y Administrativo"
+  }
+ ],
+ "9.2.2": [
+  {
+   "codigo": "1",
+   "nombre": "Mediana de espera de las consultas nuevas de especialidad No Ges en el sistema público de salud",
+   "formula": "Valor que se ubica en el punto medio de la serie de casos ordenados según la cantidad de días de espera",
+   "fuente": "Sistema de información de gestión de tiempos de espera (SIGTE)",
+   "lineaBase": "350 días",
+   "anioLineaBase": "2022",
+   "meta2030": "Menor a 100 días",
+   "periodicidad": "Anual",
+   "responsable": "División de Gestión de la Red Asistencial"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Mediana de espera en intervenciones quirúrgicas No Ges en el sistema público de salud",
+   "formula": "Valor que se ubica en el punto medio de la serie de casos ordenados según la cantidad de días de espera",
+   "fuente": "Sistema de información de gestión de tiempos de espera (SIGTE)",
+   "lineaBase": "549 días",
+   "anioLineaBase": "2022",
+   "meta2030": "Menor a 150 días",
+   "periodicidad": "Anual",
+   "responsable": "División de Gestión de la Red Asistencial"
+  }
+ ],
+ "9.3.1": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de prestadores institucionales de salud que cuentan con el registro de datos mínimos que permita la trazabilidad de los dispositivos médicos, según normativa",
+   "formula": "(Número de prestadores institucionales de salud fiscalizados que cumplen con el registro de datos mínimos que permite la trazabilidad de los dispositivos médicos / Número de prestadores institucionales de salud fiscalizados)*100",
+   "fuente": "Reporte de fiscalizaciones Superintendencia de Salud",
+   "lineaBase": "0%",
+   "anioLineaBase": "2021",
+   "meta2030": "20%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Seguridad y Calidad de la Atención. División de Gestión de la Red Asistencial"
+  },
+  {
+   "codigo": "2",
+   "nombre": "Porcentaje de farmacias acreditadas en calidad",
+   "formula": "(Número de farmacias acreditadas en calidad/Número de farmacias )*100",
+   "fuente": "Registro de prestadores institucionales de salud acreditados",
+   "lineaBase": "0%",
+   "anioLineaBase": "2021",
+   "meta2030": "10%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Seguridad y Calidad de la Atención. División de Gestión de la Red Asistencial"
+  },
+  {
+   "codigo": "3",
+   "nombre": "Prevalencia de eventos adversos a medicamentos",
+   "formula": "(Número de egresos hospitalarios por eventos adversos a medicamentos (EAM)/Número de egresos hospitalarios)*100",
+   "fuente": "Egresos GRD Codificados. Departamento de Planificación Presupuestaria y Gestión de la Información",
+   "lineaBase": "3,1%",
+   "anioLineaBase": "2020",
+   "meta2030": "Igual o menor a 3,1%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Planificación Presupuestaria y Gestión de la Información. División de Gestión de la Red Asistencial"
+  }
+ ],
+ "9.3.2": [
+  {
+   "codigo": "1",
+   "nombre": "Establecer un sistema de reporte nacional de eventos centinela",
+   "formula": "Establecimiento de un sistema de reporte nacional de eventos centinela (Sí / No)",
+   "fuente": "Reporte Unidad de Seguridad y Calidad de la Atención",
+   "lineaBase": "No existe sistema de reporte",
+   "anioLineaBase": "2021",
+   "meta2030": "Sistema de reporte nacional de eventos centinela desarrollado",
+   "periodicidad": "Cada 5 años",
+   "responsable": "Unidad de Seguridad y Calidad de la Atención. Departamento de Seguridad y Calidad de la Atención. División de Gestión de la Red Asistencial"
+  }
+ ],
+ "9.3.3": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de establecimientos prestadores institucionales de atención cerrada de salud que cuentan con una estructura organizacional responsable de liderar las acciones de prevención, vigilancia y control de las Infecciones intra hospitalarias (IIH)",
+   "formula": "(Número de establecimientos prestadores institucionales de atención cerrada de salud que cuentan con una estructura organizacional responsable de liderar las acciones de prevención, vigilancia y control de las Infecciones intra hospitalarias (IIH) / Número total de prestadores institucionales de atención cerrada de salud) * 100",
+   "fuente": "Reporte de Sistema de Información de Calidad de Atención y Resultados Sanitarios (SICARS)",
+   "lineaBase": "37%",
+   "anioLineaBase": "2021",
+   "meta2030": "90%",
+   "periodicidad": "Cada 3 años",
+   "responsable": "Unidad de Seguridad y Calidad de la Atención. Departamento de Seguridad y Calidad de la Atención. División de Gestión de la Red Asistencial"
+  }
+ ],
+ "9.4.1": [
+  {
+   "codigo": "1",
+   "nombre": "Tasa de reclamos registrados en la Oficina de Informaciones, Reclamos y Sugerencias (OIRS) por 1.000 beneficiarios FONASA",
+   "formula": "(Total de reclamos registrados en la OIRS en el año t/ Población beneficiaria FONASA año t) * 1.000",
+   "fuente": "Informe de resultados de la medición. Departamento de Atención a las Personas y Transparencia",
+   "lineaBase": "9,7 por 1.000 beneficiarios",
+   "anioLineaBase": "2019",
+   "meta2030": "Menor a 9,7 por 1.000 beneficiarios",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Atención a las Personas y Transparencia."
+  }
+ ],
+ "9.4.2": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de reclamos respondidos dentro de los plazos legales (15 días hábiles)",
+   "formula": "(Número de reclamos respondidos dentro de los 15 días hábiles / Número de reclamos recibidos) * 100",
+   "fuente": "Reporte Departamento de Atención a las Personas y Transparencia",
+   "lineaBase": "Se construirá durante 2025",
+   "anioLineaBase": "Se construirá durante 2025",
+   "meta2030": "100%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Atención a las Personas y Transparencia"
+  }
+ ],
+ "9.4.3": [
+  {
+   "codigo": "1",
+   "nombre": "Porcentaje de funcionarios que son capacitados en atención y trato al usuario",
+   "formula": "(Número de funcionarios capacitados en Atención y Trato al Usuario del Servicio de Salud / Número de funcionarios del Servicio de Salud) * 100",
+   "fuente": "Reporte entregado por Departamento de Participación Ciudadana y Trato al Usuario",
+   "lineaBase": "Se construirá durante 2025",
+   "anioLineaBase": "Se construirá durante 2025",
+   "meta2030": "80%",
+   "periodicidad": "Anual",
+   "responsable": "Departamento de Participación Social y Gestión usuaria. Gabinete Subsecretaría de Redes Asistenciales"
+  }
+ ]
+}

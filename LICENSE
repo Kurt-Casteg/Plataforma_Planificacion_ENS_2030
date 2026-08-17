@@ -1,0 +1,8 @@
+Plataforma de Planificación
+SEREMI de Salud de Ñuble · Departamento de Control de Gestión y Calidad Institucional
+
+Uso institucional interno.
+
+Librerías de terceros incluidas en vendor/:
+  - Chart.js  — licencia MIT       (ver vendor/LICENSE-chartjs.txt)
+  - SheetJS   — licencia Apache-2.0 (ver vendor/LICENSE-sheetjs.txt)
