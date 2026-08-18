@@ -17,11 +17,39 @@ const CDN = 'https://esm.sh/@supabase/supabase-js@2';
 
 let cliente = null;
 
+/**
+ * Deja la URL del proyecto en la forma que espera la librería: solo el origen.
+ *
+ * Es un error frecuente copiar desde el panel de Supabase la URL de la API REST
+ * (`https://xxx.supabase.co/rest/v1/`) en lugar de la del proyecto. La librería
+ * agrega ella misma `/auth/v1`, `/rest/v1`, etc., así que cualquier ruta o barra
+ * final produce peticiones a rutas dobles y el servidor responde
+ * «Invalid path specified in request URL».
+ */
+export function normalizarUrlProyecto(url) {
+  const crudo = String(url || '').trim();
+  if (!crudo) return '';
+  try {
+    return new URL(crudo).origin;
+  } catch {
+    // Sin protocolo: se asume https y se descarta cualquier ruta.
+    return `https://${crudo.replace(/^\/+/, '').split('/')[0]}`;
+  }
+}
+
 /** Crea (una sola vez) el cliente de Supabase. */
 async function obtenerCliente() {
   if (cliente) return cliente;
+  const url = normalizarUrlProyecto(CONFIG.nube.url);
+  if (!url) throw new Error('Falta la URL del proyecto de Supabase en config.js');
+  if (url !== CONFIG.nube.url) {
+    console.warn(
+      `La URL de Supabase en config.js incluye una ruta o barra final. ` +
+      `Se usará "${url}". Corrígela en config.js para evitar confusiones.`
+    );
+  }
   const { createClient } = await import(/* @vite-ignore */ CDN);
-  cliente = createClient(CONFIG.nube.url, CONFIG.nube.anonKey, {
+  cliente = createClient(url, CONFIG.nube.anonKey, {
     auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
   });
   return cliente;

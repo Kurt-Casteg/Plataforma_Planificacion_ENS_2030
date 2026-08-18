@@ -66,6 +66,21 @@ Debe terminar con «Success». Esto crea:
 1. En Supabase: **Project Settings** → **API**. Copia:
    - **Project URL** (algo como `https://abcdefghijk.supabase.co`)
    - **anon public** (una clave larga)
+
+> ⚠️ **El error más frecuente.** Copia la **Project URL**, que es solo el dominio.
+> No copies la dirección de la API REST (`.../rest/v1/`) ni dejes una barra al
+> final: la librería agrega ella misma `/auth/v1` y `/rest/v1`, así que una ruta
+> de más produce peticiones a rutas dobles y Supabase responde
+> **«Invalid path specified in request URL»** al intentar iniciar sesión.
+>
+> | Correcto | Incorrecto |
+> |---|---|
+> | `https://abcdefghijk.supabase.co` | `https://abcdefghijk.supabase.co/` |
+> | | `https://abcdefghijk.supabase.co/rest/v1/` |
+> | | `https://supabase.com/dashboard/project/abcdefghijk` |
+>
+> La plataforma corrige la URL automáticamente y avisa en la consola del
+> navegador, pero conviene dejarla bien escrita en `config.js`.
 2. Abre `config.js` en la plataforma y complétalo:
 
 ```js
@@ -179,3 +194,35 @@ select * from public.actividades;
 ```
 
 y usa **Download CSV**. Guarda el archivo en la carpeta institucional.
+
+---
+
+## Problemas frecuentes
+
+**«Invalid path specified in request URL»**
+La URL en `config.js` tiene una ruta o una barra de más. Debe ser solo
+`https://xxxxx.supabase.co`. Ver el aviso del Paso 4.
+
+**El enlace del correo no llega**
+Revisa la carpeta de correo no deseado. Si tampoco está, verifica en
+**Authentication** → **Providers** → **Email** que el proveedor esté activo.
+El plan gratuito limita los correos por hora; si estás probando mucho, espera un
+rato o configura un servidor SMTP propio en **Project Settings** → **Auth**.
+
+**El enlace llega pero devuelve a una página en blanco o a localhost**
+Falta registrar la dirección pública en **Authentication** → **URL Configuration**,
+tanto en **Site URL** como en **Redirect URLs**. Debe coincidir exactamente con la
+dirección donde está publicada la plataforma, incluida la barra final:
+`https://kurt-casteg.github.io/Plataforma_Planificacion_ENS_2030/`
+
+**«Solo se permiten correos de: …»**
+El dominio del correo no está en `dominiosPermitidos` de `config.js`. Agrégalo o
+deja la lista vacía (`[]`) para no restringir.
+
+**Inicio de sesión correcto, pero no aparece ninguna actividad**
+Es lo esperado la primera vez: cada persona ve solo lo suyo. Si eres Control de
+Gestión y no ves el resto, falta asignarte el rol `control_gestion` (Paso 5).
+
+**«new row violates row-level security policy»**
+La sesión expiró o el perfil no se creó. Cierra sesión, vuelve a entrar, y
+comprueba en **Table Editor** → `perfiles` que exista tu fila.

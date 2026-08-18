@@ -23,7 +23,7 @@ export const CONFIG = {
    */
   nube: {
     habilitada: true,
-    url: 'https://slaizgcqzagzxunrkumy.supabase.co/rest/v1/',        // Ej: https://xxxxxxxxxxxx.supabase.co
+    url: 'https://slaizgcqzagzxunrkumy.supabase.co',        // Solo el dominio del proyecto, SIN /rest/v1 ni barra final
     anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNsYWl6Z2NxemFnenh1bnJrdW15Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwMzg0MzQsImV4cCI6MjEwMjYxNDQzNH0.YaGeBsnO7Kk42cAKBwJET0yO_nkto-_RlNTLqM7I4Gk',    // Clave pública "anon" del proyecto (no es secreta)
     /** Dominios de correo autorizados para registrarse. Vacío = sin restricción. */
     dominiosPermitidos: ['redsalud.gob.cl', 'minsal.cl']
