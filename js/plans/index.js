@@ -11,16 +11,30 @@
 
 const SECCION_IDENTIFICACION = {
   titulo: 'Identificación',
-  descripcion: 'Datos básicos para identificar la actividad y a su equipo responsable.',
+  descripcion: 'Se completa sola con los datos de tu sesión. Solo revisa que estén correctos.',
   campos: [
     {
-      id: 'codigoActividad', tipo: 'texto', etiqueta: 'Código de actividad',
-      ayuda: 'Número correlativo para ordenar tus actividades (1, 2, 3…).',
-      placeholder: 'Ej: 01', ancho: 'chico', inputMode: 'numeric'
+      id: 'codigoActividad', tipo: 'automatico', etiqueta: 'Código de actividad',
+      ayuda: 'Se asigna solo, correlativo dentro de tu departamento.'
     },
-    { id: 'departamento', tipo: 'select', etiqueta: 'Departamento o unidad', catalogo: 'departamentos', requerido: true },
-    { id: 'responsable', tipo: 'texto', etiqueta: 'Responsable', placeholder: 'Nombre de quien coordina la actividad' },
-    { id: 'correoInstitucional', tipo: 'correo', etiqueta: 'Correo institucional', placeholder: 'nombre@redsalud.gob.cl' }
+    {
+      id: 'departamento', tipo: 'select', etiqueta: 'Departamento o unidad',
+      catalogo: 'departamentos', requerido: true,
+      autoDesde: 'departamento',
+      // Quien no esté en la nómina institucional lo elige una vez y queda
+      // guardado en su perfil.
+      ayudaSinPerfil: 'Elígelo una vez: quedará guardado para tus próximas actividades.'
+    },
+    {
+      id: 'responsable', tipo: 'texto', etiqueta: 'Responsable',
+      placeholder: 'Nombre de quien coordina la actividad',
+      autoDesde: 'nombre'
+    },
+    {
+      id: 'correoInstitucional', tipo: 'correo', etiqueta: 'Correo institucional',
+      placeholder: 'nombre@redsalud.gob.cl',
+      autoDesde: 'correo'
+    }
   ]
 };
 

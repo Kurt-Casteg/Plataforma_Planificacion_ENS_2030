@@ -109,6 +109,48 @@ export const nube = {
   },
 
   /**
+   * Perfil institucional de la persona conectada.
+   * Row Level Security garantiza que solo pueda leer el suyo (salvo Control de
+   * Gestión). Devuelve null si todavía no existe.
+   */
+  async perfil() {
+    const sb = await obtenerCliente();
+    const { data: { user } } = await sb.auth.getUser();
+    if (!user) return null;
+    const { data, error } = await sb
+      .from('perfiles')
+      .select('correo, nombre, departamento, rol')
+      .eq('id', user.id)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    return data;
+  },
+
+  /** Guarda el departamento elegido por quien no venía en la nómina. */
+  async actualizarDepartamento(departamento) {
+    const sb = await obtenerCliente();
+    const { data: { user } } = await sb.auth.getUser();
+    if (!user) throw new Error('Sesión no iniciada.');
+    const { error } = await sb
+      .from('perfiles')
+      .update({ departamento })
+      .eq('id', user.id);
+    if (error) throw new Error(error.message);
+  },
+
+  /**
+   * Reserva el siguiente código correlativo del departamento.
+   * El departamento no se envía: lo determina el servidor a partir del perfil,
+   * para que nadie pueda consumir la numeración de otra unidad.
+   */
+  async reservarCodigo(plan, anio) {
+    const sb = await obtenerCliente();
+    const { data, error } = await sb.rpc('reservar_codigo', { p_plan: plan, p_anio: anio });
+    if (error) throw new Error(error.message);
+    return Number(data);
+  },
+
+  /**
    * Lista las actividades visibles para el usuario.
    * Row Level Security decide qué devuelve: un equipo ve lo suyo,
    * Control de Gestión ve todo.

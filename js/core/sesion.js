@@ -6,6 +6,7 @@
 import { el } from './dom.js';
 import { abrirModal, avisar } from './ui.js';
 import { almacen } from './almacen.js';
+import { perfil } from './perfil.js';
 
 export async function iniciarSesionEnLaNube({ indicador }) {
   const { nube } = await import('./nube.js');
@@ -35,7 +36,17 @@ export async function iniciarSesionEnLaNube({ indicador }) {
     return null;
   }
 
-  marcar('nube', sesion.user.email, 'Sesión iniciada. Tus actividades se sincronizan automáticamente.');
+  // El perfil se carga antes que las actividades: el formulario lo necesita
+  // para completar identificación y para pedir el correlativo al servidor.
+  const datos = await perfil.cargar(nube, sesion);
+
+  marcar(
+    'nube',
+    datos.nombre || sesion.user.email,
+    `${datos.correo}${datos.departamento ? ` · ${datos.departamento}` : ''}. ` +
+    'Sesión iniciada; tus actividades se sincronizan automáticamente.'
+  );
+
   await almacen.conectarNube(nube);
 
   nube.escuchar(() => almacen.conectarNube(nube)).catch(() => { /* tiempo real es opcional */ });
@@ -44,7 +55,7 @@ export async function iniciarSesionEnLaNube({ indicador }) {
     marcar('error', 'Sincronización pendiente', 'Algunos cambios no se enviaron. Se reintentará automáticamente.');
   });
 
-  return sesion;
+  return { sesion, nube, perfil: perfil.datos };
 }
 
 function pedirAcceso(nube) {

@@ -703,3 +703,25 @@ select.campo__control {
   body { background: #fff; }
   .panel, .seccion, .grafico, .kpi { box-shadow: none; border-color: #ccc; break-inside: avoid; }
 }
+
+/* --- Campos completados desde la sesión --------------------------------------- */
+
+.campo__insignia {
+  display: inline-block; margin-left: var(--e-2);
+  padding: 1px 8px; border-radius: var(--r-full);
+  background: var(--marca-suave); color: var(--marca-ink);
+  font-size: 0.6875rem; font-weight: 650; letter-spacing: 0.02em;
+  text-transform: none; vertical-align: middle;
+}
+
+/* Un campo que la plataforma completa sola: se ve claramente no editable,
+   pero sin el gris apagado de un campo deshabilitado por error. */
+.campo__control--automatico,
+.campo__control--automatico:hover {
+  background: var(--superficie-3);
+  border-color: var(--borde);
+  color: var(--ink-2);
+  cursor: default;
+}
+.campo__control--automatico::placeholder { color: var(--ink-3); font-style: italic; }
+select.campo__control--automatico { background-image: none; padding-right: 0.75rem; }

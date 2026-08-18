@@ -12,6 +12,7 @@ import { MESES, IDS_MESES, SUBTITULOS, aNumero, normalizarActividad, validarActi
 import { aOpciones, indexarENS } from './catalogos.js';
 import { monto, numero } from './formato.js';
 import { avisar } from './ui.js';
+import { perfil } from './perfil.js';
 
 export class Formulario {
   /**
@@ -23,16 +24,27 @@ export class Formulario {
    * @param {object} [opciones.indicadores]
    * @param {Function} opciones.alGuardar
    */
-  constructor({ contenedor, plan, catalogos, ens, indicadores, alGuardar }) {
+  constructor({ contenedor, plan, catalogos, ens, indicadores, alGuardar, previsualizarCodigo }) {
     this.contenedor = contenedor;
     this.plan = plan;
     this.catalogos = catalogos;
     this.ens = ens ? indexarENS(ens) : null;
     this.indicadores = indicadores || {};
     this.alGuardar = alGuardar;
+    // Devuelve el próximo código estimado, solo para mostrarlo antes de guardar.
+    this.previsualizarCodigo = previsualizarCodigo || (() => '');
     this.campos = new Map();   // id -> elemento de entrada
     this.editando = null;      // id de la actividad en edición
     this.#dibujar();
+    this.aplicarPerfil();
+    // Si la sesión se resuelve después de dibujar el formulario, se rellena solo.
+    this.__alCambiarPerfil = () => this.aplicarPerfil();
+    perfil.addEventListener('cambio', this.__alCambiarPerfil);
+  }
+
+  /** Libera el listener del perfil al reemplazar el formulario. */
+  destruir() {
+    perfil.removeEventListener('cambio', this.__alCambiarPerfil);
   }
 
   /* ---------------------------------------------------------------- */
@@ -90,6 +102,7 @@ export class Formulario {
 
   #campo(campo) {
     switch (campo.tipo) {
+      case 'automatico': return this.#campoAutomatico(campo);
       case 'cadenaENS': return this.#cadenaENS();
       case 'cronograma': return this.#cronograma();
       case 'presupuesto': return this.#presupuesto();
@@ -148,6 +161,93 @@ export class Formulario {
     const extras = [];
     if (campo.ayudaExtendida) extras.push(this.#ayudaExtendida(campo.ayudaExtendida));
     return this.#envoltura(campo, control, extras);
+  }
+
+  /**
+   * Campo que la plataforma completa sola y la persona no edita.
+   * Se muestra deshabilitado para dejar claro que no hay nada que escribir,
+   * pero su valor sí viaja al guardar porque se lee del elemento, no del envío
+   * nativo del formulario.
+   */
+  #campoAutomatico(campo) {
+    const control = el('input', {
+      class: 'campo__control campo__control--automatico', id: campo.id, name: campo.id,
+      attrs: { type: 'text', readonly: true, 'aria-readonly': 'true', tabindex: '-1' }
+    });
+    this.campos.set(campo.id, control);
+    return this.#envoltura(campo, control);
+  }
+
+  /**
+   * Vuelca los datos de la sesión en los campos que se completan solos.
+   *
+   * Solo actúa sobre una actividad NUEVA. Al editar se respeta lo que quedó
+   * guardado: si Control de Gestión abre la actividad de otra persona, no debe
+   * reemplazarle el responsable por el suyo.
+   */
+  aplicarPerfil() {
+    if (this.editando) return;
+
+    for (const campo of this.plan.secciones.flatMap((s) => s.campos)) {
+      if (!campo.autoDesde) continue;
+      const control = this.campos.get(campo.id);
+      if (!control) continue;
+
+      const valor = perfil[campo.autoDesde] || '';
+      const grupo = this.form?.querySelector(`[data-campo="${CSS.escape(campo.id)}"]`);
+
+      if (perfil.identificado && valor) {
+        control.value = valor;
+        // Se recuerda qué valor puso la sesión, para poder retirarlo si el
+        // perfil cambia (por ejemplo, al cerrar sesión o entrar con otra cuenta).
+        control.dataset.desdePerfil = valor;
+        this.#bloquear(control, true);
+        this.#marcarAutomatico(grupo, 'Desde tu sesión');
+      } else {
+        // El perfil ya no aporta este dato: se limpia solo si lo había puesto
+        // la sesión anterior, nunca lo que la persona escribió a mano.
+        if (control.dataset.desdePerfil && control.value === control.dataset.desdePerfil) {
+          control.value = '';
+        }
+        delete control.dataset.desdePerfil;
+        this.#bloquear(control, false);
+        this.#marcarAutomatico(grupo, null, campo.ayudaSinPerfil);
+      }
+    }
+
+    this.#refrescarCodigo();
+  }
+
+  /** Deshabilita o rehabilita un control conservando su valor. */
+  #bloquear(control, bloqueado) {
+    if (control.tagName === 'SELECT') control.disabled = bloqueado;
+    else control.readOnly = bloqueado;
+    control.classList.toggle('campo__control--automatico', bloqueado);
+    if (bloqueado) control.setAttribute('aria-readonly', 'true');
+    else control.removeAttribute('aria-readonly');
+  }
+
+  /** Pone o quita la insignia "Desde tu sesión" junto a la etiqueta. */
+  #marcarAutomatico(grupo, texto, ayudaAlternativa) {
+    if (!grupo) return;
+    grupo.querySelector('.campo__insignia')?.remove();
+    grupo.querySelector('.campo__ayuda--perfil')?.remove();
+
+    if (texto) {
+      grupo.querySelector('.campo__etiqueta')
+        ?.append(el('span', { class: 'campo__insignia', text: texto }));
+    } else if (ayudaAlternativa) {
+      grupo.append(el('p', { class: 'campo__ayuda campo__ayuda--perfil', text: ayudaAlternativa }));
+    }
+  }
+
+  /** Muestra el código que se asignará, o el ya asignado si se está editando. */
+  #refrescarCodigo() {
+    const control = this.campos.get('codigoActividad');
+    if (!control || this.editando) return;
+    const proximo = this.previsualizarCodigo();
+    control.value = '';
+    control.placeholder = proximo ? `Automático · N° ${proximo}` : 'Automático';
   }
 
   #ayudaExtendida(clave) {
@@ -519,6 +619,14 @@ export class Formulario {
     }
 
     this.#actualizarTotales();
+
+    // En edición se muestra el código ya asignado, no el próximo de la serie.
+    const controlCodigo = this.campos.get('codigoActividad');
+    if (controlCodigo) {
+      controlCodigo.value = actividad.codigoActividad || '';
+      controlCodigo.placeholder = actividad.codigoActividad ? '' : 'Sin código asignado';
+    }
+
     this.#modoEdicion(true, actividad);
     this.contenedor.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
@@ -543,6 +651,8 @@ export class Formulario {
     this.#modoEdicion(false);
     this.#limpiarError('cronograma');
     this.#limpiarError('presupuesto');
+    // Los campos que vienen de la sesión no se "limpian": se vuelven a poner.
+    this.aplicarPerfil();
     if (mostrarAviso) avisar('Formulario limpio.', 'info', { duracion: 2000 });
   }
 

@@ -17,6 +17,8 @@ import { Panel } from './core/panel.js';
 import { avisar, confirmar, abrirModal, aplicarTema, alternarTema, temaActual, mostrarCargando } from './core/ui.js';
 import { exportarExcel, exportarCSV, exportarJSON, leerRespaldo } from './core/exportar.js';
 import { numero } from './core/formato.js';
+import { perfil } from './core/perfil.js';
+import { siguienteCodigo, previsualizarCodigo } from './core/codigos.js';
 
 const estado = {
   plan: null,
@@ -67,6 +69,7 @@ alCargar(async () => {
     // La capa de nube solo se descarga si está activada en config.js.
     import('./core/sesion.js')
       .then((m) => m.iniciarSesionEnLaNube({ indicador: $('#indicadorAlmacen') }))
+      .then(() => refrescar())
       .catch((e) => console.error('Sincronización no disponible:', e));
   }
 
@@ -224,17 +227,15 @@ async function activarPlan(plan) {
 
   estado.panel?.destruir();
 
+  estado.formulario?.destruir?.();
   estado.formulario = new Formulario({
     contenedor: $('#zonaFormulario'),
     plan,
     catalogos: estado.catalogos,
     ens: plan.id === 'pns' ? estado.ens : null,
     indicadores: estado.indicadores,
-    alGuardar: async (actividad, { editaba }) => {
-      const r = await almacen.guardar(actividad);
-      if (r.ok === false) avisar(r.error, 'error', { duracion: 10000 });
-      else avisar(editaba ? 'Actividad actualizada.' : 'Actividad guardada.', 'exito');
-    }
+    previsualizarCodigo: () => previsualizarCodigo(almacen.porPlan(plan.id)),
+    alGuardar: guardarActividad
   });
 
   estado.tabla = new TablaActividades({
@@ -276,6 +277,47 @@ async function activarPlan(plan) {
   refrescar();
 }
 
+/**
+ * Guarda una actividad, asignándole el código correlativo si es nueva.
+ *
+ * El número se pide recién en este momento, no al abrir el formulario: entre
+ * que alguien empieza a escribir y guarda, otra persona de su departamento pudo
+ * haber tomado el siguiente número.
+ */
+async function guardarActividad(actividad, { editaba }) {
+  // Quien no venía en la nómina eligió su departamento a mano: se guarda en su
+  // perfil para no volver a preguntárselo y para que el servidor pueda numerar.
+  // Solo al crear: editar la actividad de otra persona no debe cambiar el
+  // departamento propio.
+  if (!editaba && perfil.necesitaDepartamento && actividad.departamento) {
+    await perfil.fijarDepartamento(actividad.departamento);
+  }
+
+  if (!editaba && !actividad.codigoActividad) {
+    try {
+      actividad.codigoActividad = await siguienteCodigo({
+        plan: actividad.plan,
+        anio: CONFIG.anio,
+        actividadesLocales: almacen.porPlan(actividad.plan)
+      });
+    } catch (e) {
+      console.warn('No se pudo asignar el código automático:', e);
+    }
+  }
+
+  const r = await almacen.guardar(actividad);
+  if (r.ok === false) {
+    avisar(r.error, 'error', { duracion: 10000 });
+    return;
+  }
+  avisar(
+    editaba
+      ? 'Actividad actualizada.'
+      : `Actividad guardada${actividad.codigoActividad ? ` con el código N° ${actividad.codigoActividad}` : ''}.`,
+    'exito'
+  );
+}
+
 function dibujarPortada(plan) {
   const enlace = plan.enlace ? CONFIG.enlaces[plan.enlace.url.split('.')[1]] : null;
   render($('#portada'), el('div', { class: 'portada' }, [
@@ -312,9 +354,12 @@ function dibujarAccionesListado() {
 }
 
 function refrescar() {
+  if (!estado.plan) return;
   const actividades = almacen.porPlan(estado.plan.id);
   estado.tabla?.actualizar(actividades);
   estado.panel?.actualizar(actividades);
+  // El próximo código previsto cambia con cada alta o baja.
+  estado.formulario?.aplicarPerfil();
   for (const p of PLANES) {
     const contador = document.querySelector(`[data-contador="${p.id}"]`);
     if (contador) contador.textContent = String(almacen.porPlan(p.id).length);

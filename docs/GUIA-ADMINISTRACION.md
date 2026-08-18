@@ -151,6 +151,64 @@ nueva, con su propio listado, panel y exportación. No hay que tocar nada más.
 
 ---
 
+## Agregar, cambiar o quitar personas
+
+La sección Identificación se completa sola con los datos de la sesión. Esos
+datos salen de **`docs/nomina.sql`**, que es la lista oficial de quién usa la
+plataforma y con qué perfil.
+
+**Para agregar, mover o cambiar el perfil de alguien:**
+
+1. Abre `docs/nomina.sql` y edita la lista. Cada línea es una persona:
+
+   ```sql
+   ('nombre.apellido@redsalud.gob.cl', 'Nombre Apellido', 'dpto_salud_publica', 'equipo'),
+   ```
+
+   Los identificadores de departamento son los de `data/catalogos.json`
+   (columna `id`), no el nombre completo. Los perfiles válidos son `equipo`,
+   `jefatura` y `control_gestion`.
+
+2. Copia el archivo completo y ejecútalo en Supabase → **SQL Editor**.
+
+3. Sube el cambio al repositorio (`git add . && git commit && git push`) para
+   que quede registrado quién tenía acceso y desde cuándo.
+
+Puedes ejecutarlo cuantas veces quieras: actualiza a quien ya existe, agrega a
+quien falta, y no duplica a nadie.
+
+**Para quitarle el acceso a alguien:** bórralo de `docs/nomina.sql`, y además
+elimina su cuenta en Supabase → **Authentication** → **Users**. Ojo: al eliminar
+la cuenta se borran también sus actividades, así que exporta antes lo que
+necesites conservar.
+
+> Sacar a alguien de `nomina.sql` **no** le quita el acceso por sí solo: su
+> perfil ya existe. La nómina define quién entra con qué datos; el acceso lo
+> corta la eliminación de la cuenta.
+
+## Sobre el código correlativo
+
+Se asigna solo al guardar, y la serie es **por departamento, plan y año**: dos
+personas del mismo departamento comparten la numeración y nunca reciben el mismo
+número, aunque guarden al mismo tiempo.
+
+- El número se reserva recién al presionar Guardar, no al abrir el formulario.
+  Por eso el campo dice «Automático · N° 5» y no «5»: es una estimación hasta
+  que se confirma.
+- Si alguien elimina una actividad, su número **no** se reutiliza. Quedan huecos
+  en la serie y está bien: lo importante es que no se repitan.
+- Sin sesión iniciada, la plataforma numera a partir de lo que hay en ese
+  navegador.
+
+Para reiniciar la numeración de un departamento (por ejemplo, al empezar un año
+nuevo con la base vacía), en Supabase:
+
+```sql
+delete from public.correlativos where anio = 2026 and departamento = 'dpto_salud_publica';
+```
+
+---
+
 ## Cambiar los colores institucionales
 
 Abre `css/tokens.css`. Los valores relevantes están arriba:

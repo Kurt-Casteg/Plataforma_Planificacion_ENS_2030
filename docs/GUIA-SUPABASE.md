@@ -100,31 +100,24 @@ nube: {
 
 ---
 
-## Paso 5 · Asignar roles
+## Paso 5 · Cargar la nómina de personas
 
-La primera vez que cada persona inicia sesión se crea su perfil automáticamente
-con el rol `equipo`. Luego, en Supabase → **SQL Editor**, asigna los roles:
+La plataforma completa sola el nombre, el correo y el departamento de cada
+persona a partir de su sesión. Para que sepa quién es quién, se carga la nómina.
 
-```sql
--- Control de Gestión: ve y consolida todo
-update public.perfiles
-  set rol = 'control_gestion', departamento = 'dpto_control_gestion'
-  where correo = 'kcasteg@redsalud.gob.cl';
+1. Abre el archivo **`docs/nomina.sql`** de la plataforma.
+2. Cópialo completo y pégalo en **SQL Editor** → **Run**.
 
--- Una jefatura: ve todo lo de su departamento
-update public.perfiles
-  set rol = 'jefatura', departamento = 'dpto_salud_publica'
-  where correo = 'jefatura.sp@redsalud.gob.cl';
+Al final devuelve un resumen por departamento; si ves las 40 personas
+distribuidas, quedó bien.
 
--- El resto: solo su propio trabajo
-update public.perfiles
-  set departamento = 'dpto_accion_sanitaria'
-  where correo = 'persona@redsalud.gob.cl';
-```
+Ese archivo es la lista oficial: cuando alguien entre, se vaya, cambie de
+departamento o de perfil, se edita ahí y se vuelve a ejecutar entero. Es seguro
+repetirlo cuantas veces quieras — actualiza a quien ya existe, agrega a quien
+falta y no duplica a nadie. Los cambios alcanzan también a quien ya tenga sesión
+creada.
 
-Los identificadores de departamento son los mismos de `data/catalogos.json`.
-
-Qué ve cada rol:
+### Los tres perfiles
 
 | Rol | Puede ver | Puede editar |
 |---|---|---|
@@ -132,22 +125,31 @@ Qué ve cada rol:
 | `jefatura` | Todas las de su departamento | Las suyas |
 | `control_gestion` | Todas | Todas |
 
----
+### Quien no esté en la nómina
+
+Igual puede entrar, con perfil `equipo`. La plataforma deduce su nombre del
+correo (`albert.mercado@…` → «Albert Mercado») y le pide elegir su departamento
+una sola vez; después queda guardado en su perfil.
+
+Si prefieres que solo entre gente de la nómina, avísame: es una política más en
+la base de datos.
 
 ## Paso 6 · Comprobar
 
 1. Abre la plataforma. Arriba a la derecha dirá **«Sin sesión»**; haz clic ahí.
 2. Escribe tu correo institucional → **Enviar enlace**.
 3. Revisa tu correo y abre el enlace: vuelves a la plataforma ya identificado.
-4. Guarda una actividad de prueba.
-5. En Supabase → **Table Editor** → `actividades`: debe aparecer la fila.
-6. Entra desde otro navegador con otra cuenta: **no** debe ver esa actividad
+4. En la sección **Identificación** deben aparecer solos tu nombre, tu correo y
+   tu departamento, con la insignia «Desde tu sesión», y el código de actividad
+   debe decir «Automático · N° 1».
+5. Guarda una actividad de prueba. El aviso debe confirmar el código asignado.
+6. En Supabase → **Table Editor** → `actividades`: debe aparecer la fila.
+7. Entra desde otro navegador con otra cuenta: **no** debe ver esa actividad
    (a menos que tenga rol `control_gestion`).
 
-Ese último punto es la verificación importante: confirma que las reglas de
-seguridad están activas.
-
----
+El punto 7 es la verificación importante: confirma que las reglas de seguridad
+están activas y que la clave pública de la plataforma no sirve para ver datos
+ajenos.
 
 ## Consolidar y analizar
 

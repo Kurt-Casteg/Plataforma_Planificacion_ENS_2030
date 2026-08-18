@@ -61,7 +61,7 @@ que se publican en GitHub Pages y se abren en cualquier navegador moderno.
 │
 ├── vendor/                 Chart.js y SheetJS servidos desde el propio sitio.
 ├── assets/                 Logotipo.
-└── docs/                   Guías de despliegue, administración y esquema SQL.
+└── docs/                   Guías, esquema SQL y ⭐ nomina.sql (quién usa la plataforma).
 ```
 
 **Las dos estrellas** marcan los archivos que se tocan para operar la plataforma
@@ -108,6 +108,7 @@ publica la nueva versión automáticamente.
 | Agregar un tercer plan | `js/plans/index.js` (un objeto más en `PLANES`) |
 | Cambiar colores o tipografía | `css/tokens.css` |
 | Activar la base de datos compartida | `config.js` → `nube` + `docs/GUIA-SUPABASE.md` |
+| Agregar o mover a una persona | `docs/nomina.sql` |
 
 ---
 
