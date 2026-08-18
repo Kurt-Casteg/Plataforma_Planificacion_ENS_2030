@@ -22,15 +22,15 @@ export const CONFIG = {
    * Cómo activarla: ver docs/GUIA-SUPABASE.md
    */
   nube: {
-    habilitada: false,
-    url: '',        // Ej: https://xxxxxxxxxxxx.supabase.co
-    anonKey: '',    // Clave pública "anon" del proyecto (no es secreta)
+    habilitada: true,
+    url: 'https://slaizgcqzagzxunrkumy.supabase.co/rest/v1/',        // Ej: https://xxxxxxxxxxxx.supabase.co
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNsYWl6Z2NxemFnenh1bnJrdW15Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwMzg0MzQsImV4cCI6MjEwMjYxNDQzNH0.YaGeBsnO7Kk42cAKBwJET0yO_nkto-_RlNTLqM7I4Gk',    // Clave pública "anon" del proyecto (no es secreta)
     /** Dominios de correo autorizados para registrarse. Vacío = sin restricción. */
     dominiosPermitidos: ['redsalud.gob.cl', 'minsal.cl']
   },
 
   /** Correo del equipo que da soporte a la plataforma. */
-  soporte: 'controldegestion.nuble@redsalud.gob.cl',
+  soporte: 'kurt.castro@redsalud.gob.cl',
 
   /** Enlaces de referencia mostrados en la cabecera de cada plan. */
   enlaces: {
