@@ -18,6 +18,24 @@ export const fecha = (iso) => {
   return Number.isNaN(d.getTime()) ? '' : FECHA.format(d);
 };
 
+/**
+ * Fecha en palabras: "miércoles 15 de abril de 2026".
+ *
+ * Los campos <input type="date"> muestran el formato del idioma del navegador,
+ * que en un equipo en inglés es mm/dd/aaaa. Escribir la fecha en palabras al
+ * lado elimina la ambigüedad entre 04/09 y 09/04, que en un plan de compras
+ * significa cinco meses de diferencia.
+ */
+export const fechaEnPalabras = (iso) => {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(iso || ''))) return '';
+  const [a, m, d] = iso.split('-').map(Number);
+  const fecha = new Date(a, m - 1, d);
+  if (Number.isNaN(fecha.getTime())) return '';
+  return new Intl.DateTimeFormat('es-CL', {
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+  }).format(fecha);
+};
+
 export const fechaHora = (iso) => {
   const d = new Date(iso);
   return Number.isNaN(d.getTime()) ? '' : FECHA_LARGA.format(d);

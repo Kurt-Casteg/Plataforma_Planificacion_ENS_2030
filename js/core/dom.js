@@ -70,6 +70,24 @@ export function llenarSelect(select, opciones, { placeholder, valor = '', deshab
   return select;
 }
 
+/**
+ * Rellena un <select> con opciones agrupadas en <optgroup>.
+ * Cada grupo es { grupo: 'Título', opciones: [{value, label}] }.
+ */
+export function llenarSelectAgrupado(select, grupos, { placeholder, valor = '' } = {}) {
+  vaciar(select);
+  if (placeholder != null) select.append(el('option', { value: '', text: placeholder }));
+  for (const g of grupos) {
+    const grupo = el('optgroup', { attrs: { label: g.grupo } });
+    for (const o of g.opciones) {
+      grupo.append(el('option', { value: o.value, text: o.label, title: o.label }));
+    }
+    select.append(grupo);
+  }
+  select.value = valor;
+  return select;
+}
+
 /** Delegación de eventos: un solo listener para muchos elementos. */
 export function delegar(root, evento, selector, handler) {
   root.addEventListener(evento, (e) => {

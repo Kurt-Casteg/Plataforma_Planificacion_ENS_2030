@@ -7,10 +7,13 @@
  * `js/plans/index.js` y nada más.
  */
 
-import { el, render, vaciar, llenarSelect, debounce } from './dom.js';
-import { MESES, IDS_MESES, SUBTITULOS, aNumero, normalizarActividad, validarActividad } from './modelo.js';
-import { aOpciones, indexarENS } from './catalogos.js';
-import { monto, numero } from './formato.js';
+import { el, render, vaciar, llenarSelect, llenarSelectAgrupado, debounce } from './dom.js';
+import {
+  MESES, IDS_MESES, SUBTITULOS, UNIDADES_TIEMPO, aNumero,
+  normalizarActividad, validarActividad, revisarActividad, camposPendientes, nuevoId
+} from './modelo.js';
+import { aOpciones, indexarENS, opcionesClasificador } from './catalogos.js';
+import { monto, numero, fechaEnPalabras } from './formato.js';
 import { avisar } from './ui.js';
 import { perfil } from './perfil.js';
 
@@ -24,12 +27,14 @@ export class Formulario {
    * @param {object} [opciones.indicadores]
    * @param {Function} opciones.alGuardar
    */
-  constructor({ contenedor, plan, catalogos, ens, indicadores, alGuardar, previsualizarCodigo }) {
+  constructor({ contenedor, plan, catalogos, ens, indicadores, clasificador, alGuardar, previsualizarCodigo }) {
     this.contenedor = contenedor;
     this.plan = plan;
     this.catalogos = catalogos;
     this.ens = ens ? indexarENS(ens) : null;
     this.indicadores = indicadores || {};
+    this.clasificador = clasificador || { items: [] };
+    this.compras = new Map();   // id de compra -> { nodo, campos }
     this.alGuardar = alGuardar;
     // Devuelve el próximo código estimado, solo para mostrarlo antes de guardar.
     this.previsualizarCodigo = previsualizarCodigo || (() => '');
@@ -487,8 +492,10 @@ export class Formulario {
         el('div', { class: 'total' }, [
           el('span', { class: 'total__etiqueta', text: `Total subtítulo ${st}` }),
           total
-        ])
-      ]));
+        ]),
+        // El Plan Anual de Compras solo aplica al subtítulo 22.
+        st === '22' ? this.#bloquePac() : null
+      ].filter(Boolean)));
     }
 
     this.totalPresupuesto = el('output', { class: 'total__valor total__valor--destacado', text: monto(0) });
@@ -515,6 +522,275 @@ export class Formulario {
     ]);
   }
 
+  /* ---------------------------------------------------------------- */
+  /* Plan Anual de Compras (PAC)                                       */
+  /* ---------------------------------------------------------------- */
+
+  /**
+   * Bloque plegable dentro del subtítulo 22.
+   *
+   * Se puede registrar más de una compra por actividad: una capacitación puede
+   * necesitar impresión y además contratar al relator, y cada línea va a un
+   * clasificador presupuestario distinto en el Plan Anual de Compras.
+   */
+  #bloquePac() {
+    const interruptor = el('input', {
+      class: 'interruptor__entrada', id: 'pacAplica', name: 'pacAplica',
+      attrs: { type: 'checkbox' }
+    });
+    interruptor.addEventListener('change', () => {
+      this.#alternarPac();
+      // Al activarlo por primera vez se ofrece una compra ya abierta.
+      if (interruptor.checked && !this.compras.size) this.#agregarCompra();
+    });
+    this.campos.set('pacAplica', interruptor);
+
+    this.listaCompras = el('div', { class: 'pac__lista' });
+
+    this.conciliacion = el('p', { class: 'pac__conciliacion', attrs: { hidden: true, role: 'status' } });
+    this.errorPac = el('p', { class: 'campo__error', attrs: { hidden: true, role: 'alert' } });
+
+    this.cuerpoPac = el('div', { class: 'pac__cuerpo', attrs: { hidden: true } }, [
+      el('div', { class: 'nota nota--info' }, [
+        el('p', {}, [
+          'Registra cada producto o servicio que se comprará. ',
+          el('strong', { text: 'Los montos van en miles de pesos' }),
+          ', igual que el presupuesto de arriba.'
+        ])
+      ]),
+      this.listaCompras,
+      el('div', { class: 'pac__pie' }, [
+        el('button', {
+          class: 'btn btn--secundario', attrs: { type: 'button' },
+          text: '+ Agregar compra',
+          on: { click: () => this.#agregarCompra({ enfocar: true }) }
+        }),
+        this.conciliacion
+      ]),
+      this.errorPac
+    ]);
+
+    return el('div', { class: 'pac', dataset: { campo: 'pac' } }, [
+      el('label', { class: 'interruptor interruptor--pac' }, [
+        interruptor,
+        el('span', { class: 'interruptor__control', attrs: { 'aria-hidden': 'true' } }),
+        el('span', { class: 'interruptor__texto' }, [
+          'Esta actividad forma parte del Plan Anual de Compras (PAC)',
+          el('span', { class: 'interruptor__ayuda', text: 'Actívalo si el gasto del subtítulo 22 implica comprar o contratar.' })
+        ])
+      ]),
+      this.cuerpoPac
+    ]);
+  }
+
+  #alternarPac() {
+    const activo = this.campos.get('pacAplica')?.checked;
+    if (this.cuerpoPac) this.cuerpoPac.hidden = !activo;
+    this.#limpiarError('pac');
+    this.#actualizarConciliacion();
+  }
+
+  /** Agrega una tarjeta de compra. Devuelve su identificador. */
+  #agregarCompra(datos = {}) {
+    const id = datos.id || nuevoId();
+    const campos = {};
+    const enfocar = datos.enfocar;
+
+    const control = (clave, etiqueta, nodo, { ancho = '', ayuda = '' } = {}) => {
+      campos[clave] = nodo;
+      const idError = `pac-${id}-${clave}-error`;
+      const error = el('p', { class: 'campo__error', id: idError, attrs: { hidden: true, role: 'alert' } });
+      nodo.setAttribute('aria-describedby', idError);
+      nodo.addEventListener('input', () => this.#alCambiarCompra(id, clave));
+      nodo.addEventListener('change', () => this.#alCambiarCompra(id, clave));
+      // Los campos de fecha repiten el valor en palabras: el formato nativo
+      // depende del idioma del navegador y 04/09 es ambiguo.
+      const eco = nodo.type === 'date'
+        ? el('p', { class: 'campo__ayuda campo__eco', attrs: { 'aria-live': 'polite' } })
+        : null;
+      if (eco) {
+        const refrescar = () => { eco.textContent = fechaEnPalabras(nodo.value); };
+        nodo.addEventListener('change', refrescar);
+        nodo.addEventListener('input', refrescar);
+        refrescar();
+      }
+
+      const grupo = el('div', { class: `campo ${ancho}`, dataset: { pacCampo: `${id}.${clave}` } }, [
+        el('label', { class: 'campo__etiqueta', text: etiqueta, attrs: { for: nodo.id } }),
+        nodo,
+        eco,
+        ayuda && el('p', { class: 'campo__ayuda', text: ayuda }),
+        error
+      ].filter(Boolean));
+      grupo.__error = error;
+      return grupo;
+    };
+
+    const entrada = (clave, tipo, extra = {}) => el('input', {
+      class: 'campo__control', id: `pac-${id}-${clave}`, name: `pac-${id}-${clave}`,
+      attrs: { type: tipo, ...extra }
+    });
+
+    // Clasificador: agrupado por ítem, en texto limpio.
+    const selClasificador = el('select', { class: 'campo__control', id: `pac-${id}-clasificador` });
+    llenarSelectAgrupado(selClasificador, opcionesClasificador(this.clasificador), {
+      placeholder: 'Seleccionar clasificador…',
+      valor: datos.clasificador || ''
+    });
+
+    const selUnidad = el('select', { class: 'campo__control campo__control--unidad', id: `pac-${id}-tiempoUnidad` });
+    llenarSelect(selUnidad, UNIDADES_TIEMPO.map((u) => ({ value: u.id, label: u.nombre })), {
+      valor: datos.tiempoUnidad || 'meses'
+    });
+
+    const numeroTiempo = entrada('tiempoValor', 'text', { inputmode: 'numeric', placeholder: '0' });
+    campos.tiempoUnidad = selUnidad;
+    selUnidad.addEventListener('change', () => this.#alCambiarCompra(id, 'tiempoValor'));
+
+    const indice = el('span', { class: 'pac__indice' });
+    const estado = el('span', { class: 'pac__estado', attrs: { hidden: true } });
+
+    const tarjeta = el('article', { class: 'pac__tarjeta', dataset: { compra: id } }, [
+      el('header', { class: 'pac__cabecera' }, [
+        indice,
+        estado,
+        el('button', {
+          class: 'btn btn--icono btn--peligro-texto',
+          attrs: { type: 'button', title: 'Quitar esta compra', 'aria-label': 'Quitar esta compra' },
+          text: 'Quitar',
+          on: { click: () => this.#quitarCompra(id) }
+        })
+      ]),
+      el('div', { class: 'pac__campos' }, [
+        control('clasificador', 'Clasificador presupuestario', selClasificador, { ancho: 'campo--completo' }),
+        control('producto', 'Producto o servicio a contratar',
+          entrada('producto', 'text', { placeholder: 'Ej: Servicio de impresión de material educativo', maxlength: 300 }),
+          { ancho: 'campo--completo' }),
+        control('cantidad', 'Cantidad',
+          entrada('cantidad', 'text', { inputmode: 'numeric', placeholder: '0' })),
+        el('div', { class: 'campo' }, [
+          el('label', { class: 'campo__etiqueta', text: 'Tiempo de ejecución', attrs: { for: `pac-${id}-tiempoValor` } }),
+          el('div', { class: 'campo__compuesto' }, [numeroTiempo, selUnidad])
+        ]),
+        control('fechaCompra', 'Fecha estimada de compra o contratación', entrada('fechaCompra', 'date')),
+        control('fechaEjecucion', 'Fecha estimada de ejecución', entrada('fechaEjecucion', 'date')),
+        control('monto', 'Monto estimado',
+          entrada('monto', 'text', { inputmode: 'decimal', placeholder: '0' }),
+          { ayuda: 'En miles de pesos (M$).' })
+      ])
+    ]);
+
+    // El campo del tiempo se registra aparte porque va dentro de un compuesto.
+    campos.tiempoValor = numeroTiempo;
+    numeroTiempo.addEventListener('input', () => this.#alCambiarCompra(id, 'tiempoValor'));
+
+    // Valores iniciales (al editar una actividad existente).
+    for (const [clave, nodo] of Object.entries(campos)) {
+      const v = datos[clave];
+      if (v == null || v === '' || v === 0) continue;
+      nodo.value = String(v);
+      if (nodo.type === 'date') nodo.dispatchEvent(new Event('change'));
+    }
+
+    this.compras.set(id, { nodo: tarjeta, campos, indice, estado });
+    this.listaCompras.append(tarjeta);
+    this.#renumerarCompras();
+    this.#actualizarConciliacion();
+
+    if (enfocar) selClasificador.focus();
+    return id;
+  }
+
+  #quitarCompra(id) {
+    const ref = this.compras.get(id);
+    if (!ref) return;
+    ref.nodo.remove();
+    this.compras.delete(id);
+    this.#renumerarCompras();
+    this.#actualizarConciliacion();
+    if (!this.compras.size) this.#limpiarError('pac');
+  }
+
+  #alCambiarCompra(id, clave) {
+    const grupo = this.form?.querySelector(`[data-pac-campo="${CSS.escape(`${id}.${clave}`)}"]`);
+    if (grupo) {
+      grupo.classList.remove('campo--invalido');
+      if (grupo.__error) { grupo.__error.hidden = true; grupo.__error.textContent = ''; }
+    }
+    this.#limpiarError('pac');
+    this.#actualizarConciliacion();
+  }
+
+  #renumerarCompras() {
+    let n = 0;
+    for (const ref of this.compras.values()) {
+      n += 1;
+      ref.indice.textContent = `Compra ${n}`;
+    }
+  }
+
+  /** Lee las compras tal como están en pantalla. */
+  #leerCompras() {
+    return [...this.compras.entries()].map(([id, ref]) => ({
+      id,
+      clasificador: ref.campos.clasificador.value,
+      producto: ref.campos.producto.value,
+      cantidad: ref.campos.cantidad.value,
+      tiempoValor: ref.campos.tiempoValor.value,
+      tiempoUnidad: ref.campos.tiempoUnidad.value,
+      fechaCompra: ref.campos.fechaCompra.value,
+      fechaEjecucion: ref.campos.fechaEjecucion.value,
+      monto: ref.campos.monto.value
+    }));
+  }
+
+  /**
+   * Compara lo planificado en el PAC con el presupuesto del subtítulo 22.
+   * No bloquea nada: solo hace visible una diferencia que, de otro modo,
+   * llegaría hasta la entrega sin que nadie la note.
+   */
+  #actualizarConciliacion() {
+    if (!this.conciliacion) return;
+    const activo = this.campos.get('pacAplica')?.checked;
+    if (!activo) { this.conciliacion.hidden = true; return; }
+
+    const totalPac = this.#leerCompras().reduce((a, c) => a + aNumero(c.monto), 0);
+    const totalST22 = IDS_MESES.reduce((a, m) => a + aNumero(this.campos.get(`pres-22-${m}`)?.value), 0);
+    const diferencia = totalPac - totalST22;
+
+    vaciar(this.conciliacion);
+    this.conciliacion.hidden = false;
+
+    // Marca de estado por compra (completa / faltan datos).
+    for (const [id, ref] of this.compras) {
+      const compra = this.#leerCompras().find((c) => c.id === id);
+      const pendientes = camposPendientes({
+        cantidad: aNumero(compra.cantidad),
+        tiempoValor: aNumero(compra.tiempoValor),
+        fechaCompra: compra.fechaCompra,
+        fechaEjecucion: compra.fechaEjecucion
+      });
+      ref.estado.hidden = pendientes.length === 0;
+      ref.estado.textContent = pendientes.length ? `Faltan ${pendientes.length} datos` : '';
+    }
+
+    if (totalST22 === 0) {
+      this.conciliacion.className = 'pac__conciliacion';
+      this.conciliacion.append(`Total de las compras: ${monto(totalPac)}`);
+      return;
+    }
+
+    const cuadra = Math.abs(diferencia) < 0.5;
+    this.conciliacion.className = `pac__conciliacion ${cuadra ? 'pac__conciliacion--ok' : 'pac__conciliacion--alerta'}`;
+    this.conciliacion.append(
+      el('strong', { text: monto(totalPac) }),
+      ` en compras frente a ${monto(totalST22)} del subtítulo 22. `,
+      cuadra
+        ? 'Cuadra.'
+        : `Diferencia de ${monto(Math.abs(diferencia))} ${diferencia > 0 ? 'de más' : 'de menos'}.`
+    );
+  }
+
   #alternarPresupuesto() {
     const desactivar = this.campos.get('sinPresupuesto').checked;
     this.bloquesPresupuesto.classList.toggle('presupuesto__bloques--inactivo', desactivar);
@@ -524,6 +800,10 @@ export class Formulario {
     });
     if (desactivar) {
       SUBTITULOS.forEach((st) => llenarSelect(this.campos.get(`programa${st}`), [], { placeholder: '—', deshabilitado: true }));
+      // Sin presupuesto no hay compras que planificar.
+      const pac = this.campos.get('pacAplica');
+      if (pac) { pac.checked = false; this.#alternarPac(); }
+      this.#vaciarCompras();
     }
     this.#limpiarError('presupuesto');
     this.#actualizarTotales();
@@ -540,6 +820,12 @@ export class Formulario {
       if (this[`totalST${st}`]) this[`totalST${st}`].textContent = monto(t);
     }
     if (this.totalPresupuesto) this.totalPresupuesto.textContent = monto(general);
+    this.#actualizarConciliacion();
+  }
+
+  #vaciarCompras() {
+    for (const ref of this.compras.values()) ref.nodo.remove();
+    this.compras.clear();
   }
 
   /* ---------------------------------------------------------------- */
@@ -555,6 +841,10 @@ export class Formulario {
       creadaEn: this.creadaEn || undefined,
       sinPresupuesto: this.campos.get('sinPresupuesto')?.checked || false,
       cronograma: Object.fromEntries(IDS_MESES.map((m) => [m, v(`cron-${m}`)])),
+      pac: {
+        aplica: this.campos.get('pacAplica')?.checked || false,
+        compras: this.#leerCompras()
+      },
       presupuesto: Object.fromEntries(SUBTITULOS.map((st) => [st, {
         programatico: v(`programatico${st}`),
         programa: v(`programa${st}`),
@@ -562,7 +852,8 @@ export class Formulario {
       }]))
     };
     for (const [id, control] of this.campos) {
-      if (id.startsWith('cron-') || id.startsWith('pres-') || id === 'sinPresupuesto') continue;
+      if (id.startsWith('cron-') || id.startsWith('pres-') || id.startsWith('pac')) continue;
+      if (id === 'sinPresupuesto') continue;
       datos[id] = control.value;
     }
     return normalizarActividad(datos, { planId: this.plan.id });
@@ -601,6 +892,15 @@ export class Formulario {
 
     this.campos.get('sinPresupuesto').checked = Boolean(actividad.sinPresupuesto);
     this.#alternarPresupuesto();
+
+    // Plan Anual de Compras
+    this.#vaciarCompras();
+    const interruptorPac = this.campos.get('pacAplica');
+    if (interruptorPac) {
+      interruptorPac.checked = Boolean(actividad.pac?.aplica);
+      this.#alternarPac();
+      for (const compra of actividad.pac?.compras ?? []) this.#agregarCompra(compra);
+    }
 
     for (const m of IDS_MESES) {
       const val = actividad.cronograma?.[m] || 0;
@@ -644,6 +944,9 @@ export class Formulario {
       this.#limpiarError(id);
     }
     if (this.detalleENS) { vaciar(this.detalleENS); this.detalleENS.hidden = true; }
+    this.#vaciarCompras();
+    const pacLimpio = this.campos.get('pacAplica');
+    if (pacLimpio) { pacLimpio.checked = false; this.#alternarPac(); }
     this.editando = null;
     this.creadaEn = null;
     this.#alternarPresupuesto();
@@ -688,9 +991,37 @@ export class Formulario {
     control?.removeAttribute('aria-invalid');
     if (id === 'cronograma' && this.errorCronograma) { this.errorCronograma.hidden = true; this.errorCronograma.textContent = ''; }
     if (id === 'presupuesto' && this.errorPresupuesto) { this.errorPresupuesto.hidden = true; this.errorPresupuesto.textContent = ''; }
+    if (id === 'pac' && this.errorPac) { this.errorPac.hidden = true; this.errorPac.textContent = ''; }
+  }
+
+  /** Traduce una clave de error del modelo (pac.2.monto) al campo en pantalla. */
+  #grupoDeCompra(clave) {
+    const m = /^pac\.(\d+)\.(.+)$/.exec(clave);
+    if (!m) return null;
+    const id = [...this.compras.keys()][Number(m[1])];
+    if (!id) return null;
+    return {
+      grupo: this.form?.querySelector(`[data-pac-campo="${CSS.escape(`${id}.${m[2]}`)}"]`),
+      control: this.compras.get(id)?.campos[m[2]]
+    };
   }
 
   #mostrarError(id, mensaje) {
+    const deCompra = this.#grupoDeCompra(id);
+    if (deCompra) {
+      const { grupo, control } = deCompra;
+      if (grupo) {
+        grupo.classList.add('campo--invalido');
+        if (grupo.__error) { grupo.__error.textContent = mensaje; grupo.__error.hidden = false; }
+      }
+      control?.setAttribute('aria-invalid', 'true');
+      return control || grupo;
+    }
+    if (id === 'pac' && this.errorPac) {
+      this.errorPac.textContent = mensaje;
+      this.errorPac.hidden = false;
+      return this.errorPac;
+    }
     if (id === 'cronograma' && this.errorCronograma) {
       this.errorCronograma.textContent = mensaje;
       this.errorCronograma.hidden = false;
@@ -717,6 +1048,10 @@ export class Formulario {
     for (const id of this.campos.keys()) this.#limpiarError(id);
     this.#limpiarError('cronograma');
     this.#limpiarError('presupuesto');
+    this.#limpiarError('pac');
+    for (const [id, ref] of this.compras) {
+      for (const clave of Object.keys(ref.campos)) this.#alCambiarCompra(id, clave);
+    }
 
     if (!valido) {
       let primero = null;
@@ -728,6 +1063,15 @@ export class Formulario {
       primero?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       primero?.focus?.({ preventScroll: true });
       return null;
+    }
+
+    // Avisos que no impiden guardar, pero conviene que la persona vea.
+    for (const aviso of revisarActividad(actividad)) {
+      const texto = aviso.tipo === 'descuadre'
+        ? `Las compras del PAC suman ${monto(aviso.pac)} y el subtítulo 22 tiene ${monto(aviso.st22)}: ` +
+          `${monto(Math.abs(aviso.diferencia))} de ${aviso.diferencia > 0 ? 'más' : 'menos'}.`
+        : aviso.mensaje;
+      avisar(texto, 'alerta', { duracion: 9000 });
     }
 
     const editaba = Boolean(this.editando);

@@ -27,6 +27,27 @@ async function cargar(archivo) {
 export const cargarCatalogos = () => cargar('catalogos.json');
 export const cargarENS = () => cargar('ens-2026.json');
 export const cargarIndicadores = () => cargar('indicadores-re-2026.json');
+export const cargarClasificador = () => cargar('clasificador-presupuestario.json');
+
+/**
+ * Opciones agrupadas para el desplegable del clasificador presupuestario.
+ * El usuario ve solo texto limpio; el valor que viaja es el código.
+ */
+export function opcionesClasificador(clasificador) {
+  return (clasificador?.items ?? []).map((item) => ({
+    grupo: item.nombre,
+    opciones: item.asignaciones.map((a) => ({ value: a.codigo, label: a.nombre }))
+  }));
+}
+
+/** Busca una asignación por su código y devuelve también su ítem. */
+export function buscarAsignacion(clasificador, codigo) {
+  for (const item of clasificador?.items ?? []) {
+    const a = item.asignaciones.find((x) => x.codigo === codigo);
+    if (a) return { item, asignacion: a };
+  }
+  return null;
+}
 
 /* ------------------------------------------------------------------ */
 /* Consultas sobre la cadena de resultados ENS                         */

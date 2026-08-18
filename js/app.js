@@ -9,7 +9,7 @@
 import { CONFIG } from '../config.js';
 import { el, render, vaciar, $, alCargar } from './core/dom.js';
 import { almacen } from './core/almacen.js';
-import { cargarCatalogos, cargarENS, cargarIndicadores, indexarENS } from './core/catalogos.js';
+import { cargarCatalogos, cargarENS, cargarIndicadores, cargarClasificador, indexarENS } from './core/catalogos.js';
 import { PLANES, planPorId } from './plans/index.js';
 import { Formulario } from './core/formulario.js';
 import { TablaActividades } from './core/tabla.js';
@@ -26,6 +26,7 @@ const estado = {
   ens: null,
   ensIndex: null,
   indicadores: {},
+  clasificador: { items: [] },
   formulario: null,
   tabla: null,
   panel: null
@@ -44,6 +45,11 @@ alCargar(async () => {
   const cerrarCarga = mostrarCargando('Cargando la plataforma…');
   try {
     estado.catalogos = await cargarCatalogos();
+    // El clasificador presupuestario es pequeño y lo usan ambos planes.
+    estado.clasificador = await cargarClasificador().catch((e) => {
+      console.warn('No se pudo cargar el clasificador presupuestario:', e);
+      return { items: [] };
+    });
   } catch (e) {
     cerrarCarga();
     render($('#aplicacion'), el('div', { class: 'panel' }, [
@@ -243,6 +249,7 @@ async function activarPlan(plan) {
     catalogos: estado.catalogos,
     ens: plan.id === 'pns' ? estado.ens : null,
     indicadores: estado.indicadores,
+    clasificador: estado.clasificador,
     previsualizarCodigo: () => previsualizarCodigo(almacen.porPlan(plan.id)),
     alGuardar: guardarActividad
   });
@@ -251,6 +258,7 @@ async function activarPlan(plan) {
     contenedor: $('#zonaTabla'),
     plan,
     catalogos: estado.catalogos,
+    clasificador: estado.clasificador,
     acciones: {
       editar: (id) => {
         const a = almacen.obtener(id);
@@ -384,6 +392,7 @@ function contexto() {
     plan: estado.plan,
     catalogos: estado.catalogos,
     ens: estado.ensIndex,
+    clasificador: estado.clasificador,
     institucion: CONFIG.institucion,
     anio: CONFIG.anio
   };
@@ -546,8 +555,10 @@ function mostrarAyuda() {
       paso(1, 'Elige tu plan', 'Arriba puedes cambiar entre el Plan Nacional de Salud y el Plan de Gestión Institucional. Cada uno guarda sus actividades por separado.'),
       paso(2, 'Completa el formulario', 'Los campos con asterisco son obligatorios. En el Plan Nacional de Salud, cada selección de la cadena de resultados filtra la siguiente y te muestra el indicador oficial asociado.'),
       paso(3, 'Registra cronograma y presupuesto', 'Indica cuántas veces ejecutarás la actividad cada mes. Los montos van en miles de pesos. Si no requiere presupuesto, activa el interruptor.'),
-      paso(4, 'Revisa y ajusta', 'En "Actividades registradas" puedes buscar, ver el detalle, editar, duplicar o eliminar. El panel de análisis se actualiza solo.'),
-      paso(5, 'Exporta y respalda', 'Usa "Exportar a Excel" para la entrega oficial. Usa "Respaldar (JSON)" para guardar una copia que puedas volver a importar aquí o enviar a Control de Gestión para consolidar.'),
+      paso(4, 'Si vas a comprar, completa el PAC',
+        'Dentro del Subtítulo 22, activa el interruptor del Plan Anual de Compras y agrega una tarjeta por cada producto o servicio a contratar. Puedes agregar varias. La plataforma compara la suma con el presupuesto del subtítulo y te avisa si no cuadran.'),
+      paso(5, 'Revisa y ajusta', 'En "Actividades registradas" puedes buscar, ver el detalle, editar, duplicar o eliminar. El panel de análisis se actualiza solo.'),
+      paso(6, 'Exporta y respalda', 'Usa "Exportar a Excel" para la entrega oficial. Usa "Respaldar (JSON)" para guardar una copia que puedas volver a importar aquí o enviar a Control de Gestión para consolidar.'),
       el('div', { class: 'nota nota--info' }, [
         el('p', {}, [
           el('strong', { text: 'Importante: ' }),

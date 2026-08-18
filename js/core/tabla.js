@@ -5,15 +5,16 @@
 
 import { el, render, vaciar, delegar, debounce, llenarSelect } from './dom.js';
 import { monto, numero, fecha, recortar } from './formato.js';
-import { etiquetaDe, aOpciones } from './catalogos.js';
-import { MESES } from './modelo.js';
+import { etiquetaDe, aOpciones, buscarAsignacion } from './catalogos.js';
+import { MESES, UNIDADES_TIEMPO } from './modelo.js';
 import { abrirModal } from './ui.js';
 
 export class TablaActividades {
-  constructor({ contenedor, plan, catalogos, acciones }) {
+  constructor({ contenedor, plan, catalogos, clasificador, acciones }) {
     this.contenedor = contenedor;
     this.plan = plan;
     this.catalogos = catalogos;
+    this.clasificador = clasificador || { items: [] };
     this.acciones = acciones;         // { editar, duplicar, eliminar }
     this.actividades = [];
     this.filtro = { texto: '', departamento: '', tipo: '' };
@@ -261,7 +262,26 @@ export class TablaActividades {
                 ].filter(Boolean));
               }).filter(Boolean)),
           !a.sinPresupuesto && el('p', { class: 'detalle__total', text: `Total: ${monto(a.totales.presupuesto)}` })
-        ].filter(Boolean))
+        ].filter(Boolean)),
+
+        a.pac?.aplica && a.pac.compras.length && el('section', { class: 'detalle__bloque' }, [
+          el('h3', { text: `Plan Anual de Compras · ${a.pac.compras.length} compra${a.pac.compras.length > 1 ? 's' : ''} · ${monto(a.totales.pac)}` }),
+          ...a.pac.compras.map((c, i) => {
+            const ref = buscarAsignacion(this.clasificador, c.clasificador);
+            const unidad = UNIDADES_TIEMPO.find((u) => u.id === c.tiempoUnidad)?.nombre ?? c.tiempoUnidad;
+            return el('div', { class: 'detalle__compra' }, [
+              el('p', { class: 'detalle__subtitulo-titulo', text: `${i + 1}. ${c.producto || 'Sin producto indicado'}` }),
+              ref && el('p', { class: 'tabla__sub', text: `${ref.item.nombre} · ${ref.asignacion.nombre}` }),
+              el('div', { class: 'chips' }, [
+                c.cantidad ? el('span', { class: 'chip', text: `Cantidad: ${numero(c.cantidad)}` }) : null,
+                c.tiempoValor ? el('span', { class: 'chip', text: `Ejecución: ${numero(c.tiempoValor)} ${unidad}` }) : null,
+                c.fechaCompra ? el('span', { class: 'chip', text: `Compra: ${fecha(c.fechaCompra)}` }) : null,
+                c.fechaEjecucion ? el('span', { class: 'chip', text: `Ejecuta: ${fecha(c.fechaEjecucion)}` }) : null,
+                el('span', { class: 'chip', text: monto(c.monto) })
+              ].filter(Boolean))
+            ].filter(Boolean));
+          })
+        ])
       ].filter(Boolean),
       acciones: [
         { texto: 'Cerrar', clase: 'btn--secundario', alHacerClic: (m) => m.cerrar() },

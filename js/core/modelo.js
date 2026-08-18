@@ -24,6 +24,20 @@ export const MESES = [
 export const IDS_MESES = MESES.map((m) => m.id);
 export const SUBTITULOS = ['21', '22'];
 
+/**
+ * Unidades del tiempo de ejecución de una compra del Plan Anual de Compras.
+ * Se captura como número + unidad, y no como texto libre, para que sea
+ * comparable entre departamentos al consolidar.
+ */
+export const UNIDADES_TIEMPO = [
+  { id: 'dias', nombre: 'días' },
+  { id: 'semanas', nombre: 'semanas' },
+  { id: 'meses', nombre: 'meses' }
+];
+
+/** Campos de una compra que, si faltan, la dejan marcada como incompleta. */
+export const CAMPOS_PAC_SUGERIDOS = ['cantidad', 'tiempoValor', 'fechaCompra', 'fechaEjecucion'];
+
 const LIMITES = {
   texto: 300,
   textoLargo: 3000,
@@ -87,6 +101,36 @@ const idCatalogo = (v) => {
 
 const sumar = (obj) => Object.values(obj).reduce((a, b) => a + b, 0);
 
+/** Fecha en formato AAAA-MM-DD, o cadena vacía si no es una fecha válida. */
+const fechaISO = (v) => {
+  const s = texto(v, 10);
+  return /^\d{4}-\d{2}-\d{2}$/.test(s) ? s : '';
+};
+
+/**
+ * Normaliza una compra del Plan Anual de Compras.
+ * Se aplica al leer del formulario, al importar y al recibir de la nube.
+ */
+function normalizarCompra(entrada = {}) {
+  const unidad = texto(entrada.tiempoUnidad, 12);
+  return {
+    id: entrada.id ? String(entrada.id) : nuevoId(),
+    clasificador: texto(entrada.clasificador, 12),
+    producto: texto(entrada.producto, 300),
+    cantidad: aNumero(entrada.cantidad, 1000000),
+    tiempoValor: aNumero(entrada.tiempoValor, 3650),
+    tiempoUnidad: UNIDADES_TIEMPO.some((u) => u.id === unidad) ? unidad : 'meses',
+    fechaCompra: fechaISO(entrada.fechaCompra),
+    fechaEjecucion: fechaISO(entrada.fechaEjecucion),
+    monto: aNumero(entrada.monto, LIMITES.mesMonto)
+  };
+}
+
+/** Una compra está incompleta si le faltan datos sugeridos pero no obligatorios. */
+export function camposPendientes(compra) {
+  return CAMPOS_PAC_SUGERIDOS.filter((c) => !compra[c]);
+}
+
 /**
  * Devuelve una actividad normalizada y con todos los totales recalculados.
  * Los totales NUNCA se confían al origen: siempre se derivan de los meses.
@@ -107,8 +151,20 @@ export function normalizarActividad(entrada = {}, { planId } = {}) {
     };
   }
 
+  // Plan Anual de Compras: solo tiene sentido dentro del subtítulo 22.
+  const pac = {
+    aplica: Boolean(entrada.pac?.aplica),
+    compras: (Array.isArray(entrada.pac?.compras) ? entrada.pac.compras : [])
+      .slice(0, 50)
+      .map(normalizarCompra)
+  };
+  if (!pac.aplica) pac.compras = [];
+
   const sinPresupuesto = Boolean(entrada.sinPresupuesto);
   if (sinPresupuesto) {
+    // Sin presupuesto no hay compras que planificar.
+    pac.aplica = false;
+    pac.compras = [];
     for (const st of SUBTITULOS) {
       presupuesto[st].meses = Object.fromEntries(IDS_MESES.map((m) => [m, 0]));
       presupuesto[st].programatico = '';
@@ -122,6 +178,7 @@ export function normalizarActividad(entrada = {}, { planId } = {}) {
     presupuesto22: sumar(presupuesto['22'].meses)
   };
   totales.presupuesto = totales.presupuesto21 + totales.presupuesto22;
+  totales.pac = pac.compras.reduce((a, c) => a + c.monto, 0);
 
   const ahora = new Date().toISOString();
   return {
@@ -154,6 +211,7 @@ export function normalizarActividad(entrada = {}, { planId } = {}) {
     cronograma,
     sinPresupuesto,
     presupuesto,
+    pac,
     totales,
 
     creadaEn: entrada.creadaEn || ahora,
@@ -205,7 +263,52 @@ export function validarActividad(actividad, plan) {
     }
   }
 
+  // --- Plan Anual de Compras -----------------------------------------------
+  if (actividad.pac.aplica) {
+    if (!actividad.pac.compras.length) {
+      errores.pac = 'Agrega al menos una compra o desactiva el Plan Anual de Compras.';
+    }
+    actividad.pac.compras.forEach((compra, i) => {
+      // Obligatorios: sin estos tres, la ficha no sirve para el PAC.
+      if (!compra.clasificador) errores[`pac.${i}.clasificador`] = 'Selecciona el clasificador presupuestario.';
+      if (!compra.producto) errores[`pac.${i}.producto`] = 'Indica el producto o servicio a contratar.';
+      if (compra.monto <= 0) errores[`pac.${i}.monto`] = 'Ingresa el monto estimado.';
+      // Coherencia: no se puede ejecutar antes de comprar.
+      if (compra.fechaCompra && compra.fechaEjecucion && compra.fechaEjecucion < compra.fechaCompra) {
+        errores[`pac.${i}.fechaEjecucion`] = 'La ejecución no puede empezar antes de la compra.';
+      }
+    });
+  }
+
   return { valido: Object.keys(errores).length === 0, errores };
+}
+
+/**
+ * Revisiones que NO impiden guardar, pero conviene mostrar.
+ * Se separan de la validación a propósito: son avisos, no errores.
+ * @returns {Array<{tipo: string, mensaje: string}>}
+ */
+export function revisarActividad(actividad) {
+  const avisos = [];
+  if (!actividad.pac.aplica) return avisos;
+
+  const incompletas = actividad.pac.compras.filter((c) => camposPendientes(c).length).length;
+  if (incompletas) {
+    avisos.push({
+      tipo: 'incompleto',
+      mensaje: `${incompletas} compra${incompletas > 1 ? 's' : ''} sin completar cantidad, tiempo o fechas.`
+    });
+  }
+
+  // El PAC y el presupuesto del subtítulo 22 describen el mismo gasto: si no
+  // cuadran, alguno de los dos está mal y conviene revisarlo antes de entregar.
+  const diferencia = actividad.totales.pac - actividad.totales.presupuesto22;
+  if (actividad.totales.presupuesto22 > 0 && Math.abs(diferencia) > 0.5) {
+    // Se entregan los números en bruto: dar formato es tarea de la interfaz.
+    avisos.push({ tipo: 'descuadre', diferencia, pac: actividad.totales.pac, st22: actividad.totales.presupuesto22 });
+  }
+
+  return avisos;
 }
 
 /** Aplana una actividad a un objeto de una sola capa (para exportar). */

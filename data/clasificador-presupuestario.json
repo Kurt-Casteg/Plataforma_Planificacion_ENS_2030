@@ -1,0 +1,277 @@
+{
+ "id": "clasificador-presupuestario",
+ "subtitulo": "22",
+ "nombre": "Bienes y Servicios de Consumo",
+ "fuente": "Clasificador presupuestario · Subtítulo 22 (Decreto N.º 854, Ministerio de Hacienda)",
+ "nota": "Los nombres se muestran en texto simple; los códigos se conservan para la exportación y el reporte oficial.",
+ "items": [
+  {
+   "codigo": "2202",
+   "nombre": "Textiles, Vestuario y Calzado",
+   "asignaciones": [
+    {
+     "codigo": "2202002",
+     "nombre": "Vestuario, Accesorios y Prendas Diversas"
+    },
+    {
+     "codigo": "2202003",
+     "nombre": "Calzado"
+    }
+   ]
+  },
+  {
+   "codigo": "2203",
+   "nombre": "Combustibles y Lubricantes",
+   "asignaciones": [
+    {
+     "codigo": "2203001",
+     "nombre": "Para Vehículos"
+    },
+    {
+     "codigo": "2203002",
+     "nombre": "Para Maquinarias, Equipos de Producción, Tracción y Elevación"
+    }
+   ]
+  },
+  {
+   "codigo": "2204",
+   "nombre": "Materiales de Uso o Consumo",
+   "asignaciones": [
+    {
+     "codigo": "2204001",
+     "nombre": "Materiales de Oficina"
+    },
+    {
+     "codigo": "2204002",
+     "nombre": "Textos y Otros Materiales de Enseñanza"
+    },
+    {
+     "codigo": "2204003",
+     "nombre": "Productos Químicos"
+    },
+    {
+     "codigo": "2204004",
+     "nombre": "Productos Farmacéuticos"
+    },
+    {
+     "codigo": "2204005",
+     "nombre": "Materiales y Útiles Quirúrgicos"
+    },
+    {
+     "codigo": "2204007",
+     "nombre": "Materiales y Útiles de Aseo"
+    },
+    {
+     "codigo": "2204009",
+     "nombre": "Insumos, Repuestos y Accesorios Computacionales"
+    },
+    {
+     "codigo": "2204010",
+     "nombre": "Materiales para Mantenimiento y Reparaciones de Inmuebles"
+    },
+    {
+     "codigo": "2204011",
+     "nombre": "Repuestos y Accesorios para Mantenimiento y Reparaciones de Vehículos"
+    },
+    {
+     "codigo": "2204012",
+     "nombre": "Otros Materiales, Repuestos y Útiles Diversos para Mantenimiento y Reparaciones"
+    },
+    {
+     "codigo": "2204013",
+     "nombre": "Equipos Menores"
+    },
+    {
+     "codigo": "2204999",
+     "nombre": "Otros"
+    }
+   ]
+  },
+  {
+   "codigo": "2205",
+   "nombre": "Servicios Básicos",
+   "asignaciones": [
+    {
+     "codigo": "2205001",
+     "nombre": "Electricidad"
+    },
+    {
+     "codigo": "2205002",
+     "nombre": "Agua"
+    },
+    {
+     "codigo": "2205003",
+     "nombre": "Gas"
+    },
+    {
+     "codigo": "2205004",
+     "nombre": "Correo"
+    },
+    {
+     "codigo": "2205005",
+     "nombre": "Telefonía Fija"
+    },
+    {
+     "codigo": "2205006",
+     "nombre": "Telefonía Celular"
+    },
+    {
+     "codigo": "2205008",
+     "nombre": "Enlaces de Telecomunicaciones"
+    },
+    {
+     "codigo": "2205999",
+     "nombre": "Otros"
+    }
+   ]
+  },
+  {
+   "codigo": "2206",
+   "nombre": "Mantenimiento y Reparaciones",
+   "asignaciones": [
+    {
+     "codigo": "2206001",
+     "nombre": "Mantenimiento y Reparación de Edificaciones"
+    },
+    {
+     "codigo": "2206002",
+     "nombre": "Mantenimiento y Reparación de Vehículos"
+    },
+    {
+     "codigo": "2206004",
+     "nombre": "Mantenimiento y Reparación de Máquinas y Equipos de Oficina"
+    },
+    {
+     "codigo": "2206005",
+     "nombre": "Mantenimiento y Reparaciones de Maquinarias y Equipos de Producción"
+    },
+    {
+     "codigo": "2206006",
+     "nombre": "Mantenimiento y Reparación de Otras Maquinarias y Equipos"
+    }
+   ]
+  },
+  {
+   "codigo": "2207",
+   "nombre": "Publicidad y Difusión",
+   "asignaciones": [
+    {
+     "codigo": "2207001",
+     "nombre": "Servicios de Publicidad"
+    },
+    {
+     "codigo": "2207002",
+     "nombre": "Servicios de Impresión"
+    },
+    {
+     "codigo": "2207003",
+     "nombre": "Servicios de Encuadernación y Empaste"
+    },
+    {
+     "codigo": "2207999",
+     "nombre": "Otros"
+    }
+   ]
+  },
+  {
+   "codigo": "2208",
+   "nombre": "Servicios Generales",
+   "asignaciones": [
+    {
+     "codigo": "2208001",
+     "nombre": "Servicios de Aseo"
+    },
+    {
+     "codigo": "2208002",
+     "nombre": "Servicios de Vigilancia"
+    },
+    {
+     "codigo": "2208007",
+     "nombre": "Pasajes, Fletes y Bodegajes"
+    },
+    {
+     "codigo": "2208008",
+     "nombre": "Salas Cunas y/o Jardines Infantiles"
+    },
+    {
+     "codigo": "2208010",
+     "nombre": "Servicios de Suscripción y Similares"
+    },
+    {
+     "codigo": "2208999",
+     "nombre": "Otros"
+    }
+   ]
+  },
+  {
+   "codigo": "2209",
+   "nombre": "Arriendos",
+   "asignaciones": [
+    {
+     "codigo": "2209002",
+     "nombre": "Arriendo de Edificios"
+    },
+    {
+     "codigo": "2209003",
+     "nombre": "Arriendo de Vehículos"
+    },
+    {
+     "codigo": "2209005",
+     "nombre": "Arriendo de Máquinas y Equipos"
+    },
+    {
+     "codigo": "2209006",
+     "nombre": "Arriendo de Equipos Informáticos"
+    },
+    {
+     "codigo": "2209999",
+     "nombre": "Otros"
+    }
+   ]
+  },
+  {
+   "codigo": "2211",
+   "nombre": "Servicios Técnicos y Profesionales",
+   "asignaciones": [
+    {
+     "codigo": "2211001",
+     "nombre": "Estudios e Investigaciones"
+    },
+    {
+     "codigo": "2211002",
+     "nombre": "Cursos de Capacitación"
+    },
+    {
+     "codigo": "2211003",
+     "nombre": "Servicios Informáticos"
+    },
+    {
+     "codigo": "2211999",
+     "nombre": "Otros"
+    }
+   ]
+  },
+  {
+   "codigo": "2212",
+   "nombre": "Otros Gastos en Bienes y Servicios de Consumo",
+   "asignaciones": [
+    {
+     "codigo": "2212002",
+     "nombre": "Gastos Menores"
+    },
+    {
+     "codigo": "2212003",
+     "nombre": "Gastos de Representación, Protocolo y Ceremonial"
+    },
+    {
+     "codigo": "2212999",
+     "nombre": "Otros"
+    },
+    {
+     "codigo": "2212999019",
+     "nombre": "Servicios de Intermediación CENABAST"
+    }
+   ]
+  }
+ ]
+}

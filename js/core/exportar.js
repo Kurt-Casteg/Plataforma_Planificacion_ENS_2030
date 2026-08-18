@@ -9,9 +9,9 @@
  * al exportar, para evitar la inyección de fórmulas en Excel (CSV injection).
  */
 
-import { MESES, IDS_MESES, SUBTITULOS, normalizarActividad } from './modelo.js';
+import { MESES, IDS_MESES, SUBTITULOS, UNIDADES_TIEMPO, normalizarActividad } from './modelo.js';
 import { nombreArchivo } from './formato.js';
-import { etiquetaDe } from './catalogos.js';
+import { etiquetaDe, buscarAsignacion } from './catalogos.js';
 
 /** Copia local primero; las CDN quedan como respaldo. */
 const SHEETJS = [
@@ -108,6 +108,9 @@ export function construirFilas(actividades, { plan, catalogos, ens }) {
     ...MESES.map((m) => `ST22 ${m.corto}`),
     'Total ST22 (M$)',
     'Total presupuesto (M$)',
+    'En Plan Anual de Compras',
+    'N° de compras PAC',
+    'Total PAC (M$)',
     'Fecha de registro'
   ];
 
@@ -137,10 +140,59 @@ export function construirFilas(actividades, { plan, catalogos, ens }) {
       ...IDS_MESES.map((m) => a.presupuesto['22'].meses[m]),
       a.totales.presupuesto22,
       a.totales.presupuesto,
+      a.pac.aplica ? 'Sí' : 'No',
+      a.pac.compras.length,
+      a.totales.pac,
       new Date(a.creadaEn).toLocaleDateString('es-CL')
     ];
   });
 
+  return { encabezados, filas };
+}
+
+/**
+ * Filas del Plan Anual de Compras: una por compra, no por actividad.
+ *
+ * El PAC es una entrega distinta del plan de actividades —va a Adquisiciones—
+ * así que se arma como su propia tabla, con la actividad de origen como
+ * referencia para poder rastrearla.
+ */
+export function construirFilasPac(actividades, { catalogos, clasificador, plan }) {
+  const encabezados = [
+    'Código actividad', 'Actividad', 'Departamento', 'Responsable',
+    'Código clasificador', 'Ítem', 'Nombre del ítem', 'Asignación',
+    'Producto o servicio a contratar', 'Cantidad',
+    'Tiempo de ejecución', 'Unidad de tiempo',
+    'Fecha estimada de compra', 'Fecha estimada de ejecución',
+    'Monto estimado (M$)', 'Estado de la ficha'
+  ];
+
+  const filas = [];
+  for (const a of actividades) {
+    if (!a.pac.aplica) continue;
+    for (const c of a.pac.compras) {
+      const ref = buscarAsignacion(clasificador, c.clasificador);
+      const faltan = ['cantidad', 'tiempoValor', 'fechaCompra', 'fechaEjecucion'].filter((k) => !c[k]);
+      filas.push([
+        seguro(a.codigoActividad),
+        seguro(a.nombreActividad),
+        seguro(etiquetaDe(catalogos.departamentos, a.departamento) || a.departamento),
+        seguro(a.responsable),
+        seguro(c.clasificador),
+        seguro(ref?.item.codigo ?? ''),
+        seguro(ref?.item.nombre ?? ''),
+        seguro(ref?.asignacion.nombre ?? ''),
+        seguro(c.producto),
+        c.cantidad || '',
+        c.tiempoValor || '',
+        UNIDADES_TIEMPO.find((u) => u.id === c.tiempoUnidad)?.nombre ?? c.tiempoUnidad,
+        c.fechaCompra || '',
+        c.fechaEjecucion || '',
+        c.monto,
+        faltan.length ? `Incompleta (faltan ${faltan.length} datos)` : 'Completa'
+      ]);
+    }
+  }
   return { encabezados, filas };
 }
 
@@ -162,15 +214,33 @@ export async function exportarExcel(actividades, ctx) {
   hoja['!autofilter'] = { ref: XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: filas.length, c: encabezados.length - 1 } }) };
   XLSX.utils.book_append_sheet(libro, hoja, 'Actividades');
 
-  // Hoja 2: resumen por departamento.
+  // Hoja 2: Plan Anual de Compras (solo si hay algo que informar).
+  const { encabezados: encPac, filas: filasPac } = construirFilasPac(actividades, ctx);
+  if (filasPac.length) {
+    const hojaPac = XLSX.utils.aoa_to_sheet([encPac, ...filasPac]);
+    hojaPac['!cols'] = [
+      { wch: 10 }, { wch: 40 }, { wch: 30 }, { wch: 22 },
+      { wch: 14 }, { wch: 8 }, { wch: 32 }, { wch: 40 },
+      { wch: 40 }, { wch: 10 }, { wch: 14 }, { wch: 14 },
+      { wch: 16 }, { wch: 18 }, { wch: 16 }, { wch: 26 }
+    ];
+    hojaPac['!freeze'] = { xSplit: 0, ySplit: 1 };
+    hojaPac['!autofilter'] = {
+      ref: XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: filasPac.length, c: encPac.length - 1 } })
+    };
+    XLSX.utils.book_append_sheet(libro, hojaPac, 'PAC');
+  }
+
+  // Hoja 3: resumen por departamento.
   const porDepto = new Map();
   for (const a of actividades) {
     const clave = etiquetaDe(catalogos.departamentos, a.departamento) || 'Sin departamento';
-    const acumulado = porDepto.get(clave) || { actividades: 0, ejecuciones: 0, st21: 0, st22: 0 };
+    const acumulado = porDepto.get(clave) || { actividades: 0, ejecuciones: 0, st21: 0, st22: 0, pac: 0 };
     acumulado.actividades += 1;
     acumulado.ejecuciones += a.totales.cronograma;
     acumulado.st21 += a.totales.presupuesto21;
     acumulado.st22 += a.totales.presupuesto22;
+    acumulado.pac += a.totales.pac;
     porDepto.set(clave, acumulado);
   }
 
@@ -179,21 +249,22 @@ export async function exportarExcel(actividades, ctx) {
     [institucion],
     [`Generado el ${new Date().toLocaleString('es-CL')}`],
     [],
-    ['Departamento', 'Actividades', 'Ejecuciones', 'ST21 (M$)', 'ST22 (M$)', 'Total (M$)'],
+    ['Departamento', 'Actividades', 'Ejecuciones', 'ST21 (M$)', 'ST22 (M$)', 'Total (M$)', 'PAC (M$)'],
     ...[...porDepto.entries()]
       .sort((a, b) => b[1].actividades - a[1].actividades)
-      .map(([d, v]) => [d, v.actividades, v.ejecuciones, v.st21, v.st22, v.st21 + v.st22]),
+      .map(([d, v]) => [d, v.actividades, v.ejecuciones, v.st21, v.st22, v.st21 + v.st22, v.pac]),
     [],
     ['TOTAL',
       actividades.length,
       actividades.reduce((s, a) => s + a.totales.cronograma, 0),
       actividades.reduce((s, a) => s + a.totales.presupuesto21, 0),
       actividades.reduce((s, a) => s + a.totales.presupuesto22, 0),
-      actividades.reduce((s, a) => s + a.totales.presupuesto, 0)
+      actividades.reduce((s, a) => s + a.totales.presupuesto, 0),
+      actividades.reduce((s, a) => s + a.totales.pac, 0)
     ]
   ];
   const hojaResumen = XLSX.utils.aoa_to_sheet(resumen);
-  hojaResumen['!cols'] = [{ wch: 44 }, { wch: 12 }, { wch: 13 }, { wch: 13 }, { wch: 13 }, { wch: 14 }];
+  hojaResumen['!cols'] = [{ wch: 44 }, { wch: 12 }, { wch: 13 }, { wch: 13 }, { wch: 13 }, { wch: 14 }, { wch: 13 }];
   XLSX.utils.book_append_sheet(libro, hojaResumen, 'Resumen');
 
   XLSX.writeFile(libro, nombreArchivo(`${plan.nombreCorto}-${anio}`, 'xlsx'), { compression: true });

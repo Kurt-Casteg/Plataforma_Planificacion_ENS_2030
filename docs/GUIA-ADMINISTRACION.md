@@ -151,6 +151,63 @@ nueva, con su propio listado, panel y exportación. No hay que tocar nada más.
 
 ---
 
+## Mantener el clasificador presupuestario
+
+El desplegable del Plan Anual de Compras sale de
+`data/clasificador-presupuestario.json`. Su estructura es:
+
+```json
+{
+  "items": [
+    {
+      "codigo": "2207",
+      "nombre": "Publicidad y Difusión",
+      "asignaciones": [
+        { "codigo": "2207001", "nombre": "Servicios de Publicidad" }
+      ]
+    }
+  ]
+}
+```
+
+- `items` son los grupos que se ven en el desplegable (ítem presupuestario).
+- `asignaciones` son las opciones seleccionables.
+- `nombre` es lo que ve la persona: **texto simple, sin códigos ni guiones
+  bajos**. Escríbelo tal como debe leerse.
+- `codigo` nunca se muestra, pero es lo que viaja al Excel. **No lo cambies** si
+  ya hay compras registradas con él.
+
+Cuando se actualice el clasificador oficial, edita este archivo. No hay que
+tocar código.
+
+---
+
+## Sobre el Plan Anual de Compras (PAC)
+
+- El bloque aparece dentro del **Subtítulo 22** y solo si se activa el
+  interruptor. Es deliberado: el PAC solo aplica a bienes y servicios de consumo.
+- Una actividad puede tener **varias compras**. Cada una lleva su propio
+  clasificador, porque en el PAC cada línea se imputa por separado.
+- **Obligatorios**: clasificador, producto y monto. Cantidad, tiempo y fechas
+  quedan sugeridos: si faltan, la compra se marca «Faltan N datos» y se avisa al
+  guardar, pero no bloquea. Así se puede completar por etapas.
+- La plataforma **compara** la suma de las compras con el total del subtítulo 22
+  y avisa si no cuadran. Es solo un aviso: durante la estimación es normal que
+  todavía no calce.
+- Las fechas se repiten **en palabras** bajo cada campo («miércoles, 15 de abril
+  de 2026»). El formato del calendario nativo depende del idioma del navegador,
+  y en un equipo en inglés `04/09` se lee como 4 de septiembre en vez de 9 de
+  abril: el texto en español elimina esa ambigüedad.
+- Al marcar «esta actividad no requiere presupuesto», el PAC se apaga y sus
+  compras se descartan.
+
+En la exportación a Excel, el PAC ocupa **su propia hoja**, con una fila por
+compra y el código, ítem y asignación del clasificador. El Plan Anual de Compras
+es una entrega distinta del plan de actividades, así que queda lista para enviar
+a Adquisiciones sin recortar nada.
+
+---
+
 ## Agregar, cambiar o quitar personas
 
 La sección Identificación se completa sola con los datos de la sesión. Esos

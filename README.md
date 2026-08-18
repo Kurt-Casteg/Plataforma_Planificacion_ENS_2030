@@ -16,6 +16,8 @@ que se publican en GitHub Pages y se abren en cualquier navegador moderno.
 - Cadena de resultados ENS con listas dependientes (OE → Tema → OI → RE → RI) y
   el **indicador oficial** del resultado esperado a la vista mientras se planifica.
 - Cronograma mensual y presupuesto por subtítulo 21 y 22, con totales automáticos.
+- **Plan Anual de Compras**: varias compras por actividad, con clasificador
+  presupuestario y conciliación automática contra el subtítulo 22.
 - Listado con búsqueda, filtros, detalle, edición, duplicado y eliminación.
 - Panel de análisis con indicadores clave y gráficos que se actualizan solos.
 - Exportación a **Excel** (dos hojas: datos y resumen por departamento), **CSV** y
@@ -35,6 +37,7 @@ que se publican en GitHub Pages y se abren en cualquier navegador moderno.
 │
 ├── data/                   Los datos, separados del código.
 │   ├── catalogos.json        Departamentos, tipos, componentes, programas, subtítulos.
+│   ├── clasificador-presupuestario.json  Clasificador del subtítulo 22, para el PAC.
 │   ├── ens-2026.json         Cadena de resultados ENS (9 OE · 52 temas · 145 RE · 836 RI).
 │   └── indicadores-re-2026.json  215 indicadores oficiales por resultado esperado.
 │

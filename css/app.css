@@ -738,3 +738,76 @@ button.indicador-almacen:hover:not(:disabled) {
   background: var(--superficie); border-color: var(--borde-fuerte);
 }
 button.indicador-almacen:disabled { cursor: default; font-weight: 500; }
+
+/* --- Plan Anual de Compras (PAC) ---------------------------------------------- */
+
+.pac {
+  margin-top: var(--e-5);
+  padding-top: var(--e-5);
+  border-top: 1px dashed var(--borde-fuerte);
+}
+
+.interruptor--pac { align-items: flex-start; }
+.interruptor--pac .interruptor__control { margin-top: 2px; }
+.interruptor__ayuda {
+  display: block; margin-top: 2px;
+  font-size: var(--t-xs); font-weight: 400; color: var(--ink-3);
+}
+
+.pac__cuerpo { margin-top: var(--e-4); display: grid; gap: var(--e-4); }
+.pac__lista { display: grid; gap: var(--e-4); }
+
+.pac__tarjeta {
+  padding: var(--e-4) var(--e-5) var(--e-5);
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-left: 3px solid var(--serie-2);
+  border-radius: var(--r-md);
+}
+
+.pac__cabecera {
+  display: flex; align-items: center; gap: var(--e-3);
+  margin-bottom: var(--e-4);
+  padding-bottom: var(--e-3);
+  border-bottom: 1px solid var(--linea);
+}
+.pac__indice {
+  font-size: var(--t-xs); font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--ink-3);
+}
+.pac__estado {
+  padding: 2px 9px; border-radius: var(--r-full);
+  background: var(--alerta-suave); color: var(--alerta-ink);
+  font-size: var(--t-xs); font-weight: 650;
+}
+.pac__cabecera .btn { margin-left: auto; }
+
+.pac__campos {
+  display: grid; gap: var(--e-4);
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  align-items: start;
+}
+
+/* Número + unidad en una sola línea (tiempo de ejecución). */
+.campo__compuesto { display: flex; gap: var(--e-2); }
+.campo__compuesto .campo__control { min-width: 0; }
+.campo__control--unidad { flex: 0 0 122px; }
+
+.pac__pie {
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: var(--e-3) var(--e-4);
+}
+
+.pac__conciliacion {
+  flex: 1 1 260px;
+  font-size: var(--t-sm); color: var(--ink-2);
+  padding: var(--e-2) var(--e-3);
+  border-radius: var(--r-sm);
+  background: var(--superficie-3);
+}
+.pac__conciliacion--ok { background: var(--exito-suave); color: var(--exito-ink); }
+.pac__conciliacion--alerta { background: var(--alerta-suave); color: var(--alerta-ink); }
+.detalle__compra { padding: var(--e-3) 0; }
+.detalle__compra + .detalle__compra { border-top: 1px solid var(--linea); }
+.campo__eco { color: var(--marca-ink); font-weight: 600; min-height: 1em; }
+.campo__eco:empty { display: none; }
