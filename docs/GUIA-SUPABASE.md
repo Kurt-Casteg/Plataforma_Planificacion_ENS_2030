@@ -136,9 +136,11 @@ la base de datos.
 
 ## Paso 6 · Comprobar
 
-1. Abre la plataforma. Arriba a la derecha dirá **«Sin sesión»**; haz clic ahí.
+1. Abre la plataforma. Arriba a la derecha, el botón dirá **«Iniciar sesión»**;
+   púlsalo.
 2. Escribe tu correo institucional → **Enviar enlace**.
 3. Revisa tu correo y abre el enlace: vuelves a la plataforma ya identificado.
+   El botón pasa a mostrar tu nombre.
 4. En la sección **Identificación** deben aparecer solos tu nombre, tu correo y
    tu departamento, con la insignia «Desde tu sesión», y el código de actividad
    debe decir «Automático · N° 1».
@@ -150,6 +152,21 @@ la base de datos.
 El punto 7 es la verificación importante: confirma que las reglas de seguridad
 están activas y que la clave pública de la plataforma no sirve para ver datos
 ajenos.
+
+### Cerrar sesión y volver a probar
+
+Pulsa el botón con tu nombre (arriba a la derecha): se abre **Tu sesión**, con
+tus datos y el botón **Cerrar sesión**. Al confirmarlo, la plataforma vuelve al
+estado inicial y puedes entrar con otra cuenta.
+
+> **Para probar un ingreso realmente «por primera vez»** no basta con cerrar
+> sesión: tu perfil ya quedó creado en la base. Elimina la cuenta en Supabase →
+> **Authentication** → **Users** y vuelve a entrar; ahí se dispara de nuevo la
+> creación del perfil desde la nómina. Ojo: al eliminar la cuenta se borran
+> también sus actividades.
+>
+> Y si quieres partir de cero también en el navegador (sin actividades locales
+> previas), usa una ventana de incógnito.
 
 ## Consolidar y analizar
 

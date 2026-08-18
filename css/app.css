@@ -725,3 +725,16 @@ select.campo__control {
 }
 .campo__control--automatico::placeholder { color: var(--ink-3); font-style: italic; }
 select.campo__control--automatico { background-image: none; padding-right: 0.75rem; }
+
+/* El indicador de sesión es un botón: debe verse pulsable. */
+button.indicador-almacen {
+  border: 1px solid transparent;
+  font: inherit; font-size: var(--t-xs); font-weight: 600;
+  cursor: pointer; max-width: 220px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  transition: background var(--transicion), border-color var(--transicion);
+}
+button.indicador-almacen:hover:not(:disabled) {
+  background: var(--superficie); border-color: var(--borde-fuerte);
+}
+button.indicador-almacen:disabled { cursor: default; font-weight: 500; }

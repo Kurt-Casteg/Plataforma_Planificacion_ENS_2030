@@ -68,7 +68,10 @@ alCargar(async () => {
   if (CONFIG.nube.habilitada) {
     // La capa de nube solo se descarga si está activada en config.js.
     import('./core/sesion.js')
-      .then((m) => m.iniciarSesionEnLaNube({ indicador: $('#indicadorAlmacen') }))
+      .then((m) => m.iniciarSesionEnLaNube({
+        indicador: $('#indicadorAlmacen'),
+        catalogos: estado.catalogos
+      }))
       .then(() => refrescar())
       .catch((e) => console.error('Sincronización no disponible:', e));
   }
@@ -102,13 +105,19 @@ function construirCascaron() {
           ])
         ]),
         el('div', { class: 'cabecera__herramientas' }, [
-          el('span', {
+          // Es un botón real, no un adorno: al pulsarlo se abre el panel de
+          // sesión (iniciar sesión, ver quién soy, cerrar sesión).
+          el('button', {
             class: 'indicador-almacen', id: 'indicadorAlmacen',
             dataset: { estado: CONFIG.nube.habilitada ? 'nube' : 'local' },
-            text: CONFIG.nube.habilitada ? 'Sincronizado' : 'Guardado en este equipo',
-            attrs: { title: CONFIG.nube.habilitada
-              ? 'Las actividades se sincronizan con el repositorio institucional.'
-              : 'Las actividades se guardan en este navegador. Exporta un respaldo periódicamente.' }
+            text: CONFIG.nube.habilitada ? 'Conectando…' : 'Guardado en este equipo',
+            attrs: {
+              type: 'button',
+              disabled: !CONFIG.nube.habilitada,
+              title: CONFIG.nube.habilitada
+                ? 'Ver tu sesión'
+                : 'Las actividades se guardan en este navegador. Exporta un respaldo periódicamente.'
+            }
           }),
           el('button', {
             class: 'btn btn--fantasma', id: 'btnTema',
