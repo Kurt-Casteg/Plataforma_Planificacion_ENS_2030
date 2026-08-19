@@ -10,8 +10,12 @@ export const CONFIG = {
   /** Año del ciclo de planificación en curso. */
   anio: 2026,
 
-  /** Versión de la plataforma (se muestra en el pie de página). */
-  version: '2.0.0',
+  /**
+   * Versión de la plataforma. Aparece en el pie de página y sirve para
+   * comprobar de un vistazo si el navegador está mostrando la última versión
+   * publicada o una copia guardada en caché. Súbela con cada despliegue.
+   */
+  version: '2.1.0',
 
   /**
    * Sincronización con la nube (Supabase).

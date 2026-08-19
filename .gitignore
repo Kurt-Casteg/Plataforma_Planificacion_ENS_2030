@@ -17,3 +17,6 @@ desktop.ini
 node_modules/
 package-lock.json
 *.tgz
+
+# Carpeta temporal: archivos que no se pudieron borrar de forma remota
+_to_delete/
