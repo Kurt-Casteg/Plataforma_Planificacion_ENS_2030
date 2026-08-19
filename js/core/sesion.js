@@ -13,12 +13,6 @@ import { almacen } from './almacen.js';
 import { perfil } from './perfil.js';
 import { etiquetaDe } from './catalogos.js';
 
-const NOMBRE_ROL = {
-  equipo: 'Equipo · ve y edita sus propias actividades',
-  jefatura: 'Jefatura · ve además todas las de su departamento',
-  control_gestion: 'Control de Gestión · ve y consolida todo'
-};
-
 export async function iniciarSesionEnLaNube({ indicador, catalogos }) {
   const { nube } = await import('./nube.js');
   if (!nube.configurada) return null;
@@ -142,8 +136,7 @@ function panelDeSesion(nube, catalogos) {
       el('dl', { class: 'detalle__grilla' }, [
         dato('Nombre', perfil.nombre),
         dato('Correo', perfil.correo),
-        dato('Departamento', departamento || 'Sin asignar'),
-        dato('Perfil', NOMBRE_ROL[perfil.rol] || perfil.rol)
+        dato('Departamento', departamento || 'Sin asignar')
       ].filter(Boolean)),
 
       el('div', { class: 'nota nota--info', style: { marginTop: '20px' } }, [

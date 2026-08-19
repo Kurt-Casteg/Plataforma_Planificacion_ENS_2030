@@ -788,7 +788,7 @@ button.indicador-almacen:disabled { cursor: default; font-weight: 500; }
   align-items: start;
 }
 
-/* Número + unidad en una sola línea (tiempo de ejecución). */
+/* Dos controles en una sola línea (por ejemplo, número + unidad). */
 .campo__compuesto { display: flex; gap: var(--e-2); }
 .campo__compuesto .campo__control { min-width: 0; }
 .campo__control--unidad { flex: 0 0 122px; }
@@ -811,3 +811,17 @@ button.indicador-almacen:disabled { cursor: default; font-weight: 500; }
 .detalle__compra + .detalle__compra { border-top: 1px solid var(--linea); }
 .campo__eco { color: var(--marca-ink); font-weight: 600; min-height: 1em; }
 .campo__eco:empty { display: none; }
+
+/* Cuadro explicativo con definiciones (las dos fechas del PAC). */
+.nota--fechas { line-height: 1.55; }
+.nota__titulo { font-weight: 700; margin-bottom: var(--e-2); }
+.nota__lista { margin: 0; display: grid; gap: var(--e-1); }
+.nota__lista dt { font-weight: 650; }
+.nota__lista dt:not(:first-child) { margin-top: var(--e-2); }
+.nota__lista dd { margin: 0; opacity: 0.9; }
+.nota__cierre { margin-top: var(--e-3); font-style: italic; opacity: 0.9; }
+
+/* Las etiquetas del PAC ocupan una o dos líneas según el texto. Reservarles la
+   misma altura mantiene los controles alineados en la fila. */
+.pac__campos .campo__etiqueta { min-height: 2.7em; display: flex; align-items: flex-start; }
+@media (max-width: 640px) { .pac__campos .campo__etiqueta { min-height: 0; } }

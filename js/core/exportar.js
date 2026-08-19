@@ -9,7 +9,7 @@
  * al exportar, para evitar la inyección de fórmulas en Excel (CSV injection).
  */
 
-import { MESES, IDS_MESES, SUBTITULOS, UNIDADES_TIEMPO, normalizarActividad } from './modelo.js';
+import { MESES, IDS_MESES, SUBTITULOS, normalizarActividad } from './modelo.js';
 import { nombreArchivo } from './formato.js';
 import { etiquetaDe, buscarAsignacion } from './catalogos.js';
 
@@ -162,7 +162,6 @@ export function construirFilasPac(actividades, { catalogos, clasificador, plan }
     'Código actividad', 'Actividad', 'Departamento', 'Responsable',
     'Código clasificador', 'Ítem', 'Nombre del ítem', 'Asignación',
     'Producto o servicio a contratar', 'Cantidad',
-    'Tiempo de ejecución', 'Unidad de tiempo',
     'Fecha estimada de compra', 'Fecha estimada de ejecución',
     'Monto estimado (M$)', 'Estado de la ficha'
   ];
@@ -172,7 +171,7 @@ export function construirFilasPac(actividades, { catalogos, clasificador, plan }
     if (!a.pac.aplica) continue;
     for (const c of a.pac.compras) {
       const ref = buscarAsignacion(clasificador, c.clasificador);
-      const faltan = ['cantidad', 'tiempoValor', 'fechaCompra', 'fechaEjecucion'].filter((k) => !c[k]);
+      const faltan = ['cantidad', 'fechaCompra', 'fechaEjecucion'].filter((k) => !c[k]);
       filas.push([
         seguro(a.codigoActividad),
         seguro(a.nombreActividad),
@@ -184,8 +183,6 @@ export function construirFilasPac(actividades, { catalogos, clasificador, plan }
         seguro(ref?.asignacion.nombre ?? ''),
         seguro(c.producto),
         c.cantidad || '',
-        c.tiempoValor || '',
-        UNIDADES_TIEMPO.find((u) => u.id === c.tiempoUnidad)?.nombre ?? c.tiempoUnidad,
         c.fechaCompra || '',
         c.fechaEjecucion || '',
         c.monto,
@@ -221,8 +218,8 @@ export async function exportarExcel(actividades, ctx) {
     hojaPac['!cols'] = [
       { wch: 10 }, { wch: 40 }, { wch: 30 }, { wch: 22 },
       { wch: 14 }, { wch: 8 }, { wch: 32 }, { wch: 40 },
-      { wch: 40 }, { wch: 10 }, { wch: 14 }, { wch: 14 },
-      { wch: 16 }, { wch: 18 }, { wch: 16 }, { wch: 26 }
+      { wch: 40 }, { wch: 10 },
+      { wch: 18 }, { wch: 20 }, { wch: 16 }, { wch: 26 }
     ];
     hojaPac['!freeze'] = { xSplit: 0, ySplit: 1 };
     hojaPac['!autofilter'] = {

@@ -188,9 +188,14 @@ tocar código.
   interruptor. Es deliberado: el PAC solo aplica a bienes y servicios de consumo.
 - Una actividad puede tener **varias compras**. Cada una lleva su propio
   clasificador, porque en el PAC cada línea se imputa por separado.
-- **Obligatorios**: clasificador, producto y monto. Cantidad, tiempo y fechas
-  quedan sugeridos: si faltan, la compra se marca «Faltan N datos» y se avisa al
+- **Obligatorios**: clasificador, producto y monto. Cantidad y fechas quedan
+  sugeridos: si faltan, la compra se marca «Faltan N datos» y se avisa al
   guardar, pero no bloquea. Así se puede completar por etapas.
+- **Las dos fechas** significan cosas distintas y el formulario lo explica en un
+  cuadro: la *fecha de compra o contratación* es cuándo se presenta la solicitud
+  de compra; la *fecha de ejecución*, cuándo se realiza la actividad con esos
+  insumos ya disponibles. La primera debe ir antes que la segunda, con el margen
+  que necesite el proceso de adquisición.
 - La plataforma **compara** la suma de las compras con el total del subtítulo 22
   y avisa si no cuadran. Es solo un aviso: durante la estimación es normal que
   todavía no calce.

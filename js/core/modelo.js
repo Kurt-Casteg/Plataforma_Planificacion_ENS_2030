@@ -24,19 +24,8 @@ export const MESES = [
 export const IDS_MESES = MESES.map((m) => m.id);
 export const SUBTITULOS = ['21', '22'];
 
-/**
- * Unidades del tiempo de ejecución de una compra del Plan Anual de Compras.
- * Se captura como número + unidad, y no como texto libre, para que sea
- * comparable entre departamentos al consolidar.
- */
-export const UNIDADES_TIEMPO = [
-  { id: 'dias', nombre: 'días' },
-  { id: 'semanas', nombre: 'semanas' },
-  { id: 'meses', nombre: 'meses' }
-];
-
 /** Campos de una compra que, si faltan, la dejan marcada como incompleta. */
-export const CAMPOS_PAC_SUGERIDOS = ['cantidad', 'tiempoValor', 'fechaCompra', 'fechaEjecucion'];
+export const CAMPOS_PAC_SUGERIDOS = ['cantidad', 'fechaCompra', 'fechaEjecucion'];
 
 const LIMITES = {
   texto: 300,
@@ -112,14 +101,13 @@ const fechaISO = (v) => {
  * Se aplica al leer del formulario, al importar y al recibir de la nube.
  */
 function normalizarCompra(entrada = {}) {
-  const unidad = texto(entrada.tiempoUnidad, 12);
+  // Las compras guardadas por versiones anteriores traían tiempoValor y
+  // tiempoUnidad; se descartan en silencio al no estar en este objeto.
   return {
     id: entrada.id ? String(entrada.id) : nuevoId(),
     clasificador: texto(entrada.clasificador, 12),
     producto: texto(entrada.producto, 300),
     cantidad: aNumero(entrada.cantidad, 1000000),
-    tiempoValor: aNumero(entrada.tiempoValor, 3650),
-    tiempoUnidad: UNIDADES_TIEMPO.some((u) => u.id === unidad) ? unidad : 'meses',
     fechaCompra: fechaISO(entrada.fechaCompra),
     fechaEjecucion: fechaISO(entrada.fechaEjecucion),
     monto: aNumero(entrada.monto, LIMITES.mesMonto)
@@ -296,7 +284,7 @@ export function revisarActividad(actividad) {
   if (incompletas) {
     avisos.push({
       tipo: 'incompleto',
-      mensaje: `${incompletas} compra${incompletas > 1 ? 's' : ''} sin completar cantidad, tiempo o fechas.`
+      mensaje: `${incompletas} compra${incompletas > 1 ? 's' : ''} sin completar cantidad o fechas.`
     });
   }
 

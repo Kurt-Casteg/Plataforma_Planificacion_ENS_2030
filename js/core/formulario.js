@@ -9,7 +9,7 @@
 
 import { el, render, vaciar, llenarSelect, llenarSelectAgrupado, debounce } from './dom.js';
 import {
-  MESES, IDS_MESES, SUBTITULOS, UNIDADES_TIEMPO, aNumero,
+  MESES, IDS_MESES, SUBTITULOS, aNumero,
   normalizarActividad, validarActividad, revisarActividad, camposPendientes, nuevoId
 } from './modelo.js';
 import { aOpciones, indexarENS, opcionesClasificador } from './catalogos.js';
@@ -558,6 +558,20 @@ export class Formulario {
           ', igual que el presupuesto de arriba.'
         ])
       ]),
+
+      // Las dos fechas se confunden con facilidad y la diferencia entre ellas
+      // es justamente el tiempo que demora una compra pública.
+      el('div', { class: 'nota nota--info nota--fechas' }, [
+        el('p', { class: 'nota__titulo', text: 'Las dos fechas no son lo mismo' }),
+        el('dl', { class: 'nota__lista' }, [
+          el('dt', { text: 'Fecha estimada de compra o contratación' }),
+          el('dd', { text: 'Cuándo debes presentar tu solicitud de compra, para alcanzar a tener los insumos o el servicio disponibles.' }),
+          el('dt', { text: 'Fecha estimada de ejecución' }),
+          el('dd', { text: 'Cuándo estarás realizando la actividad, ya con esos insumos en tu poder.' })
+        ]),
+        el('p', { class: 'nota__cierre', text: 'Por eso la solicitud de compra debe ir antes que la ejecución, con el margen que necesite el proceso.' })
+      ]),
+
       this.listaCompras,
       el('div', { class: 'pac__pie' }, [
         el('button', {
@@ -638,15 +652,6 @@ export class Formulario {
       valor: datos.clasificador || ''
     });
 
-    const selUnidad = el('select', { class: 'campo__control campo__control--unidad', id: `pac-${id}-tiempoUnidad` });
-    llenarSelect(selUnidad, UNIDADES_TIEMPO.map((u) => ({ value: u.id, label: u.nombre })), {
-      valor: datos.tiempoUnidad || 'meses'
-    });
-
-    const numeroTiempo = entrada('tiempoValor', 'text', { inputmode: 'numeric', placeholder: '0' });
-    campos.tiempoUnidad = selUnidad;
-    selUnidad.addEventListener('change', () => this.#alCambiarCompra(id, 'tiempoValor'));
-
     const indice = el('span', { class: 'pac__indice' });
     const estado = el('span', { class: 'pac__estado', attrs: { hidden: true } });
 
@@ -668,10 +673,6 @@ export class Formulario {
           { ancho: 'campo--completo' }),
         control('cantidad', 'Cantidad',
           entrada('cantidad', 'text', { inputmode: 'numeric', placeholder: '0' })),
-        el('div', { class: 'campo' }, [
-          el('label', { class: 'campo__etiqueta', text: 'Tiempo de ejecución', attrs: { for: `pac-${id}-tiempoValor` } }),
-          el('div', { class: 'campo__compuesto' }, [numeroTiempo, selUnidad])
-        ]),
         control('fechaCompra', 'Fecha estimada de compra o contratación', entrada('fechaCompra', 'date')),
         control('fechaEjecucion', 'Fecha estimada de ejecución', entrada('fechaEjecucion', 'date')),
         control('monto', 'Monto estimado',
@@ -679,10 +680,6 @@ export class Formulario {
           { ayuda: 'En miles de pesos (M$).' })
       ])
     ]);
-
-    // El campo del tiempo se registra aparte porque va dentro de un compuesto.
-    campos.tiempoValor = numeroTiempo;
-    numeroTiempo.addEventListener('input', () => this.#alCambiarCompra(id, 'tiempoValor'));
 
     // Valores iniciales (al editar una actividad existente).
     for (const [clave, nodo] of Object.entries(campos)) {
@@ -736,8 +733,6 @@ export class Formulario {
       clasificador: ref.campos.clasificador.value,
       producto: ref.campos.producto.value,
       cantidad: ref.campos.cantidad.value,
-      tiempoValor: ref.campos.tiempoValor.value,
-      tiempoUnidad: ref.campos.tiempoUnidad.value,
       fechaCompra: ref.campos.fechaCompra.value,
       fechaEjecucion: ref.campos.fechaEjecucion.value,
       monto: ref.campos.monto.value
@@ -766,7 +761,6 @@ export class Formulario {
       const compra = this.#leerCompras().find((c) => c.id === id);
       const pendientes = camposPendientes({
         cantidad: aNumero(compra.cantidad),
-        tiempoValor: aNumero(compra.tiempoValor),
         fechaCompra: compra.fechaCompra,
         fechaEjecucion: compra.fechaEjecucion
       });
