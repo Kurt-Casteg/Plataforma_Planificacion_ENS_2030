@@ -71,7 +71,14 @@ Debe terminar con «Success». Esto crea:
 > No copies la dirección de la API REST (`.../rest/v1/`) ni dejes una barra al
 > final: la librería agrega ella misma `/auth/v1` y `/rest/v1`, así que una ruta
 > de más produce peticiones a rutas dobles y Supabase responde
-> **«Could not find the function public.reservar_codigo … in the schema cache»**
+> **«cannot change name of view column … to …»**
+Ocurre al reejecutar el esquema cuando una vista cambió de columnas: PostgreSQL
+solo permite agregar columnas al final de una vista existente, no renombrarlas ni
+reordenarlas. El esquema ya elimina la vista antes de crearla, así que basta con
+ejecutar la versión actual de `docs/esquema.sql`. Las vistas no guardan datos:
+borrarla y recrearla no pierde nada.
+
+**«Could not find the function public.reservar_codigo … in the schema cache»**
 La función del correlativo no está en la base, o la API aún no la ve. Vuelve a
 ejecutar `docs/esquema.sql` completo: termina con `notify pgrst, 'reload schema';`,
 que refresca esa caché. Mientras tanto la plataforma numera localmente y avisa,

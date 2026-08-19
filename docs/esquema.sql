@@ -250,7 +250,10 @@ begin
 end;
 $$;
 
+-- La primera versión del esquema usaba esta función; ahora su trabajo lo hace
+-- normalizar_actividad(). Se elimina para no dejar objetos sin uso en la base.
 drop trigger if exists al_actualizar_actividad on public.actividades;
+drop function if exists public.tocar_actualizada_en();
 drop trigger if exists al_guardar_actividad on public.actividades;
 create trigger al_guardar_actividad
   before insert or update on public.actividades
@@ -393,7 +396,14 @@ create policy "eliminar mis actividades" on public.actividades
 --  8. VISTA CONSOLIDADA (Control de Gestión, Excel, Power BI)
 -- =============================================================================
 
-create or replace view public.consolidado as
+-- Se elimina antes de crearla: «create or replace view» solo permite AGREGAR
+-- columnas al final, nunca renombrarlas ni reordenarlas. Al incorporar la
+-- columna «responsable» delante de «correo_responsable», reemplazarla falla con
+-- «cannot change name of view column». Una vista no contiene datos, así que
+-- borrarla y volver a crearla no pierde nada.
+drop view if exists public.consolidado;
+
+create view public.consolidado as
 select
   a.id,
   a.plan,
