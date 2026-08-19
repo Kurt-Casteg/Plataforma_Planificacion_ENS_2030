@@ -14,16 +14,26 @@
     está habilitado para scripts: no hay JavaScript escrito dentro del HTML,
     lo que cierra la vía principal de inyección de código.
   -->
+  <!--
+    IMPORTANTE: cada directiva termina en punto y coma, incluida la última.
+    Algunos antivirus (Kaspersky, entre otros) reescriben esta política para
+    agregar sus propios dominios; si la última directiva no cierra con «;», lo
+    que inyectan se pega a ella y la invalida.
+
+    connect-src incluye wss: además de https: porque la sincronización en tiempo
+    real de Supabase usa WebSocket, y el esquema https:// no lo cubre.
+  -->
   <meta http-equiv="Content-Security-Policy" content="
     default-src 'self';
     script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://esm.sh;
     style-src 'self' 'unsafe-inline';
     img-src 'self' data:;
-    connect-src 'self' https://*.supabase.co https://esm.sh;
+    connect-src 'self' https://*.supabase.co wss://*.supabase.co https://esm.sh;
     font-src 'self';
     object-src 'none';
     base-uri 'self';
-    form-action 'none'">
+    form-action 'none';
+    ">
   <meta name="referrer" content="strict-origin-when-cross-origin">
 
   <title>Plataforma de Planificación · SEREMI de Salud de Ñuble</title>

@@ -15,6 +15,9 @@ import { normalizarActividad } from './modelo.js';
 
 const CDN = 'https://esm.sh/@supabase/supabase-js@2';
 
+/** Intentos de WebSocket antes de renunciar al tiempo real. */
+const MAX_REINTENTOS_TIEMPO_REAL = 3;
+
 let cliente = null;
 
 /**
@@ -50,7 +53,12 @@ async function obtenerCliente() {
   }
   const { createClient } = await import(/* @vite-ignore */ CDN);
   cliente = createClient(url, CONFIG.nube.anonKey, {
-    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
+    realtime: {
+      // Espaciado creciente entre reintentos: sin esto, un WebSocket bloqueado
+      // se reintenta cada pocos milisegundos.
+      reconnectAfterMs: (intento) => [1000, 3000, 8000][intento - 1] ?? 15000
+    }
   });
   return cliente;
 }
@@ -179,11 +187,36 @@ export const nube = {
     if (error) throw new Error(error.message);
   },
 
-  /** Notifica los cambios que hagan otros equipos, en tiempo real. */
+  /**
+   * Notifica los cambios que hagan otros equipos, en tiempo real.
+   *
+   * Es una comodidad, no un requisito: si el WebSocket no puede establecerse
+   * (política de seguridad, antivirus, red institucional que bloquea wss),
+   * la plataforma sigue funcionando y sincroniza al recargar. Por eso se
+   * abandona tras unos intentos en vez de reintentar sin fin: de otro modo la
+   * librería reconecta indefinidamente y llena la consola de errores.
+   */
   async escuchar(alCambiar) {
     const sb = await obtenerCliente();
-    return sb.channel('actividades')
+    let fallos = 0;
+
+    const canal = sb.channel('actividades')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'actividades' }, alCambiar)
-      .subscribe();
+      .subscribe((estado) => {
+        if (estado === 'SUBSCRIBED') { fallos = 0; return; }
+        if (estado !== 'CHANNEL_ERROR' && estado !== 'TIMED_OUT') return;
+
+        fallos += 1;
+        if (fallos < MAX_REINTENTOS_TIEMPO_REAL) return;
+
+        sb.removeChannel(canal);
+        console.info(
+          'Sincronización en tiempo real no disponible; se desactivó tras ' +
+          `${fallos} intentos. Las actividades se siguen guardando y se ` +
+          'actualizan al recargar la página.'
+        );
+      });
+
+    return canal;
   }
 };

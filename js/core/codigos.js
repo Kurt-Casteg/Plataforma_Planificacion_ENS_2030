@@ -31,18 +31,30 @@ function mayorCodigoLocal(actividades) {
  * @param {string} opciones.plan
  * @param {number} opciones.anio
  * @param {Array}  opciones.actividadesLocales  Para el respaldo sin conexión.
- * @returns {Promise<string>} El código como texto, listo para el formulario.
+ * @returns {Promise<{codigo: string, origen: 'servidor'|'local', motivo?: string}>}
  */
 export async function siguienteCodigo({ plan, anio, actividadesLocales = [] }) {
-  if (perfil.nube && perfil.identificado && perfil.departamento) {
+  const enLinea = Boolean(perfil.nube && perfil.identificado && perfil.departamento);
+
+  if (enLinea) {
     try {
       const codigo = await perfil.nube.reservarCodigo(plan, anio);
-      if (Number.isFinite(codigo) && codigo > 0) return String(codigo);
+      if (Number.isFinite(codigo) && codigo > 0) return { codigo: String(codigo), origen: 'servidor' };
+      throw new Error('El servidor no devolvió un número válido.');
     } catch (e) {
+      // Se informa el motivo hacia arriba: numerar localmente teniendo sesión
+      // puede repetir códigos dentro del departamento, y eso no debe pasar
+      // inadvertido.
       console.warn('No se pudo reservar el código en el servidor; se numera localmente.', e);
+      return {
+        codigo: String(mayorCodigoLocal(actividadesLocales) + 1),
+        origen: 'local',
+        motivo: e?.message || 'Error desconocido'
+      };
     }
   }
-  return String(mayorCodigoLocal(actividadesLocales) + 1);
+
+  return { codigo: String(mayorCodigoLocal(actividadesLocales) + 1), origen: 'local' };
 }
 
 /**

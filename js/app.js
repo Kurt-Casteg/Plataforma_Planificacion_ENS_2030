@@ -312,11 +312,24 @@ async function guardarActividad(actividad, { editaba }) {
 
   if (!editaba && !actividad.codigoActividad) {
     try {
-      actividad.codigoActividad = await siguienteCodigo({
+      const r = await siguienteCodigo({
         plan: actividad.plan,
         anio: CONFIG.anio,
         actividadesLocales: almacen.porPlan(actividad.plan)
       });
+      actividad.codigoActividad = r.codigo;
+
+      // Con sesión iniciada, el número lo debe dar el servidor. Si hubo que
+      // recurrir al conteo local, dos personas del mismo departamento pueden
+      // terminar con el mismo código: conviene decirlo, no esconderlo.
+      if (r.origen === 'local' && perfil.identificado) {
+        avisar(
+          'El código se asignó de forma local porque el servidor no respondió. ' +
+          'Avisa a Control de Gestión: puede repetirse dentro de tu departamento.',
+          'alerta',
+          { duracion: 12000 }
+        );
+      }
     } catch (e) {
       console.warn('No se pudo asignar el código automático:', e);
     }

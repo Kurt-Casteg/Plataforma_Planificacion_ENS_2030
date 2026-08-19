@@ -71,7 +71,24 @@ Debe terminar con «Success». Esto crea:
 > No copies la dirección de la API REST (`.../rest/v1/`) ni dejes una barra al
 > final: la librería agrega ella misma `/auth/v1` y `/rest/v1`, así que una ruta
 > de más produce peticiones a rutas dobles y Supabase responde
-> **«Invalid path specified in request URL»** al intentar iniciar sesión.
+> **«Could not find the function public.reservar_codigo … in the schema cache»**
+La función del correlativo no está en la base, o la API aún no la ve. Vuelve a
+ejecutar `docs/esquema.sql` completo: termina con `notify pgrst, 'reload schema';`,
+que refresca esa caché. Mientras tanto la plataforma numera localmente y avisa,
+pero dos personas del mismo departamento pueden recibir el mismo código.
+
+**Errores de «Content Security Policy» en la consola**
+Si mencionan `wss://…supabase.co`, falta la línea `wss://*.supabase.co` en la
+política de `index.html`. Si mencionan `kaspersky-labs.com` o similares, es el
+antivirus reescribiendo la política del sitio: no es un problema de la
+plataforma, y las peticiones propias siguen permitidas.
+
+**La consola repite «Connecting to wss://… has been blocked» decenas de veces**
+Es la sincronización en tiempo real reintentando. La plataforma se rinde tras
+tres intentos y sigue funcionando: las actividades se guardan igual y se
+actualizan al recargar la página.
+
+**«Invalid path specified in request URL»** al intentar iniciar sesión.
 >
 > | Correcto | Incorrecto |
 > |---|---|

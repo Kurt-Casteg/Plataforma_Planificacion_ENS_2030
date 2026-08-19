@@ -430,3 +430,15 @@ alter view public.consolidado set (security_invoker = on);
 --
 --  Siguiente paso: abre `docs/nomina.sql` y ejecútalo en el SQL Editor.
 -- =============================================================================
+
+
+-- =============================================================================
+--  10. REFRESCAR LA CACHÉ DE LA API
+--
+--  PostgREST (la capa que atiende las llamadas del navegador) guarda en memoria
+--  la lista de tablas y funciones. Si no se le avisa, una función recién creada
+--  responde 404 aunque exista en la base: «Could not find the function
+--  public.reservar_codigo in the schema cache».
+-- =============================================================================
+
+notify pgrst, 'reload schema';
