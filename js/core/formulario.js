@@ -559,6 +559,8 @@ export class Formulario {
         ])
       ]),
 
+      this.listaCompras,
+
       // Las dos fechas se confunden con facilidad y la diferencia entre ellas
       // es justamente el tiempo que demora una compra pública.
       el('div', { class: 'nota nota--info nota--fechas' }, [
@@ -572,7 +574,6 @@ export class Formulario {
         el('p', { class: 'nota__cierre', text: 'Por eso la solicitud de compra debe ir antes que la ejecución, con el margen que necesite el proceso.' })
       ]),
 
-      this.listaCompras,
       el('div', { class: 'pac__pie' }, [
         el('button', {
           class: 'btn btn--secundario', attrs: { type: 'button' },
