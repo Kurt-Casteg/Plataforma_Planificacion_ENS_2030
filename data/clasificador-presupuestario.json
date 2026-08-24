@@ -6,6 +6,20 @@
  "nota": "Los nombres se muestran en texto simple; los códigos se conservan para la exportación y el reporte oficial.",
  "items": [
   {
+   "codigo": "2201",
+   "nombre": "Alimentos y Bebidas",
+   "asignaciones": [
+    {
+     "codigo": "2201001",
+     "nombre": "Para personas"
+    },
+    {
+     "codigo": "2201002",
+     "nombre": "Para animales"
+    }
+   ]
+  },
+  {
    "codigo": "2202",
    "nombre": "Textiles, Vestuario y Calzado",
    "asignaciones": [
@@ -62,6 +76,10 @@
      "nombre": "Materiales y Útiles de Aseo"
     },
     {
+     "codigo": "2204008",
+     "nombre": "Menaje para Oficina, Casino y Otros"
+    },
+    {
      "codigo": "2204009",
      "nombre": "Insumos, Repuestos y Accesorios Computacionales"
     },
@@ -80,6 +98,10 @@
     {
      "codigo": "2204013",
      "nombre": "Equipos Menores"
+    },
+    {
+     "codigo": "2204014",
+     "nombre": "Productos Elaborados de Cuero, Caucho y Plástico"
     },
     {
      "codigo": "2204999",
@@ -116,6 +138,10 @@
      "nombre": "Telefonía Celular"
     },
     {
+     "codigo": "2205007",
+     "nombre": "Acceso a Internet"
+    },
+    {
      "codigo": "2205008",
      "nombre": "Enlaces de Telecomunicaciones"
     },
@@ -138,6 +164,10 @@
      "nombre": "Mantenimiento y Reparación de Vehículos"
     },
     {
+     "codigo": "2206003",
+     "nombre": "Mantenimiento y Reparación de Mobiliarios y Otros"
+    },
+    {
      "codigo": "2206004",
      "nombre": "Mantenimiento y Reparación de Máquinas y Equipos de Oficina"
     },
@@ -148,6 +178,14 @@
     {
      "codigo": "2206006",
      "nombre": "Mantenimiento y Reparación de Otras Maquinarias y Equipos"
+    },
+    {
+     "codigo": "2206007",
+     "nombre": "Mantenimiento y Reparación de Equipos Informáticos"
+    },
+    {
+     "codigo": "2206999",
+     "nombre": "Otros"
     }
    ]
   },
@@ -266,10 +304,6 @@
     {
      "codigo": "2212999",
      "nombre": "Otros"
-    },
-    {
-     "codigo": "2212999019",
-     "nombre": "Servicios de Intermediación CENABAST"
     }
    ]
   }
