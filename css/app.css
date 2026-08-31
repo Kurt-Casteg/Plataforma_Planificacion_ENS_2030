@@ -828,11 +828,26 @@ button.indicador-almacen:disabled { cursor: default; font-weight: 500; }
 }
 .pac__cabecera .btn { margin-left: auto; }
 
+/* Los cuatro campos cortos (cantidad, las dos fechas y el monto) forman una
+   fila. El número de columnas se decide por el ancho de la tarjeta, no por el
+   de la ventana, y se pasa de 4 a 2 y de 2 a 1: con `auto-fit` caía a veces en
+   3 columnas y dejaba «Monto estimado» solo en una segunda fila. */
+.pac__tarjeta { container-type: inline-size; }
+
 .pac__campos {
   display: grid; gap: var(--e-4);
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: start;
 }
+@container (min-width: 660px) { .pac__campos { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@container (max-width: 400px) { .pac__campos { grid-template-columns: 1fr; } }
+
+/* Navegadores sin consultas de contenedor: se conserva el comportamiento previo. */
+@supports not (container-type: inline-size) {
+  .pac__campos { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+}
+
+.campo__pie { display: grid; gap: var(--e-1); align-content: start; }
 
 /* Dos controles en una sola línea (por ejemplo, número + unidad). */
 .campo__compuesto { display: flex; gap: var(--e-2); }
@@ -867,7 +882,27 @@ button.indicador-almacen:disabled { cursor: default; font-weight: 500; }
 .nota__lista dd { margin: 0; opacity: 0.9; }
 .nota__cierre { margin-top: var(--e-3); font-style: italic; opacity: 0.9; }
 
-/* Las etiquetas del PAC ocupan una o dos líneas según el texto. Reservarles la
-   misma altura mantiene los controles alineados en la fila. */
-.pac__campos .campo__etiqueta { min-height: 2.7em; display: flex; align-items: flex-start; }
-@media (max-width: 640px) { .pac__campos .campo__etiqueta { min-height: 0; } }
+/* Alineación de la fila del PAC.
+
+   Recurso principal: `subgrid`. Cada campo cede sus tres franjas —etiqueta,
+   control y pie— a la rejilla de la fila, de modo que las tres se alinean
+   solas por muchas líneas que ocupe cada etiqueta. Es exacto y no depende de
+   adivinar alturas.
+
+   Reserva: si el navegador no admite `subgrid`, se vuelve a reservar una altura
+   común para las etiquetas. Tres líneas cubren la más larga («Fecha estimada de
+   compra o contratación») en las columnas más angostas. */
+.pac__campos .campo__etiqueta { min-height: 3.6em; display: flex; align-items: flex-end; }
+
+@supports (grid-template-rows: subgrid) {
+  .pac__campos > .campo {
+    grid-row: span 3;
+    grid-template-rows: subgrid;
+    row-gap: var(--e-2);
+  }
+  .pac__campos .campo__etiqueta { min-height: 0; align-items: flex-end; }
+}
+
+@media (max-width: 640px) {
+  .pac__campos .campo__etiqueta { min-height: 0; }
+}

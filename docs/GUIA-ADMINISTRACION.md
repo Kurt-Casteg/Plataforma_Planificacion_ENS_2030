@@ -205,6 +205,13 @@ tocar código.
   abril: el texto en español elimina esa ambigüedad.
 - Al marcar «esta actividad no requiere presupuesto», el PAC se apaga y sus
   compras se descartan.
+- **Cantidad, las dos fechas y el monto forman una sola fila.** El número de
+  columnas lo decide el ancho de la tarjeta (4 · 2 · 1), no el de la ventana, y
+  las tres franjas de cada campo —etiqueta, control y texto de apoyo— se alinean
+  entre sí con `subgrid`. Por eso las etiquetas van pegadas hacia abajo: da igual
+  que «Fecha estimada de compra o contratación» ocupe dos líneas y «Cantidad»
+  una, los recuadros quedan a la misma altura. Si alargas el texto de una
+  etiqueta no hay que ajustar nada.
 
 En la exportación a Excel, el PAC ocupa **su propia hoja**, con una fila por
 compra y el código, ítem y asignación del clasificador. El Plan Anual de Compras

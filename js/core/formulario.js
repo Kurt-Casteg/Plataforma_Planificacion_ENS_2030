@@ -630,13 +630,19 @@ export class Formulario {
         refrescar();
       }
 
+      // Etiqueta, control y "pie" (fecha en palabras, ayuda y error) van en tres
+      // bloques fijos. Así los cuatro campos de la fila comparten las mismas
+      // franjas y los controles quedan a la misma altura aunque una etiqueta
+      // ocupe dos líneas y otra solo una.
       const grupo = el('div', { class: `campo ${ancho}`, dataset: { pacCampo: `${id}.${clave}` } }, [
         el('label', { class: 'campo__etiqueta', text: etiqueta, attrs: { for: nodo.id } }),
         nodo,
-        eco,
-        ayuda && el('p', { class: 'campo__ayuda', text: ayuda }),
-        error
-      ].filter(Boolean));
+        el('div', { class: 'campo__pie' }, [
+          eco,
+          ayuda && el('p', { class: 'campo__ayuda', text: ayuda }),
+          error
+        ].filter(Boolean))
+      ]);
       grupo.__error = error;
       return grupo;
     };
