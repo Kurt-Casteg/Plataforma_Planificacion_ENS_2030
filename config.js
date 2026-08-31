@@ -15,7 +15,7 @@ export const CONFIG = {
    * comprobar de un vistazo si el navegador está mostrando la última versión
    * publicada o una copia guardada en caché. Súbela con cada despliegue.
    */
-  version: '2.2.0',
+  version: '2.3.0',
 
   /**
    * Sincronización con la nube (Supabase).

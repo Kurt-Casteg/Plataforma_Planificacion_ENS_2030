@@ -517,6 +517,20 @@ select.campo__control {
 
 /* --- Panel de análisis ------------------------------------------------------ */
 
+/* Fila de filtros: alcanza a todo lo que va debajo (fichas y gráficos). */
+.panel-filtros {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-3);
+  margin-bottom: var(--e-5); padding-bottom: var(--e-4);
+  border-bottom: 1px solid var(--linea);
+}
+.panel-filtros__etiqueta {
+  font-size: var(--t-xs); font-weight: 650; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--ink-3);
+}
+.panel-filtros .campo__control { width: auto; min-width: 240px; max-width: 100%; }
+.panel-filtros__resumen { font-size: var(--t-sm); color: var(--ink-2); }
+.panel-filtros__resumen:empty { display: none; }
+
 .kpis {
   display: grid; gap: var(--e-4); margin-bottom: var(--e-6);
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
@@ -527,6 +541,10 @@ select.campo__control {
   background: var(--superficie); border: 1px solid var(--borde);
   border-radius: var(--r-md);
 }
+/* Las dos fichas por subtítulo desglosan la ficha de presupuesto total:
+   el borde superior las agrupa visualmente sin gritar. */
+.kpi--presupuesto { border-top: 3px solid var(--marca); }
+.kpi--presupuesto .kpi__valor { color: var(--marca-ink); }
 .kpi__etiqueta {
   font-size: var(--t-xs); font-weight: 650; text-transform: uppercase;
   letter-spacing: 0.06em; color: var(--ink-3);
@@ -723,7 +741,11 @@ select.campo__control {
 /* --- Impresión --------------------------------------------------------------- */
 
 @media print {
-  .cabecera, .formulario__acciones, .panel__acciones, .tabla__barra, .avisos, .pie__base { display: none !important; }
+  .cabecera, .formulario__acciones, .panel__acciones, .tabla__barra, .avisos, .pie__base,
+  /* Los controles no se imprimen; el resumen del filtro sí, para que la hoja
+     diga a qué conjunto corresponden las cifras. */
+  .panel-filtros__etiqueta, #filtroPanelDepartamento, .panel-filtros .btn { display: none !important; }
+  .panel-filtros { border: 0; padding: 0; }
   body { background: #fff; }
   .panel, .seccion, .grafico, .kpi { box-shadow: none; border-color: #ccc; break-inside: avoid; }
 }

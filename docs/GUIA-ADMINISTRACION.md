@@ -248,6 +248,42 @@ necesites conservar.
 > perfil ya existe. La nómina define quién entra con qué datos; el acceso lo
 > corta la eliminación de la cuenta.
 
+## Qué muestra el Panel de análisis
+
+**Filtro por departamento.** Sobre las fichas hay un desplegable que alcanza a
+todo lo que va debajo: las seis fichas, los cinco gráficos y sus tablas de datos
+se recalculan con la misma selección, así que las cifras nunca se contradicen. El
+desplegable ofrece solo los departamentos que tienen actividades registradas, y
+si hay uno solo la barra ni siquiera aparece. El filtro es del panel: **no**
+modifica el listado de actividades ni la exportación a Excel.
+
+**Fichas.** Actividades · Ejecuciones programadas · Departamentos · Presupuesto
+total · Subtítulo 21 · Subtítulo 22. Las dos últimas desglosan el presupuesto
+total y muestran qué porcentaje representa cada subtítulo y cuántas actividades
+lo usan; siempre suman el total.
+
+**Gráficos, en este orden:**
+
+1. Actividades por departamento
+2. Ejecuciones por mes
+3. Actividades por objetivo estratégico
+4. Actividades por tema
+5. Presupuesto por mes
+
+La idea del orden es leer primero *quién* y *cuándo*, después *contra qué* se
+planifica y al final *con cuánto*.
+
+El gráfico de temas lleva el código del objetivo estratégico delante de cada tema
+(`2 · Cáncer`), de modo que se ve la pertenencia sin necesidad de un segundo
+gráfico ni de distinguir colores. Cuando hay más de 14 temas se grafican los 14
+con más actividades y el resto se agrupa en una barra «Otros N temas»; la tabla
+de datos del gráfico los sigue listando todos.
+
+El Plan de Gestión Institucional no tiene cadena ENS: en lugar de los gráficos 3
+y 4 muestra «Actividades por tipo».
+
+---
+
 ## Qué muestra la pestaña «Ver»
 
 El detalle de una actividad se ordena así: **Código, Departamento, Responsable →
