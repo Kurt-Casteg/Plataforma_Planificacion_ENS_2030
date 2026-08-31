@@ -10,10 +10,11 @@ import { MESES } from './modelo.js';
 import { abrirModal } from './ui.js';
 
 export class TablaActividades {
-  constructor({ contenedor, plan, catalogos, clasificador, acciones }) {
+  constructor({ contenedor, plan, catalogos, ens, clasificador, acciones }) {
     this.contenedor = contenedor;
     this.plan = plan;
     this.catalogos = catalogos;
+    this.ens = ens || null;           // índice ENS: permite mostrar los textos, no solo los códigos
     this.clasificador = clasificador || { items: [] };
     this.acciones = acciones;         // { editar, duplicar, eliminar }
     this.actividades = [];
@@ -195,12 +196,69 @@ export class TablaActividades {
   /* Detalle                                                           */
   /* ---------------------------------------------------------------- */
 
+  /**
+   * Cadena de resultados con el texto completo de cada nivel, no solo el código.
+   * Para el PNS se resuelve contra el índice ENS; para los demás planes se
+   * muestran los campos de texto que el propio plan define.
+   */
+  #cadenaResultados(a) {
+    const nivel = (etiqueta, codigo, texto) => {
+      const cuerpo = texto || codigo;
+      if (!cuerpo) return null;
+      const mostrarCodigo = codigo && texto && codigo !== texto;
+      return el('div', { class: 'ruta__nivel' }, [
+        // El espacio se reserva siempre, aunque el nivel no tenga código
+        // propio (el Tema), para que todas las etiquetas queden alineadas.
+        el('span', { class: 'ruta__codigo', text: mostrarCodigo ? String(codigo) : '' }),
+        el('div', { class: 'ruta__cuerpo' }, [
+          el('p', { class: 'ruta__etiqueta', text: etiqueta }),
+          el('p', { class: 'ruta__texto', text: String(cuerpo) })
+        ])
+      ]);
+    };
+
+    let niveles;
+    if (this.ens) {
+      const v = {
+        oe: a.objetivoEstrategico,
+        tema: a.tema,
+        oi: a.objetivoImpacto,
+        re: a.resultadoEsperado,
+        ri: a.resultadoInmediato
+      };
+      const texto = (n) => {
+        try { return this.ens.nombreDe(n, v) || ''; } catch { return ''; }
+      };
+      niveles = [
+        nivel('Objetivo Estratégico', v.oe, texto('objetivoEstrategico')),
+        nivel('Tema', v.tema, texto('tema')),
+        nivel('Objetivo de Impacto', v.oi, texto('objetivoImpacto')),
+        nivel('Resultado Esperado', v.re, texto('resultadoEsperado')),
+        nivel('Resultado Inmediato', v.ri, texto('resultadoInmediato'))
+      ];
+    } else {
+      niveles = [
+        nivel('Objetivo Estratégico', '', a.objetivoEstrategicoTexto || a.objetivoEstrategico),
+        nivel('Objetivo Operacional', '', a.objetivoOperacional),
+        nivel('Producto', '', a.producto)
+      ];
+    }
+
+    const visibles = niveles.filter(Boolean);
+    if (!visibles.length) return null;
+
+    return el('section', { class: 'detalle__bloque' }, [
+      el('h3', { text: 'Cadena de resultados' }),
+      el('div', { class: 'ruta' }, visibles)
+    ]);
+  }
+
   #verDetalle(id) {
     const a = this.actividades.find((x) => x.id === id);
     if (!a) return;
 
-    const dato = (etiqueta, valor) => valor
-      ? el('div', { class: 'detalle__dato' }, [
+    const dato = (etiqueta, valor, { completo = false } = {}) => valor
+      ? el('div', { class: completo ? 'detalle__dato detalle__dato--completo' : 'detalle__dato' }, [
           el('dt', { text: etiqueta }),
           el('dd', { text: String(valor) })
         ])
@@ -215,18 +273,15 @@ export class TablaActividades {
         el('dl', { class: 'detalle__grilla' }, [
           dato('Código', a.codigoActividad),
           dato('Departamento', etiquetaDe(this.catalogos.departamentos, a.departamento)),
-          dato('Responsable', a.responsable),
-          dato('Correo', a.correoInstitucional),
-          dato('Tipo', etiquetaDe(this.catalogos.tiposActividad, a.tipoActividad)),
-          dato('Componente transversal', etiquetaDe(this.catalogos.componentesTransversales, a.componentesTransversales)),
-          dato('Objetivo estratégico', a.objetivoEstrategico || a.objetivoEstrategicoTexto),
-          dato('Tema', a.tema),
-          dato('Objetivo de impacto', a.objetivoImpacto),
-          dato('Resultado esperado', a.resultadoEsperado),
-          dato('Resultado inmediato', a.resultadoInmediato),
-          dato('Objetivo operacional', a.objetivoOperacional),
-          dato('Producto', a.producto),
-          dato('Registrada', fecha(a.creadaEn))
+          dato('Responsable', a.responsable)
+        ].filter(Boolean)),
+
+        this.#cadenaResultados(a),
+
+        el('dl', { class: 'detalle__grilla detalle__grilla--continua' }, [
+          dato('Tipo de Actividad', etiquetaDe(this.catalogos.tiposActividad, a.tipoActividad)),
+          dato('Componentes Transversales', etiquetaDe(this.catalogos.componentesTransversales, a.componentesTransversales)),
+          dato('Nombre de la Actividad', a.nombreActividad, { completo: true })
         ].filter(Boolean)),
 
         a.descripcionActividad && el('section', { class: 'detalle__bloque' }, [
@@ -246,7 +301,7 @@ export class TablaActividades {
             : el('p', { class: 'texto-cuerpo', text: 'Sin meses de ejecución registrados.' })
         ]),
 
-        el('section', { class: 'detalle__bloque' }, [
+        (a.sinPresupuesto || a.totales.presupuesto > 0) && el('section', { class: 'detalle__bloque' }, [
           el('h3', { text: 'Presupuesto' }),
           a.sinPresupuesto
             ? el('p', { class: 'texto-cuerpo', text: 'Esta actividad no requiere presupuesto.' })

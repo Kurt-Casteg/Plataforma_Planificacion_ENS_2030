@@ -258,6 +258,7 @@ async function activarPlan(plan) {
     contenedor: $('#zonaTabla'),
     plan,
     catalogos: estado.catalogos,
+    ens: plan.id === 'pns' ? estado.ensIndex : null,
     clasificador: estado.clasificador,
     acciones: {
       editar: (id) => {

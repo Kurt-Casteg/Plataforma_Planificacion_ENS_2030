@@ -248,6 +248,31 @@ necesites conservar.
 > perfil ya existe. La nómina define quién entra con qué datos; el acceso lo
 > corta la eliminación de la cuenta.
 
+## Qué muestra la pestaña «Ver»
+
+El detalle de una actividad se ordena así: **Código, Departamento, Responsable →
+cadena de resultados → Tipo de Actividad, Componentes Transversales, Nombre de la
+Actividad → Descripción → Medio de Verificación → Cronograma → Presupuesto → Plan
+Anual de Compras**.
+
+La cadena de resultados se muestra **con el texto completo de cada nivel**, no
+solo con el código: la plataforma lo reconstruye desde `data/ens-2026.json` en el
+momento de abrir el detalle. Por eso, si se actualiza ese archivo, las
+actividades ya registradas pasan a mostrar los textos nuevos sin necesidad de
+volver a guardarlas.
+
+- El **Tema** no lleva código porque en la ENS su nombre *es* su identificador.
+- Si un código no existe en el archivo del año (por ejemplo, una actividad
+  antigua con un RI que MINSAL eliminó), se muestra el código tal cual, para que
+  el dato no se pierda.
+- En el **Plan de Gestión Institucional** no hay cadena ENS: en su lugar se
+  muestran Objetivo Estratégico, Objetivo Operacional y Producto, que son campos
+  de texto libre de ese plan.
+- El bloque **Presupuesto** aparece solo si hay montos cargados o si la actividad
+  está marcada como «no requiere presupuesto».
+
+---
+
 ## Sobre el código correlativo
 
 Se asigna solo al guardar, y la serie es **por departamento, plan y año**: dos
