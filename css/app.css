@@ -515,6 +515,28 @@ select.campo__control {
   font-size: var(--t-xs); font-variant-numeric: tabular-nums;
 }
 
+/* --- Selector de perfil activo ---------------------------------------------- */
+
+/* Vive en la cabecera, junto a Tema y Ayuda. Solo aparece cuando la cuenta
+   tiene más de un perfil, así que no compite por espacio en el caso normal. */
+.selector-perfil {
+  width: auto; min-width: 0; max-width: 190px;
+  min-height: 38px; padding-block: 0.3rem;
+  font-size: var(--t-sm); font-weight: 600;
+  border-radius: var(--r-full);
+  background-color: var(--superficie-3);
+}
+/* En modo de solo lectura el selector se tiñe: es la señal permanente de que
+   la sesión no puede escribir, visible sin tener que leer nada. */
+.selector-perfil[data-solest='true'] {
+  background-color: var(--alerta-suave);
+  border-color: var(--alerta);
+  color: var(--alerta-ink);
+}
+@media (max-width: 720px) { .selector-perfil { max-width: 150px; } }
+
+.nota--solo-lectura { margin-bottom: var(--e-6); }
+
 /* --- Panel de análisis ------------------------------------------------------ */
 
 /* Fila de filtros: alcanza a todo lo que va debajo (fichas y gráficos). */

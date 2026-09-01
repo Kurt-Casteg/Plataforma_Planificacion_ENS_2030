@@ -220,6 +220,56 @@ a Adquisiciones sin recortar nada.
 
 ---
 
+## Perfiles: qué puede hacer cada uno
+
+| Perfil | Ve | Modifica |
+|---|---|---|
+| `equipo` | sus propias actividades | sus propias actividades |
+| `jefatura` | todo su departamento | sus propias actividades |
+| `control_gestion` | toda la institución | toda la institución; consolida; mantiene la nómina |
+| `observador` | toda la institución | **nada** |
+
+El **Observador** consulta, filtra, ve el panel de análisis, exporta a Excel, CSV
+y JSON, e imprime. No ve el formulario de registro ni los botones de editar,
+duplicar o eliminar, y tampoco puede importar ni vaciar un plan. Está pensado
+para cargos directivos y para Finanzas: gente que necesita el panorama completo
+sin riesgo de alterar el trabajo de los equipos.
+
+---
+
+## Perfiles múltiples y el selector
+
+Una persona puede tener **varios perfiles** y alternar entre ellos desde el
+selector de la cabecera, sin volver a iniciar sesión. El selector aparece solo
+si tiene más de uno.
+
+En `docs/nomina.sql` cada línea lleva una lista:
+
+```sql
+('kurt.castro@redsalud.gob.cl', 'Kurt Castro', 'dpto_control_gestion',
+ array['control_gestion', 'observador']),
+```
+
+El **primero de la lista** es el perfil con el que se entra.
+
+**El cambio de perfil no es un filtro visual.** El perfil activo se guarda en la
+base de datos y las políticas de seguridad lo consultan: alguien que tiene
+Control de Gestión y está usando Observador es, para el servidor, un observador.
+Sus intentos de escribir se rechazan en la base, no en el navegador. Eso incluye
+sus propias actividades: en modo Observador no puede editar ni siquiera lo que
+él mismo cargó.
+
+Al cambiar de perfil **la plataforma se recarga**. Es a propósito: el perfil
+decide qué entrega el servidor, y la copia en memoria quedó armada con los
+permisos anteriores. Al pasar de un perfil que ve toda la institución a uno que
+solo ve lo suyo, seguir con esa copia mostraría actividades ajenas que ya no
+corresponden.
+
+> Si le quitas un perfil a alguien que lo tenía activo, la base lo devuelve sola
+> al primero de su lista nueva. No hay que corregir nada a mano.
+
+---
+
 ## Agregar, cambiar o quitar personas
 
 La sección Identificación se completa sola con los datos de la sesión. Esos
@@ -231,12 +281,13 @@ plataforma y con qué perfil.
 1. Abre `docs/nomina.sql` y edita la lista. Cada línea es una persona:
 
    ```sql
-   ('nombre.apellido@redsalud.gob.cl', 'Nombre Apellido', 'dpto_salud_publica', 'equipo'),
+   ('nombre.apellido@redsalud.gob.cl', 'Nombre Apellido', 'dpto_salud_publica', array['equipo']),
    ```
 
    Los identificadores de departamento son los de `data/catalogos.json`
    (columna `id`), no el nombre completo. Los perfiles válidos son `equipo`,
-   `jefatura` y `control_gestion`.
+   `jefatura`, `control_gestion` y `observador`. Para dar más de uno, se agregan
+   a la lista: `array['control_gestion', 'observador']`.
 
 2. Copia el archivo completo y ejecútalo en Supabase → **SQL Editor**.
 
@@ -254,6 +305,10 @@ necesites conservar.
 > Sacar a alguien de `nomina.sql` **no** le quita el acceso por sí solo: su
 > perfil ya existe. La nómina define quién entra con qué datos; el acceso lo
 > corta la eliminación de la cuenta.
+>
+> Sí sirve, en cambio, para **dejarlo en solo lectura sin perder su historial**:
+> cámbiale la lista a `array['observador']` y vuelve a ejecutar `nomina.sql`.
+> Conserva sus actividades y deja de poder tocarlas.
 
 ## Qué muestra el Panel de análisis
 

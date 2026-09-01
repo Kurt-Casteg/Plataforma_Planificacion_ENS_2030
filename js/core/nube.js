@@ -18,6 +18,15 @@ const CDN = 'https://esm.sh/@supabase/supabase-js@2';
 /** Intentos de WebSocket antes de renunciar al tiempo real. */
 const MAX_REINTENTOS_TIEMPO_REAL = 3;
 
+/**
+ * Mensaje para cuando el servidor no rechaza la operación pero tampoco la
+ * aplica. Pasa cuando el perfil activo no tiene permiso de escritura, o cuando
+ * la actividad pertenece a otra persona.
+ */
+const SIN_PERMISO =
+  'El servidor no aceptó el cambio: tu perfil actual no tiene permiso para modificar esta actividad. ' +
+  'Si cambiaste de perfil en otra pestaña, vuelve a cargar la página.';
+
 let cliente = null;
 
 /**
@@ -127,8 +136,30 @@ export const nube = {
     if (!user) return null;
     const { data, error } = await sb
       .from('perfiles')
-      .select('correo, nombre, departamento, rol')
+      .select('correo, nombre, departamento, roles, rol_activo')
       .eq('id', user.id)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    return data;
+  },
+
+  /**
+   * Cambia el perfil activo de la cuenta.
+   *
+   * Devuelve lo que quedó guardado, no lo que se pidió. El servidor acepta el
+   * cambio solo hacia un perfil de la lista asignada y, si no, deja el anterior
+   * sin lanzar error: leer la respuesta es la única forma de saber qué pasó de
+   * verdad.
+   */
+  async cambiarPerfil(rol) {
+    const sb = await obtenerCliente();
+    const { data: { user } } = await sb.auth.getUser();
+    if (!user) throw new Error('Sesión no iniciada.');
+    const { data, error } = await sb
+      .from('perfiles')
+      .update({ rol_activo: rol })
+      .eq('id', user.id)
+      .select('correo, nombre, departamento, roles, rol_activo')
       .maybeSingle();
     if (error) throw new Error(error.message);
     return data;
@@ -173,18 +204,32 @@ export const nube = {
     return (data || []).map(desdeFila);
   },
 
+  /**
+   * Guarda una actividad.
+   *
+   * Se pide de vuelta la fila escrita a propósito. Row Level Security no lanza
+   * error cuando una actualización no alcanza ninguna fila: simplemente no
+   * modifica nada. Sin esta comprobación, alguien en modo Observador —o con una
+   * pestaña abierta desde antes de cambiar de perfil— vería «guardada» sobre
+   * una escritura que nunca ocurrió.
+   */
   async guardar(actividad) {
     const sb = await obtenerCliente();
     const { data: { user } } = await sb.auth.getUser();
     if (!user) throw new Error('Sesión no iniciada.');
-    const { error } = await sb.from('actividades').upsert(aFila(actividad, user.id), { onConflict: 'id' });
+    const { data, error } = await sb
+      .from('actividades')
+      .upsert(aFila(actividad, user.id), { onConflict: 'id' })
+      .select('id');
     if (error) throw new Error(error.message);
+    if (!data || !data.length) throw new Error(SIN_PERMISO);
   },
 
   async eliminar({ id }) {
     const sb = await obtenerCliente();
-    const { error } = await sb.from('actividades').delete().eq('id', id);
+    const { data, error } = await sb.from('actividades').delete().eq('id', id).select('id');
     if (error) throw new Error(error.message);
+    if (!data || !data.length) throw new Error(SIN_PERMISO);
   },
 
   /**

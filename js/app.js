@@ -17,7 +17,7 @@ import { Panel } from './core/panel.js';
 import { avisar, confirmar, abrirModal, aplicarTema, alternarTema, temaActual, mostrarCargando } from './core/ui.js';
 import { exportarExcel, exportarCSV, exportarJSON, leerRespaldo } from './core/exportar.js';
 import { numero } from './core/formato.js';
-import { perfil } from './core/perfil.js';
+import { perfil, nombrePerfil, PERFILES } from './core/perfil.js';
 import { siguienteCodigo, previsualizarCodigo } from './core/codigos.js';
 
 const estado = {
@@ -71,6 +71,19 @@ alCargar(async () => {
   almacen.addEventListener('cambio', () => refrescar());
   addEventListener('hashchange', () => activarPlan(planDesdeURL()));
 
+  // Iniciar sesión, cerrarla o cambiar de perfil altera qué se puede hacer:
+  // el selector y los bloqueos se rehacen desde un solo lugar.
+  perfil.addEventListener('cambio', () => {
+    sincronizarSelectorPerfil();
+    aplicarPermisos();
+    dibujarAccionesListado();
+    // El listado dibuja sus botones según los permisos del momento, y la sesión
+    // llega DESPUÉS de la primera pintada: sin esto, alguien que entra como
+    // Observador vería «Editar» y «Eliminar» en cada fila hasta recargar.
+    estado.tabla?.pintar();
+  });
+  aplicarPermisos();
+
   if (CONFIG.nube.habilitada) {
     // La capa de nube solo se descarga si está activada en config.js.
     import('./core/sesion.js')
@@ -111,6 +124,14 @@ function construirCascaron() {
           ])
         ]),
         el('div', { class: 'cabecera__herramientas' }, [
+          // Selector de perfil activo. Nace oculto: solo aparece si la cuenta
+          // tiene más de un perfil asignado, que es la única situación en que
+          // hay algo que elegir.
+          el('select', {
+            class: 'campo__control selector-perfil', id: 'selectorPerfil',
+            attrs: { hidden: true, 'aria-label': 'Perfil activo' },
+            on: { change: (e) => cambiarPerfilActivo(e.target.value) }
+          }),
           // Es un botón real, no un adorno: al pulsarlo se abre el panel de
           // sesión (iniciar sesión, ver quién soy, cerrar sesión).
           el('button', {
@@ -144,6 +165,18 @@ function construirCascaron() {
 
   const principal = el('main', { class: 'envoltura contenido', id: 'contenidoPrincipal', attrs: { tabindex: '-1' } }, [
     el('div', { id: 'portada' }),
+    // Ocupa el lugar del formulario cuando el perfil activo no puede escribir,
+    // para que la ausencia se entienda en vez de parecer una falla.
+    el('div', {
+      class: 'nota nota--info nota--solo-lectura', id: 'avisoSoloLectura',
+      attrs: { hidden: true, role: 'status' }
+    }, [
+      el('p', { class: 'nota__titulo', text: 'Estás en un perfil de solo lectura' }),
+      el('p', {}, [
+        'Puedes consultar y exportar todo lo registrado, pero no crear ni modificar actividades. ',
+        'Si tienes otro perfil asignado, cámbialo en el selector de la cabecera.'
+      ])
+    ]),
     el('div', { id: 'zonaFormulario' }),
     el('section', { class: 'panel', attrs: { 'aria-labelledby': 'tituloListado' } }, [
       el('div', { class: 'panel__cabecera' }, [
@@ -373,8 +406,18 @@ function dibujarAccionesListado() {
       class: 'btn btn--secundario', attrs: { type: 'button' }, text: 'Respaldar (JSON)',
       on: { click: () => exportar('json') }
     }),
+    // Exportar, respaldar e imprimir son lectura y quedan siempre disponibles.
+    // Importar escribe, así que sigue el permiso del perfil activo.
     el('button', {
-      class: 'btn btn--secundario', attrs: { type: 'button' }, text: 'Importar',
+      class: 'btn btn--secundario',
+      attrs: {
+        type: 'button',
+        disabled: !perfil.permisos.puedeImportar,
+        title: perfil.permisos.puedeImportar
+          ? 'Cargar actividades desde un respaldo JSON'
+          : `El perfil ${nombrePerfil(perfil.rol)} es de solo lectura: no puede importar actividades.`
+      },
+      text: 'Importar',
       on: { click: importar }
     }),
     el('button', {
@@ -382,6 +425,99 @@ function dibujarAccionesListado() {
       on: { click: mostrarMasAcciones }
     })
   );
+}
+
+/* ------------------------------------------------------------------ */
+/* Perfil activo                                                       */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Pone al día el selector de la cabecera con los perfiles de la cuenta.
+ * Solo aparece cuando hay más de uno: con uno no hay nada que elegir.
+ */
+function sincronizarSelectorPerfil() {
+  const sel = $('#selectorPerfil');
+  if (!sel) return;
+
+  sel.hidden = !perfil.tieneVariosPerfiles;
+  if (sel.hidden) { vaciar(sel); return; }
+
+  render(sel, ...perfil.roles.map((r) => el('option', {
+    text: nombrePerfil(r),
+    attrs: { value: r, title: PERFILES[r]?.descripcion || '' }
+  })));
+  sel.value = perfil.rol;
+  sel.dataset.solest = String(perfil.soloLectura);
+  sel.title = PERFILES[perfil.rol]?.descripcion || '';
+}
+
+/**
+ * Cambia el perfil activo.
+ *
+ * Después de confirmarlo en el servidor se recarga la página, igual que al
+ * cerrar sesión y por la misma razón: el perfil decide QUÉ ENTREGA el servidor,
+ * y la copia en memoria quedó armada con los permisos anteriores. Al pasar de
+ * un perfil que ve toda la institución a uno que solo ve lo suyo, seguir con
+ * esa copia mostraría actividades ajenas que ya no corresponden. Recargar es la
+ * única forma de garantizar que no quede nada del modo anterior.
+ */
+async function cambiarPerfilActivo(rol) {
+  const sel = $('#selectorPerfil');
+  if (!rol || rol === perfil.rol) return;
+
+  const ok = await confirmar({
+    titulo: `Cambiar al perfil ${nombrePerfil(rol)}`,
+    mensaje: `${PERFILES[rol]?.descripcion || ''} La plataforma se recargará para aplicar los permisos, ` +
+             'así que guarda primero lo que tengas a medio escribir.',
+    textoConfirmar: 'Cambiar de perfil'
+  });
+  if (!ok) { if (sel) sel.value = perfil.rol; return; }
+
+  const cerrar = mostrarCargando('Cambiando de perfil…');
+  try {
+    const cambiado = await perfil.cambiarPerfil(rol);
+    if (!cambiado) {
+      cerrar();
+      if (sel) sel.value = perfil.rol;
+      avisar('El servidor no aceptó ese perfil. Sigues con el anterior.', 'error', { duracion: 7000 });
+      return;
+    }
+    location.reload();
+  } catch (e) {
+    cerrar();
+    if (sel) sel.value = perfil.rol;
+    avisar(`No se pudo cambiar de perfil: ${e.message}`, 'error', { duracion: 8000 });
+  }
+}
+
+/**
+ * Aplica a la interfaz los permisos del perfil activo.
+ *
+ * Es la capa cosmética: esconde lo que no corresponde para que nadie pierda el
+ * tiempo con un botón que va a fallar. Quien manda de verdad son las políticas
+ * de la base de datos, y entremedio está el cerrojo del almacén.
+ */
+function aplicarPermisos() {
+  const { soloLectura } = perfil.permisos;
+  document.documentElement.dataset.soloLectura = String(soloLectura);
+
+  // El formulario de registro completo desaparece: no tiene sentido dejar a la
+  // vista media pantalla de campos que no se van a poder guardar.
+  const zona = $('#zonaFormulario');
+  if (zona) {
+    zona.hidden = soloLectura;
+    zona.setAttribute('aria-hidden', String(soloLectura));
+  }
+
+  const aviso = $('#avisoSoloLectura');
+  if (aviso) aviso.hidden = !soloLectura;
+
+  const listado = $('#tituloListado')?.nextElementSibling;
+  if (listado) {
+    listado.textContent = soloLectura
+      ? 'Consulta y exporta las actividades registradas.'
+      : 'Busca, revisa, edita o elimina lo que ya guardaste.';
+  }
 }
 
 function refrescar() {
@@ -533,7 +669,7 @@ function mostrarMasAcciones() {
         class: 'btn btn--secundario', attrs: { type: 'button' }, text: 'Imprimir o guardar como PDF',
         on: { click: () => print() }
       }),
-      el('button', {
+      perfil.permisos.puedeEliminar && el('button', {
         class: 'btn btn--peligro', attrs: { type: 'button' }, text: `Vaciar el ${estado.plan.nombreCorto}`,
         on: {
           click: async (e) => {
@@ -549,7 +685,7 @@ function mostrarMasAcciones() {
           }
         }
       })
-    ])
+    ].filter(Boolean))
   });
 }
 

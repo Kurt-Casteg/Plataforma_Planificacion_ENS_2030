@@ -11,6 +11,7 @@
  */
 
 import { normalizarActividad, nuevoId } from './modelo.js';
+import { perfil } from './perfil.js';
 
 const CLAVE = 'seremi.planificacion.v2';
 /** Claves de las versiones anteriores, para migrar automáticamente. */
@@ -166,8 +167,28 @@ class Almacen extends EventTarget {
     return this.#actividades.find((a) => a.id === id) || null;
   }
 
+  /**
+   * Cerrojo de escritura.
+   *
+   * La interfaz ya esconde los botones y la base de datos ya rechaza la
+   * operación; esto es la barrera del medio. Existe porque las otras dos pueden
+   * fallar de maneras distintas: un camino de código que olvide consultar los
+   * permisos llegaría igual hasta aquí, y en modo local (sin sesión) no hay
+   * servidor que diga que no.
+   */
+  #exigirEscritura(accion) {
+    if (!perfil.soloLectura) return;
+    const e = new Error(
+      `Tu perfil actual (${perfil.rol === 'observador' ? 'Observador' : perfil.rol}) es de solo lectura: ` +
+      `no puede ${accion}. Cambia de perfil en la cabecera si tienes otro asignado.`
+    );
+    e.codigo = 'solo_lectura';
+    throw e;
+  }
+
   /** Crea o actualiza. Devuelve la actividad guardada. */
   async guardar(actividad) {
+    this.#exigirEscritura('guardar actividades');
     // Guardar SIEMPRE actualiza la marca de tiempo: nunca se confía en la del cliente.
     const normal = normalizarActividad({ ...actividad, actualizadaEn: new Date().toISOString() });
     const i = this.#actividades.findIndex((a) => a.id === normal.id);
@@ -181,6 +202,7 @@ class Almacen extends EventTarget {
   }
 
   async eliminar(id) {
+    this.#exigirEscritura('eliminar actividades');
     const antes = this.#actividades.length;
     this.#actividades = this.#actividades.filter((a) => a.id !== id);
     if (this.#actividades.length === antes) return { ok: false };
@@ -192,6 +214,7 @@ class Almacen extends EventTarget {
 
   /** Duplica una actividad como borrador nuevo. */
   async duplicar(id) {
+    this.#exigirEscritura('duplicar actividades');
     const original = this.obtener(id);
     if (!original) return null;
     const copia = normalizarActividad({
@@ -207,6 +230,7 @@ class Almacen extends EventTarget {
 
   /** Reemplaza o agrega un lote de actividades (importación). */
   async importar(lista, { modo = 'agregar' } = {}) {
+    this.#exigirEscritura('importar actividades');
     const entrantes = lista.map((a) => normalizarActividad(a));
     if (modo === 'reemplazar') {
       this.#actividades = entrantes;
@@ -221,6 +245,7 @@ class Almacen extends EventTarget {
   }
 
   async vaciarPlan(planId) {
+    this.#exigirEscritura('borrar actividades');
     this.#actividades = this.#actividades.filter((a) => a.plan !== planId);
     const resultado = this.#persistir();
     this.#emitir();

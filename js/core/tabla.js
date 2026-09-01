@@ -8,6 +8,7 @@ import { monto, numero, fecha, recortar } from './formato.js';
 import { etiquetaDe, aOpciones, buscarAsignacion } from './catalogos.js';
 import { MESES } from './modelo.js';
 import { abrirModal } from './ui.js';
+import { perfil } from './perfil.js';
 
 export class TablaActividades {
   constructor({ contenedor, plan, catalogos, ens, clasificador, acciones }) {
@@ -103,7 +104,9 @@ export class TablaActividades {
           class: 'vacio__texto',
           text: this.actividades.length
             ? 'Ajusta la búsqueda o los filtros para ver resultados.'
-            : 'Completa el formulario de arriba y guarda tu primera actividad.'
+            : perfil.soloLectura
+              ? 'Todavía no hay nada registrado en este plan para mostrar.'
+              : 'Completa el formulario de arriba y guarda tu primera actividad.'
         })
       ]));
       return;
@@ -167,15 +170,20 @@ export class TablaActividades {
               ? el('span', { class: 'etiqueta etiqueta--neutra', text: 'Sin presupuesto' })
               : el('span', { text: monto(a.totales.presupuesto) })
           ]);
-        case 'acciones':
+        case 'acciones': {
+          // Los botones que escriben no se dibujan si el perfil activo no puede
+          // hacerlo. No se deshabilitan: un botón apagado que nunca se va a
+          // encender solo estorba.
+          const p = perfil.permisos;
           return el('td', { class: 'col--acciones' }, [
             el('div', { class: 'acciones-fila' }, [
               this.#boton('detalle', a.id, 'Ver', 'Ver detalle de la actividad'),
-              this.#boton('editar', a.id, 'Editar', 'Editar la actividad'),
-              this.#boton('duplicar', a.id, 'Duplicar', 'Crear una copia de la actividad'),
-              this.#boton('eliminar', a.id, 'Eliminar', 'Eliminar la actividad', 'btn--peligro-texto')
-            ])
+              p.puedeEditar   && this.#boton('editar', a.id, 'Editar', 'Editar la actividad'),
+              p.puedeCrear    && this.#boton('duplicar', a.id, 'Duplicar', 'Crear una copia de la actividad'),
+              p.puedeEliminar && this.#boton('eliminar', a.id, 'Eliminar', 'Eliminar la actividad', 'btn--peligro-texto')
+            ].filter(Boolean))
           ]);
+        }
         default:
           return el('td', { text: a[col.id] || '—' });
       }
@@ -338,8 +346,10 @@ export class TablaActividades {
       ].filter(Boolean),
       acciones: [
         { texto: 'Cerrar', clase: 'btn--secundario', alHacerClic: (m) => m.cerrar() },
-        { texto: 'Editar', clase: 'btn--primario', alHacerClic: (m) => { m.cerrar(); this.acciones.editar(id); } }
-      ]
+        perfil.permisos.puedeEditar
+          ? { texto: 'Editar', clase: 'btn--primario', alHacerClic: (m) => { m.cerrar(); this.acciones.editar(id); } }
+          : null
+      ].filter(Boolean)
     });
   }
 }
