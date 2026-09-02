@@ -22,6 +22,9 @@ que se publican en GitHub Pages y se abren en cualquier navegador moderno.
 - Panel de análisis con indicadores clave y gráficos que se actualizan solos.
 - Exportación a **Excel** (dos hojas: datos y resumen por departamento), **CSV** y
   **respaldo JSON** reimportable.
+- **Informe consolidado** para Control de Gestión: un Excel de diez hojas y un PDF
+  imprimible que cruzan los dos planes, el Plan Anual de Compras, la cobertura de
+  la ENS y el estado de completitud de cada ficha.
 - Modo claro y oscuro, teclado completo y accesibilidad.
 - Funciona sin conexión a internet; opcionalmente sincroniza a una base de datos
   compartida para que Control de Gestión consolide sin pedir archivos.
@@ -51,6 +54,8 @@ que se publican en GitHub Pages y se abren en cualquier navegador moderno.
 │       ├── tabla.js          Listado, búsqueda, filtros y detalle.
 │       ├── panel.js          Indicadores y gráficos.
 │       ├── exportar.js       Excel, CSV, respaldo e importación.
+│       ├── informe.js        Informe consolidado: cálculo y libro de Excel.
+│       ├── informe-vista.js  Informe consolidado: vista imprimible (PDF).
 │       ├── catalogos.js      Carga y consulta de los catálogos.
 │       ├── nube.js           Sincronización opcional (Supabase).
 │       ├── sesion.js         Inicio de sesión, solo si la nube está activa.

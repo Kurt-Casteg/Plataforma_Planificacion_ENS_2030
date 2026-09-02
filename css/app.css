@@ -1167,3 +1167,209 @@ button.indicador-almacen:disabled { cursor: default; font-weight: 500; }
 @media (max-width: 640px) {
   .pac__campos .campo__etiqueta { min-height: 0; }
 }
+
+/* ==========================================================================
+   Informe consolidado
+   Vista a pantalla completa pensada para leerse en pantalla y, sobre todo,
+   para imprimirse o guardarse como PDF sin retoques.
+   ========================================================================== */
+
+.informe {
+  position: fixed; inset: 0; z-index: 80;
+  display: flex; flex-direction: column;
+  background: var(--plano);
+}
+
+/* La barra es control, no contenido: se queda arriba en pantalla y desaparece
+   por completo al imprimir. */
+.informe__barra {
+  display: flex; align-items: center; gap: var(--e-5); flex-wrap: wrap;
+  padding: var(--e-3) var(--e-5);
+  background: var(--superficie);
+  border-bottom: 1px solid var(--borde);
+  box-shadow: var(--sombra-1);
+}
+.informe__barra-titulo { font-weight: 650; }
+.informe__barra-sub { font-size: var(--t-xs); color: var(--ink-2); }
+.informe__opcion {
+  display: flex; align-items: center; gap: var(--e-2);
+  font-size: var(--t-sm); color: var(--ink-2); cursor: pointer;
+}
+.informe__casilla { width: 16px; height: 16px; accent-color: var(--marca); cursor: pointer; }
+.informe__acciones { display: flex; gap: var(--e-2); margin-left: auto; flex-wrap: wrap; }
+
+.informe__cuerpo {
+  flex: 1; overflow: auto;
+  padding: var(--e-8) var(--e-5) var(--e-16);
+}
+
+/* Ancho de lectura: una hoja, centrada, con el mismo aire que tendría impresa. */
+.inf-portada, .inf-bloque {
+  max-width: 1000px; margin: 0 auto var(--e-8);
+  background: var(--superficie);
+  border: 1px solid var(--borde); border-radius: var(--r-lg);
+  padding: var(--e-8);
+}
+
+/* --- Portada --------------------------------------------------------- */
+
+.inf-portada__institucion {
+  font-size: var(--t-sm); font-weight: 650; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--marca-ink);
+}
+.inf-portada__titulo { font-size: var(--t-2xl); margin-top: var(--e-2); }
+.inf-portada__sub { color: var(--ink-2); margin-top: var(--e-2); }
+.inf-portada__fecha { color: var(--ink-3); font-size: var(--t-sm); margin-top: var(--e-1); }
+
+.inf-kpis {
+  display: grid; gap: var(--e-3); margin-top: var(--e-6);
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+.inf-kpis--tres { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.inf-kpi {
+  display: grid; row-gap: var(--e-1); align-content: start;
+  border: 1px solid var(--borde); border-radius: var(--r-md);
+  padding: var(--e-4); background: var(--superficie-2);
+}
+.inf-kpi__etiqueta {
+  font-size: var(--t-xs); font-weight: 650; letter-spacing: 0.03em;
+  text-transform: uppercase; color: var(--ink-3);
+}
+.inf-kpi__valor { font-size: var(--t-xl); font-weight: 700; line-height: 1.2; }
+.inf-kpi__detalle { font-size: var(--t-xs); color: var(--ink-2); }
+
+/* Misma alineación que las fichas del Panel: «Ejecuciones programadas» ocupa
+   dos líneas y «Actividades» una, así que sin `subgrid` cada cifra queda a
+   distinta altura y la fila se ve torcida. Cada ficha cede sus tres franjas
+   —etiqueta, cifra y pie— a la rejilla común y las tres se alinean solas.
+   Reserva para navegadores sin `subgrid`: altura de dos líneas en la etiqueta
+   y de dos en el pie, que es lo que ocupan las más largas. */
+.inf-kpi__etiqueta { min-height: 2.6em; }
+.inf-kpi__detalle { min-height: 2.6em; }
+
+@supports (grid-template-rows: subgrid) {
+  .inf-kpi { grid-row: span 3; grid-template-rows: subgrid; }
+  .inf-kpi__etiqueta, .inf-kpi__detalle { min-height: 0; }
+}
+
+/* --- Bloques --------------------------------------------------------- */
+
+.inf-bloque__titulo {
+  font-size: var(--t-lg);
+  padding-bottom: var(--e-3); margin-bottom: var(--e-5);
+  border-bottom: 2px solid var(--marca);
+}
+.inf-sub { font-size: var(--t-md); margin: var(--e-6) 0 var(--e-3); }
+.inf-nota { font-size: var(--t-sm); color: var(--ink-2); margin-bottom: var(--e-3); }
+
+/* --- Barras ---------------------------------------------------------- */
+
+.inf-barras { display: grid; gap: 5px; margin-bottom: var(--e-5); }
+.inf-barra {
+  display: grid; align-items: center; gap: var(--e-3);
+  grid-template-columns: minmax(0, 15rem) 1fr 6.5rem;
+  font-size: var(--t-sm);
+}
+.inf-barra__etiqueta { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.inf-barra__pista { background: var(--superficie-3); border-radius: var(--r-sm); height: 16px; }
+/* Sin `min-width`: un valor de cero no debe dejar rastro. Un muñón de dos
+   píxeles en cada fila vacía se lee como «hay algo, pero poco», que es
+   justamente lo contrario de lo que dice el dato. */
+.inf-barra__relleno {
+  display: block; height: 100%;
+  border-radius: var(--r-sm); background: var(--seq-400);
+  /* Sin esto, al imprimir la barra sale blanca: el navegador quita los fondos
+     por omisión y el gráfico deja de existir justo donde más se necesita. */
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+.inf-barras[data-tono='presupuesto'] .inf-barra__relleno { background: var(--serie-2); }
+.inf-barra__valor { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-2); }
+
+/* --- Tablas ---------------------------------------------------------- */
+
+.inf-tabla-envoltura { overflow-x: auto; margin-bottom: var(--e-5); }
+.inf-tabla { width: 100%; border-collapse: collapse; font-size: var(--t-sm); }
+.inf-tabla--compacta { font-size: var(--t-xs); }
+.inf-tabla th, .inf-tabla td {
+  padding: 6px 10px; text-align: left; border-bottom: 1px solid var(--linea);
+  vertical-align: top;
+}
+.inf-tabla thead th {
+  background: var(--superficie-3); font-weight: 650; white-space: nowrap;
+  border-bottom: 1px solid var(--borde-fuerte);
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+.inf-tabla tfoot td { font-weight: 700; border-top: 2px solid var(--borde-fuerte); border-bottom: 0; }
+/* La regla general de la tabla alinea a la izquierda y gana por especificidad
+   si esto se escribe con una sola clase: hay que nombrar también la celda. */
+.inf-tabla th.inf-tabla__num,
+.inf-tabla td.inf-tabla__num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.inf-tabla tbody tr:nth-child(even) { background: var(--superficie-2); }
+
+/* --- Fichas del anexo ------------------------------------------------ */
+
+.inf-anexo__plan {
+  font-size: var(--t-md); margin: var(--e-8) 0 var(--e-4);
+  padding-bottom: var(--e-2); border-bottom: 1px solid var(--borde);
+}
+.inf-ficha {
+  border: 1px solid var(--borde); border-radius: var(--r-md);
+  padding: var(--e-4); margin-bottom: var(--e-4);
+}
+.inf-ficha__cabecera { margin-bottom: var(--e-3); }
+.inf-ficha__titulo { font-size: var(--t-base); }
+.inf-ficha__chips, .inf-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--e-2); }
+.inf-ficha__linea { font-size: var(--t-sm); font-weight: 650; margin-top: var(--e-3); }
+.inf-ficha__sub { margin-left: var(--e-4); }
+.inf-ficha__pendientes { margin-top: var(--e-3); font-size: var(--t-sm); color: var(--alerta-ink); }
+.inf-ficha__pendientes ul { margin: var(--e-1) 0 0; padding-left: var(--e-5); }
+
+.inf-datos { display: grid; gap: var(--e-2) var(--e-5); grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); margin: 0; }
+.inf-dato dt { font-size: var(--t-xs); font-weight: 650; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.02em; }
+.inf-dato dd { margin: 0; font-size: var(--t-sm); }
+
+.inf-chip {
+  display: inline-block; padding: 2px 9px; border-radius: var(--r-full);
+  background: var(--superficie-3); color: var(--ink-2);
+  font-size: var(--t-xs); font-weight: 600;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+.inf-chip[data-tono='parcial'] { background: var(--alerta-suave); color: var(--alerta-ink); }
+.inf-chip[data-tono='incompleta'] { background: var(--peligro-suave); color: var(--peligro-ink); }
+.inf-chip[data-tono='completa'] { background: var(--exito-suave); color: var(--exito-ink); }
+
+/* --- Impresión del informe ------------------------------------------- */
+
+@media print {
+  /* Con el informe abierto, lo único que existe en la hoja es el informe.
+     Se apagan hermanos por igual —cabecera, avisos, asistente, modales— sin
+     tener que enumerarlos uno por uno. */
+  body.con-informe > *:not(.informe) { display: none !important; }
+
+  body.con-informe { background: #fff; }
+  .informe { position: static; display: block; background: #fff; }
+  .informe__barra { display: none !important; }
+  .informe__cuerpo { overflow: visible; padding: 0; }
+
+  .inf-portada, .inf-bloque {
+    max-width: none; margin: 0 0 12mm; padding: 0;
+    border: 0; border-radius: 0; background: #fff;
+    break-inside: auto;
+  }
+  /* La portada ocupa su propia hoja: es la carátula del documento. */
+  .inf-portada { break-after: page; }
+  .inf-bloque { break-before: page; }
+  .inf-bloque__titulo { break-after: avoid; }
+  .inf-sub, .inf-anexo__plan { break-after: avoid; break-inside: avoid; }
+
+  .inf-kpi, .inf-barra, .inf-ficha { break-inside: avoid; }
+  .inf-tabla-envoltura { overflow: visible; }
+  .inf-tabla { font-size: 8.5pt; }
+  .inf-tabla--compacta { font-size: 7.5pt; }
+  .inf-tabla tr { break-inside: avoid; }
+  /* El encabezado se repite en cada página que la tabla ocupe. */
+  .inf-tabla thead { display: table-header-group; }
+  .inf-tabla tfoot { display: table-footer-group; }
+}
+
+@page { size: A4; margin: 14mm 12mm; }

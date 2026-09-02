@@ -347,6 +347,9 @@ habilita el ingreso con contraseña. Es un interruptor del panel, no SQL.
 | `control_gestion` | toda la institución | toda la institución; consolida; mantiene la nómina |
 | `observador` | toda la institución | **nada** |
 
+Solo `control_gestion` ve el botón **«Exportar informe»**, el informe consolidado
+de ambos planes y del PAC (ver más abajo).
+
 El **Observador** consulta, filtra, ve el panel de análisis, exporta a Excel, CSV
 y JSON, e imprime. No ve el formulario de registro ni los botones de editar,
 duplicar o eliminar, y tampoco puede importar ni vaciar un plan. Está pensado
@@ -486,6 +489,97 @@ volver a guardarlas.
   de texto libre de ese plan.
 - El bloque **Presupuesto** aparece solo si hay montos cargados o si la actividad
   está marcada como «no requiere presupuesto».
+
+---
+
+## El informe consolidado («Exportar informe»)
+
+El botón **«Exportar informe»** aparece en la barra del listado y **solo lo ve el
+perfil Control de Gestión**. No es una exportación más: mientras «Exportar a
+Excel» entrega el plan que se está mirando, el informe recorre **toda la
+planificación de la institución** —los dos planes y el Plan Anual de Compras— sin
+importar en qué pestaña se esté.
+
+Al pulsarlo pasan dos cosas, en este orden:
+
+1. Se **descarga un archivo Excel** (`informe-planificacion-2026-AAAA-MM-DD.xlsx`).
+2. Se abre en pantalla la **vista imprimible**, con un botón «Imprimir o guardar
+   como PDF». El navegador genera el PDF; la plataforma no necesita ninguna
+   librería adicional para eso.
+
+Si el Excel fallara —por ejemplo, si no carga la librería—, la vista en pantalla
+se abre igual y el informe se puede entregar en PDF.
+
+### Las diez hojas del Excel
+
+| Hoja | Qué trae |
+|---|---|
+| Portada | Totales generales, estado de las fichas, resumen por plan e índice del libro. |
+| Resumen | Totales por departamento (ambos planes), por tipo de actividad y por componente transversal. |
+| PNS | Una fila por actividad del Plan Nacional de Salud, con todos los campos y la cadena ENS en texto. |
+| PGI | Lo mismo para el Plan de Gestión Institucional. |
+| PAC | Una fila **por compra**, no por actividad, con la actividad de origen como referencia. |
+| Conciliación PAC | PAC contra subtítulo 22 de cada actividad, compras por ítem y calendario de compras. |
+| Presupuesto | Distribución mensual por subtítulo y presupuesto por departamento y plan. |
+| Cronograma | Ejecuciones mes a mes por departamento. |
+| Cobertura ENS | Actividades por objetivo, tema y resultado esperado, incluyendo los que quedaron sin ninguna. |
+| Calidad de datos | Solo las fichas con pendientes, ordenadas de más a menos, y qué le falta a cada una. |
+
+Las hojas PNS y PGI terminan con cuatro columnas de estado: **Estado de la ficha,
+Datos obligatorios que faltan, Datos recomendados que faltan y Observaciones del
+PAC**. Vienen con autofiltro, así que se puede aislar en un clic todo lo que está
+a medio llenar.
+
+### Cómo decide si una ficha está completa
+
+El informe **no inventa un criterio propio**: usa las mismas reglas del
+formulario y del asistente. Distingue tres estados:
+
+- **Completa** — no le falta nada.
+- **Faltan datos recomendados** — no impide entregar, pero conviene completar:
+  código, responsable, correo, tipo de actividad, componente transversal,
+  descripción, medio de verificación; o alguna observación del PAC.
+- **Faltan datos obligatorios** — hay que corregirla: es lo mismo que el
+  formulario rechazaría al guardar.
+
+Los campos recomendados están en la constante `RECOMENDADOS`, arriba de
+`js/core/informe.js`. Agregar o quitar uno es editar esa lista.
+
+### El anexo del PDF
+
+La vista imprimible trae una casilla: **«Incluir el anexo con el detalle de cada
+actividad»**. El anexo dedica un bloque a cada ficha, con todos sus campos, su
+cronograma, su presupuesto mes a mes, sus compras y sus pendientes.
+
+Viene marcada cuando hay **150 actividades o menos**; sobre esa cifra empieza
+desmarcada, porque el anexo puede sumar más de cien páginas. Ese umbral está en
+`abrirVistaInforme()`, en `js/core/informe-vista.js`.
+
+### Dárselo a otro perfil
+
+Está restringido a Control de Gestión a propósito. Para habilitarlo también al
+Observador —que ya ve toda la institución y exporta—, se agrega su identificador
+a esta línea de `js/app.js`:
+
+```js
+const PERFILES_CON_INFORME = new Set(['control_gestion']);
+```
+
+Ese conjunto solo gobierna **quién ve el botón**. Lo que el informe puede leer lo
+siguen decidiendo las políticas de la base de datos: un perfil que solo ve su
+departamento generaría un informe con su departamento, no con la institución.
+
+### Dónde se cambia el contenido
+
+- Las hojas del Excel y sus columnas: `exportarInformeExcel()` en
+  `js/core/informe.js`.
+- Las secciones y los gráficos del PDF: `js/core/informe-vista.js`.
+- Los cálculos —totales, agrupaciones, cobertura ENS, conciliación—:
+  `reunirInforme()` en `js/core/informe.js`.
+
+Los tres archivos están separados a propósito: **el Excel y el PDF consumen
+exactamente los mismos números**. Si alguna vez dijeran cifras distintas, sería
+un error de formato en una de las dos salidas, nunca un cálculo hecho dos veces.
 
 ---
 

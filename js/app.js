@@ -110,6 +110,30 @@ alCargar(async () => {
 
 const planDesdeURL = () => planPorId(location.hash.replace('#/', '').split('/')[0]);
 
+/**
+ * Carga la cadena de resultados ENS si aún no está en memoria.
+ *
+ * Se descarga solo cuando hace falta —abrir el PNS o generar el informe— para
+ * no cobrarle el archivo completo a quien solo viene a trabajar en el PGI.
+ */
+async function asegurarENS() {
+  if (estado.ens) return true;
+  const cerrar = mostrarCargando('Cargando la Estrategia Nacional de Salud…');
+  try {
+    const [ens, indicadores] = await Promise.all([cargarENS(), cargarIndicadores().catch(() => ({}))]);
+    estado.ens = ens;
+    estado.ensIndex = indexarENS(ens);
+    estado.indicadores = indicadores;
+    return true;
+  } catch (e) {
+    avisar('No se pudo cargar la cadena de resultados ENS. Revisa tu conexión.', 'error');
+    console.error(e);
+    return false;
+  } finally {
+    cerrar();
+  }
+}
+
 /* ------------------------------------------------------------------ */
 /* Cascarón: cabecera, navegación y pie                                */
 /* ------------------------------------------------------------------ */
@@ -263,20 +287,7 @@ async function activarPlan(plan) {
     else tab.removeAttribute('aria-current');
   }
 
-  if (plan.id === 'pns' && !estado.ens) {
-    const cerrar = mostrarCargando('Cargando la Estrategia Nacional de Salud…');
-    try {
-      const [ens, indicadores] = await Promise.all([cargarENS(), cargarIndicadores().catch(() => ({}))]);
-      estado.ens = ens;
-      estado.ensIndex = indexarENS(ens);
-      estado.indicadores = indicadores;
-    } catch (e) {
-      avisar('No se pudo cargar la cadena de resultados ENS. Revisa tu conexión.', 'error');
-      console.error(e);
-    } finally {
-      cerrar();
-    }
-  }
+  if (plan.id === 'pns') await asegurarENS();
 
   dibujarPortada(plan);
 
@@ -427,11 +438,81 @@ function dibujarAccionesListado() {
       text: 'Importar',
       on: { click: importar }
     }),
+    // El informe consolidado cruza los dos planes y todos los departamentos:
+    // solo lo ve quien tiene esa responsabilidad institucional.
+    PERFILES_CON_INFORME.has(perfil.rol) && el('button', {
+      class: 'btn btn--secundario',
+      attrs: { type: 'button', title: 'Informe consolidado de ambos planes y del Plan Anual de Compras' },
+      text: 'Exportar informe',
+      on: { click: exportarInforme }
+    }),
     el('button', {
       class: 'btn btn--fantasma', attrs: { type: 'button' }, text: 'Más',
       on: { click: mostrarMasAcciones }
     })
   );
+}
+
+/**
+ * Informe consolidado: los dos planes, el Plan Anual de Compras y el estado de
+ * cada ficha en una sola entrega.
+ *
+ * A diferencia de «Exportar a Excel», que entrega el plan que se está viendo,
+ * este informe recorre TODA la planificación de la institución. Por eso está
+ * restringido: no es una función más de exportación, es la consolidación.
+ *
+ * Para dárselo a otro perfil —por ejemplo al Observador, que también ve toda la
+ * institución— basta con agregar su identificador a este conjunto.
+ */
+const PERFILES_CON_INFORME = new Set(['control_gestion']);
+
+async function exportarInforme() {
+  const actividades = almacen.todas;
+  if (!actividades.length) {
+    avisar('Todavía no hay actividades registradas para informar.', 'alerta');
+    return;
+  }
+
+  const cerrar = mostrarCargando('Reuniendo el informe…');
+  try {
+    // La cobertura ENS necesita el árbol completo aunque se esté mirando el PGI.
+    await asegurarENS();
+
+    const [{ reunirInforme, exportarInformeExcel }, { abrirVistaInforme }] = await Promise.all([
+      import('./core/informe.js'),
+      import('./core/informe-vista.js')
+    ]);
+
+    const informe = reunirInforme({
+      actividades,
+      planes: PLANES,
+      catalogos: estado.catalogos,
+      ens: estado.ensIndex,
+      clasificador: estado.clasificador,
+      institucion: CONFIG.institucion,
+      anio: CONFIG.anio
+    });
+
+    const descargarExcel = async () => {
+      try {
+        const r = await exportarInformeExcel(informe);
+        avisar(`Informe descargado: ${numero(r.actividades)} actividades en ${r.hojas.length} hojas.`, 'exito');
+      } catch (e) {
+        console.error(e);
+        avisar('No se pudo generar el archivo de Excel. La vista del informe sigue disponible para imprimir.', 'error', { duracion: 9000 });
+      }
+    };
+
+    // Primero el archivo, después la vista: si algo falla en el Excel, el
+    // informe en pantalla queda igualmente a la mano para imprimir.
+    await descargarExcel();
+    abrirVistaInforme(informe, { alExportarExcel: descargarExcel });
+  } catch (e) {
+    console.error(e);
+    avisar('No fue posible generar el informe.', 'error');
+  } finally {
+    cerrar();
+  }
 }
 
 /* ------------------------------------------------------------------ */

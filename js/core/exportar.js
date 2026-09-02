@@ -23,7 +23,7 @@ const SHEETJS = [
 let promesaXLSX = null;
 
 /** Carga SheetJS bajo demanda, con una fuente alternativa si la primera falla. */
-function cargarXLSX() {
+export function cargarXLSX() {
   if (globalThis.XLSX) return Promise.resolve(globalThis.XLSX);
   if (promesaXLSX) return promesaXLSX;
 
@@ -43,7 +43,7 @@ function cargarXLSX() {
 }
 
 /** Neutraliza fórmulas: un texto que abre con = + - @ deja de ser ejecutable. */
-const seguro = (v) => {
+export const seguro = (v) => {
   if (typeof v !== 'string') return v;
   return /^[=+\-@\t\r]/.test(v) ? `'${v}` : v;
 };
