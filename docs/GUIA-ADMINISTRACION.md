@@ -235,12 +235,29 @@ Tiene tres pestañas:
   incoherencias: cadena ENS a medio elegir, cronograma vacío, compras que no
   cuadran con el subtítulo 22, fechas de compra posteriores a la de ejecución,
   medio de verificación faltante (con el que corresponde según el tipo de
-  actividad). Cada aviso trae un atajo «Ir al campo». También resume lo ya
-  guardado del plan.
+  actividad). También revisa lo ya guardado del plan.
 - **Preguntas** — el banco de preguntas frecuentes.
 - **Guía** — los siete pasos del formulario, en orden.
 
-El punto de color sobre el botón aparece solo cuando hay algo concreto que decir.
+**El contador cuenta solo lo que pide acción**: las tarjetas rojas (obligatorio)
+y ámbar (conviene revisar). Las azules son información —un indicador oficial
+asociado, un dato de contexto— y se muestran pero no suman. Un número que
+incluye avisos que no hay que atender deja de significar nada y se aprende a
+ignorar. El punto es rojo si hay algo obligatorio y ámbar si son sugerencias.
+
+**Cada observación lleva a su problema.** La tarjeta entera es pulsable:
+- Si es del formulario, baja hasta el campo, lo enfoca y lo marca un momento.
+  En el Plan Anual de Compras apunta a **la compra concreta y al campo
+  concreto**, no al bloque.
+- Si es de una actividad **ya guardada**, lista cuáles son con su código y
+  nombre; al pulsar una, se carga en el formulario para corregirla. Si tienes
+  algo escrito sin guardar, pide confirmación antes de reemplazarlo. En un
+  perfil de solo lectura abre el detalle en vez del formulario.
+
+**La observación desaparece sola al corregir la causa.** El asistente no guarda
+estado: recalcula con cada tecla y con cada guardado. No hay forma de descartar
+un aviso a mano, y es deliberado: un contador que se apaga porque alguien lo
+silenció puede quedar en cero mientras el problema sigue ahí.
 
 **Ocultarlo y recuperarlo.** Cualquiera puede ocultar el asistente desde el pie
 de su panel, y la elección queda guardada en su navegador. Para volver a

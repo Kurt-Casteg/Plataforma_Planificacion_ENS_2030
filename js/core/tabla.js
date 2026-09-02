@@ -261,6 +261,12 @@ export class TablaActividades {
     ]);
   }
 
+  /**
+   * Abre el detalle de una actividad desde fuera del listado (lo usa el
+   * asistente para llevar a alguien hasta una actividad ya guardada).
+   */
+  verDetalle(id) { this.#verDetalle(id); }
+
   #verDetalle(id) {
     const a = this.actividades.find((x) => x.id === id);
     if (!a) return;

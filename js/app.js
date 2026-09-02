@@ -458,7 +458,8 @@ async function montarAsistente() {
       formulario: estado.formulario,
       actividades: estado.plan ? almacen.porPlan(estado.plan.id) : [],
       catalogos: estado.catalogos,
-      indicadores: estado.indicadores
+      indicadores: estado.indicadores,
+      abrirActividad
     })
   });
 
@@ -471,6 +472,55 @@ async function montarAsistente() {
   document.addEventListener('change', alEscribir);
 
   estado.asistente.actualizar();
+}
+
+/** ¿Hay algo escrito en el formulario que se perdería al cargar otra cosa? */
+function hayBorrador() {
+  const a = estado.formulario?.leer?.();
+  if (!a) return false;
+  return Boolean(
+    a.nombreActividad || a.descripcionActividad || a.medioVerificacion ||
+    a.objetivoEstrategico || a.objetivoEstrategicoTexto || a.objetivoOperacional ||
+    a.totales.cronograma || a.totales.presupuesto || a.pac?.compras?.length
+  );
+}
+
+/**
+ * Lleva a una actividad ya guardada desde el asistente.
+ *
+ * Con permiso de escritura la carga en el formulario para corregirla, que es
+ * el punto de todo esto. Sin permiso abre su detalle, porque un formulario que
+ * no se puede guardar no ayuda a nadie.
+ *
+ * La confirmación no es burocracia: cargar una actividad REEMPLAZA lo que haya
+ * en el formulario, y perder media hora de escritura por pulsar un aviso sería
+ * peor que el problema que el aviso señalaba.
+ */
+async function abrirActividad(id) {
+  const a = almacen.obtener(id);
+  if (!a) return;
+
+  if (perfil.soloLectura) {
+    estado.tabla?.verDetalle(id);
+    return;
+  }
+
+  if (hayBorrador()) {
+    const ok = await confirmar({
+      titulo: 'Abrir otra actividad',
+      mensaje: `Se cargará «${a.nombreActividad || 'la actividad seleccionada'}» en el formulario y se perderá lo que tengas escrito sin guardar.`,
+      textoConfirmar: 'Abrir de todas formas',
+      peligro: true
+    });
+    if (!ok) return;
+  }
+
+  estado.formulario.cargar(a);
+  $('#zonaFormulario')?.scrollIntoView({
+    block: 'start',
+    behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
+  });
+  avisar(`Abriste «${a.nombreActividad || 'la actividad'}» para corregirla.`, 'info', { duracion: 5000 });
 }
 
 /* ------------------------------------------------------------------ */

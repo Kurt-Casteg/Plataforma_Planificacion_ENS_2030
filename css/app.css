@@ -843,12 +843,51 @@ select.campo__control {
 .asistente__obs--sugerencia { border-left-color: var(--alerta);  background: var(--alerta-suave);  color: var(--alerta-ink); }
 .asistente__obs--info       { border-left-color: var(--marca);   background: var(--marca-suave);   color: var(--marca-ink); }
 
-.asistente__enlace {
-  margin-top: var(--e-2); padding: 0;
-  border: 0; background: none; color: inherit;
-  font: inherit; font-size: var(--t-xs); font-weight: 700;
-  text-decoration: underline; cursor: pointer;
+/* La tarjeta entera es el botón cuando lleva a alguna parte: un objetivo
+   grande se pulsa sin apuntar. */
+.asistente__obs--accionable {
+  display: block; width: 100%;
+  font: inherit; font-size: var(--t-sm); text-align: left;
+  border-top: 0; border-right: 0; border-bottom: 0;
+  cursor: pointer;
+  transition: filter var(--transicion), transform var(--transicion);
 }
+.asistente__obs--accionable:hover { filter: brightness(0.97); }
+.asistente__obs--accionable:active { transform: translateY(1px); }
+
+.asistente__pista {
+  display: inline-block; margin-top: var(--e-2);
+  font-size: var(--t-xs); font-weight: 700; text-decoration: underline;
+}
+
+.asistente__resumen {
+  font-size: var(--t-xs); color: var(--ink-3);
+  margin-bottom: var(--e-4);
+}
+
+/* Las actividades ya guardadas a las que apunta una observación. */
+.asistente__afectadas { display: grid; gap: var(--e-1); margin-top: var(--e-3); }
+.asistente__afectada {
+  display: flex; align-items: baseline; gap: var(--e-2);
+  width: 100%; padding: var(--e-2) var(--e-3);
+  border: 1px solid currentColor; border-radius: var(--r-sm);
+  background: var(--superficie); color: inherit;
+  font: inherit; font-size: var(--t-xs); text-align: left;
+  cursor: pointer;
+}
+.asistente__afectada:hover { background: var(--superficie-3); }
+.asistente__afectada-codigo {
+  font-weight: 700; font-variant-numeric: tabular-nums;
+  flex: 0 0 auto; min-width: 1.6em;
+}
+.asistente__afectada-nombre {
+  flex: 1; min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  color: var(--ink);
+}
+.asistente__afectada-ir { flex: 0 0 auto; font-weight: 700; }
+.asistente__afectadas-resto { font-size: var(--t-xs); opacity: 0.85; margin-top: var(--e-1); }
+
 
 .asistente__vacio { text-align: center; padding: var(--e-6) var(--e-3); display: grid; gap: var(--e-2); justify-items: center; }
 .asistente__vacio-titulo { font-weight: 650; }

@@ -249,14 +249,20 @@ export class Asistente {
     }
     this.observaciones = this.#revisar(ctx);
 
-    const alertas = this.observaciones.filter((o) => o.nivel === 'alerta').length;
-    const total = this.observaciones.length;
-    this.insignia.hidden = total === 0;
-    this.insignia.textContent = total > 9 ? '9+' : String(total);
+    // El contador cuenta solo lo que PIDE ALGO. Las observaciones informativas
+    // (azules) se siguen mostrando en el panel porque son útiles, pero no
+    // suman: un número que incluye avisos que no hay que atender deja de
+    // significar nada y se aprende a ignorar.
+    const porAtender = this.observaciones.filter((o) => o.nivel !== 'info');
+    const alertas = porAtender.filter((o) => o.nivel === 'alerta').length;
+    const n = porAtender.length;
+
+    this.insignia.hidden = n === 0;
+    this.insignia.textContent = n > 9 ? '9+' : String(n);
     this.insignia.dataset.nivel = alertas ? 'alerta' : 'sugerencia';
-    this.boton.dataset.avisa = String(total > 0);
-    this.boton.title = total
-      ? `Asistente: ${numero(total)} observación${total === 1 ? '' : 'es'} sobre lo que estás llenando`
+    this.boton.dataset.avisa = String(n > 0);
+    this.boton.title = n
+      ? `Asistente: ${numero(n)} ${n === 1 ? 'observación por atender' : 'observaciones por atender'}`
       : 'Asistente de la plataforma';
 
     if (this.abierto) this.#pintarCuerpo();
@@ -344,14 +350,18 @@ export class Asistente {
 
     /* --- Presupuesto --- */
     if (!a.sinPresupuesto && a.totales.presupuesto === 0) {
-      agregar('sugerencia', 'No cargaste presupuesto ni marcaste «esta actividad no requiere presupuesto». Marcar la casilla deja constancia de que fue una decisión y no un olvido.');
+      agregar('sugerencia',
+        'No cargaste presupuesto ni marcaste «esta actividad no requiere presupuesto». Marcar la casilla deja constancia de que fue una decisión y no un olvido.',
+        { campo: 'sinPresupuesto' });
     }
 
     for (const st of SUBTITULOS) {
       const b = a.presupuesto[st];
       const total = a.totales[`presupuesto${st}`];
       if (total > 0 && (!b.programatico || !b.programa)) {
-        agregar('sugerencia', `El subtítulo ${st} tiene ${monto(total)} sin categoría programática o programa asignado.`);
+        agregar('sugerencia',
+          `El subtítulo ${st} tiene ${monto(total)} sin categoría programática o programa asignado.`,
+          { campo: `programatico${st}` });
       }
     }
 
@@ -368,13 +378,18 @@ export class Asistente {
 
     /* --- Plan Anual de Compras --- */
     if (!a.sinPresupuesto && a.totales.presupuesto22 > 0 && !a.pac.aplica) {
-      agregar('sugerencia', `El subtítulo 22 tiene ${monto(a.totales.presupuesto22)} y el Plan Anual de Compras está apagado. Si esos recursos se van en bienes o servicios, activa el interruptor y detalla las compras.`);
+      agregar('sugerencia',
+        `El subtítulo 22 tiene ${monto(a.totales.presupuesto22)} y el Plan Anual de Compras está apagado. Si esos recursos se van en bienes o servicios, activa el interruptor y detalla las compras.`,
+        { campo: 'pacAplica' });
     }
 
     if (a.pac.aplica) {
       const dif = a.totales.pac - a.totales.presupuesto22;
       if (dif !== 0) {
-        agregar('alerta', `Las compras suman ${monto(a.totales.pac)} y el subtítulo 22 tiene ${monto(a.totales.presupuesto22)}: ${monto(Math.abs(dif))} ${dif > 0 ? 'de más' : 'sin imputar'}. Puedes guardar igual, pero debe cuadrar antes de la entrega a Adquisiciones.`);
+        agregar('alerta',
+          `Las compras suman ${monto(a.totales.pac)} y el subtítulo 22 tiene ${monto(a.totales.presupuesto22)}: ${monto(Math.abs(dif))} ${dif > 0 ? 'de más' : 'sin imputar'}. Puedes guardar igual, pero debe cuadrar antes de la entrega a Adquisiciones.`,
+          // Al primer monto: es donde se ajusta el descuadre.
+          { campo: `pac-${a.pac.compras[0]?.id}-monto` });
       }
 
       a.pac.compras.forEach((c, i) => {
@@ -384,7 +399,9 @@ export class Asistente {
         if (!c.producto) faltan.push('el producto');
         if (!c.monto) faltan.push('el monto');
         if (faltan.length) {
-          agregar('alerta', `En ${nombre} falta ${faltan.join(', ')}. Son los tres datos obligatorios de cada compra.`);
+          agregar('alerta',
+            `En ${nombre} falta ${faltan.join(', ')}. Son los tres datos obligatorios de cada compra.`,
+            { campo: `pac-${c.id}-${!c.clasificador ? 'clasificador' : !c.producto ? 'producto' : 'monto'}` });
         }
 
         const sugeridos = [];
@@ -392,11 +409,15 @@ export class Asistente {
         if (!c.fechaCompra) sugeridos.push('la fecha de compra');
         if (!c.fechaEjecucion) sugeridos.push('la fecha de ejecución');
         if (sugeridos.length && !faltan.length) {
-          agregar('sugerencia', `En ${nombre} falta ${sugeridos.join(', ')}. No bloquea el guardado, pero Adquisiciones lo va a pedir.`);
+          agregar('sugerencia',
+            `En ${nombre} falta ${sugeridos.join(', ')}. No bloquea el guardado, pero Adquisiciones lo va a pedir.`,
+            { campo: `pac-${c.id}-${!c.cantidad ? 'cantidad' : !c.fechaCompra ? 'fechaCompra' : 'fechaEjecucion'}` });
         }
 
         if (c.fechaCompra && c.fechaEjecucion && c.fechaCompra > c.fechaEjecucion) {
-          agregar('alerta', `En ${nombre} la fecha de compra (${fecha(c.fechaCompra)}) es posterior a la de ejecución (${fecha(c.fechaEjecucion)}). Primero se solicita la compra y después se ejecuta la actividad con esos insumos.`);
+          agregar('alerta',
+            `En ${nombre} la fecha de compra (${fecha(c.fechaCompra)}) es posterior a la de ejecución (${fecha(c.fechaEjecucion)}). Primero se solicita la compra y después se ejecuta la actividad con esos insumos.`,
+            { campo: `pac-${c.id}-fechaCompra` });
         }
       });
     }
@@ -404,29 +425,35 @@ export class Asistente {
     return obs.concat(this.#revisarConjunto(actividades, plan));
   }
 
-  /** Observaciones sobre lo ya guardado, no sobre lo que se está escribiendo. */
+  /**
+   * Observaciones sobre lo ya guardado, no sobre lo que se está escribiendo.
+   *
+   * Nombran las actividades concretas en vez de decir «2 actividades tienen un
+   * problema»: un número sin nombres obliga a ir a buscarlas una por una en el
+   * listado, que es justo el trabajo que el asistente debería ahorrar.
+   */
   #revisarConjunto(actividades, plan) {
     if (!actividades.length) return [];
     const obs = [];
-    const cuenta = (fn) => actividades.filter(fn).length;
 
-    const sinMedio = cuenta((a) => !a.medioVerificacion);
-    const sinCrono = cuenta((a) => a.totales.cronograma === 0);
-    const sinPres = cuenta((a) => !a.sinPresupuesto && a.totales.presupuesto === 0);
-    const pacMal = cuenta((a) => a.pac?.aplica && a.totales.pac !== a.totales.presupuesto22);
-
-    const linea = (n, texto) => {
-      if (!n) return;
+    const grupo = (lista, texto) => {
+      if (!lista.length) return;
       obs.push({
-        nivel: 'sugerencia', conjunto: true,
-        texto: `${numero(n)} actividad${n === 1 ? '' : 'es'} ya guardada${n === 1 ? '' : 's'} ${texto}`
+        nivel: 'sugerencia',
+        conjunto: true,
+        texto: `${numero(lista.length)} actividad${lista.length === 1 ? '' : 'es'} ya guardada${lista.length === 1 ? '' : 's'} ${texto}`,
+        actividades: lista
       });
     };
 
-    linea(sinMedio, `no ${sinMedio === 1 ? 'tiene' : 'tienen'} medio de verificación.`);
-    linea(sinCrono, `${sinCrono === 1 ? 'tiene' : 'tienen'} el cronograma vacío.`);
-    linea(sinPres, `no ${sinPres === 1 ? 'tiene' : 'tienen'} presupuesto ni la marca de «no requiere presupuesto».`);
-    linea(pacMal, `${pacMal === 1 ? 'tiene' : 'tienen'} el Plan Anual de Compras descuadrado con su subtítulo 22.`);
+    grupo(actividades.filter((a) => !a.medioVerificacion),
+      'sin medio de verificación.');
+    grupo(actividades.filter((a) => a.totales.cronograma === 0),
+      'con el cronograma vacío.');
+    grupo(actividades.filter((a) => !a.sinPresupuesto && a.totales.presupuesto === 0),
+      'sin presupuesto ni la marca de «no requiere presupuesto».');
+    grupo(actividades.filter((a) => a.pac?.aplica && a.totales.pac !== a.totales.presupuesto22),
+      'con el Plan Anual de Compras descuadrado respecto de su subtítulo 22.');
 
     if (obs.length) {
       obs.push({
@@ -508,6 +535,7 @@ export class Asistente {
     const ordenadas = [...this.observaciones].sort((a, b) => ORDEN[a.nivel] - ORDEN[b.nivel]);
     const propias = ordenadas.filter((o) => !o.conjunto);
     const conjunto = ordenadas.filter((o) => o.conjunto);
+    const porAtender = ordenadas.filter((o) => o.nivel !== 'info').length;
 
     const bloque = (titulo, lista) => lista.length
       ? el('section', { class: 'asistente__bloque' }, [
@@ -517,30 +545,94 @@ export class Asistente {
       : null;
 
     render(this.cuerpo, ...[
+      // Explica de dónde sale el número del botón, para que no haya que
+      // contar tarjetas a ojo y descubrir que no cuadra.
+      el('p', {
+        class: 'asistente__resumen',
+        text: porAtender
+          ? `${numero(porAtender)} ${porAtender === 1 ? 'observación por atender' : 'observaciones por atender'}. El resto es información.`
+          : 'Nada por atender. Lo de abajo es solo información.'
+      }),
       bloque('En lo que estás llenando', propias),
       bloque('En lo ya guardado', conjunto)
     ].filter(Boolean));
   }
 
+  /**
+   * Una observación. Si tiene un destino, la tarjeta ENTERA es el botón: un
+   * enlace de once píxeles dentro de un recuadro grande obliga a apuntar, y
+   * quien está corrigiendo errores quiere pulsar rápido.
+   */
   #observacion(o) {
-    const nodo = el('div', { class: `asistente__obs asistente__obs--${o.nivel}` }, [
-      el('p', { class: 'asistente__obs-texto', text: o.texto })
-    ]);
+    const cuerpo = [el('p', { class: 'asistente__obs-texto', text: o.texto })];
 
-    // Un atajo al campo mencionado: ahorra buscarlo a mano en un formulario largo.
+    // Caso 1: lleva a un campo del formulario. Toda la tarjeta es pulsable.
     if (o.campo) {
-      nodo.append(el('button', {
-        class: 'asistente__enlace', attrs: { type: 'button' }, text: 'Ir al campo →',
+      return el('button', {
+        class: `asistente__obs asistente__obs--${o.nivel} asistente__obs--accionable`,
+        attrs: { type: 'button' },
         on: { click: () => this.#irAlCampo(o.campo) }
-      }));
+      }, [...cuerpo, el('span', { class: 'asistente__pista', text: 'Ir al campo →' })]);
     }
+
+    // Caso 2: lleva a la guía.
     if (o.accion === 'guia') {
-      nodo.append(el('button', {
-        class: 'asistente__enlace', attrs: { type: 'button' }, text: 'Ver la guía →',
+      return el('button', {
+        class: `asistente__obs asistente__obs--${o.nivel} asistente__obs--accionable`,
+        attrs: { type: 'button' },
         on: { click: () => { this.vista = 'guia'; this.#pintarCuerpo(); } }
+      }, [...cuerpo, el('span', { class: 'asistente__pista', text: 'Ver la guía →' })]);
+    }
+
+    // Caso 3: apunta a varias actividades ya guardadas. No puede ser un botón
+    // porque contiene botones: cada actividad se abre por separado.
+    if (o.actividades?.length) {
+      return el('div', { class: `asistente__obs asistente__obs--${o.nivel}` }, [
+        ...cuerpo,
+        el('div', { class: 'asistente__afectadas' }, this.#listaActividades(o.actividades))
+      ]);
+    }
+
+    return el('div', { class: `asistente__obs asistente__obs--${o.nivel}` }, cuerpo);
+  }
+
+  /** Máximo de actividades listadas antes de resumir el resto. */
+  static TOPE_AFECTADAS = 8;
+
+  #listaActividades(lista) {
+    const tope = Asistente.TOPE_AFECTADAS;
+    const nodos = lista.slice(0, tope).map((a) => el('button', {
+      class: 'asistente__afectada',
+      attrs: {
+        type: 'button',
+        title: perfil.soloLectura ? 'Ver el detalle de esta actividad' : 'Abrir esta actividad para corregirla'
+      },
+      on: { click: () => this.#abrirActividad(a.id) }
+    }, [
+      el('span', { class: 'asistente__afectada-codigo', text: a.codigoActividad || '—' }),
+      el('span', { class: 'asistente__afectada-nombre', text: a.nombreActividad || 'Sin nombre' }),
+      el('span', { class: 'asistente__afectada-ir', text: '→', attrs: { 'aria-hidden': 'true' } })
+    ]));
+
+    if (lista.length > tope) {
+      nodos.push(el('p', {
+        class: 'asistente__afectadas-resto',
+        text: `y ${numero(lista.length - tope)} más. Corrige estas y vuelve a mirar.`
       }));
     }
-    return nodo;
+    return nodos;
+  }
+
+  /**
+   * Abre una actividad ya guardada. Quien decide qué significa «abrir» es la
+   * aplicación, no el asistente: en un perfil de solo lectura no hay formulario
+   * al que cargarla, así que allá se muestra el detalle.
+   */
+  #abrirActividad(id) {
+    const ctx = this.contexto?.() || {};
+    if (typeof ctx.abrirActividad !== 'function') return;
+    this.cerrar();
+    ctx.abrirActividad(id);
   }
 
   #irAlCampo(id) {
