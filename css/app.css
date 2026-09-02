@@ -575,13 +575,35 @@ select.campo__control {
 }
 
 .kpi {
+  display: grid; row-gap: var(--e-2); align-content: start;
   padding: var(--e-5);
   background: var(--superficie); border: 1px solid var(--borde);
   border-radius: var(--r-md);
 }
-/* Las dos fichas por subtítulo desglosan la ficha de presupuesto total:
-   el borde superior las agrupa visualmente sin gritar. */
-.kpi--presupuesto { border-top: 3px solid var(--marca); }
+
+/* Alineación de la fila de fichas.
+
+   «Ejecuciones programadas» ocupa dos líneas y «Actividades» una, así que sin
+   esto cada cifra queda a distinta altura y la fila se ve torcida. Con
+   `subgrid` cada ficha cede sus tres franjas —etiqueta, cifra y pie— a la
+   rejilla común, y las tres se alinean solas por largo que sea cada texto.
+
+   Reserva para navegadores sin `subgrid`: se aparta la altura de dos líneas
+   para la etiqueta, que es lo que ocupa la más larga. */
+.kpi__etiqueta { min-height: 3.1em; }
+
+@supports (grid-template-rows: subgrid) {
+  .kpi { grid-row: span 3; grid-template-rows: subgrid; }
+  .kpi__etiqueta { min-height: 0; }
+}
+/* Las dos fichas por subtítulo desglosan la ficha de presupuesto total: la
+   franja superior las agrupa visualmente sin gritar.
+
+   Va como sombra interior y NO como borde a propósito. Un borde de 3 px donde
+   las demás fichas tienen 1 px empuja el contenido 2 px hacia abajo y rompe la
+   alineación de las cifras. Así todas las fichas tienen exactamente la misma
+   geometría y la franja es puro color. */
+.kpi--presupuesto { box-shadow: inset 0 3px 0 var(--marca); }
 .kpi--presupuesto .kpi__valor { color: var(--marca-ink); }
 .kpi__etiqueta {
   font-size: var(--t-xs); font-weight: 650; text-transform: uppercase;
@@ -589,9 +611,11 @@ select.campo__control {
 }
 .kpi__valor {
   font-size: var(--t-2xl); font-weight: 700; color: var(--ink);
-  margin-top: var(--e-2); line-height: 1.1;
+  line-height: 1.1;
 }
-.kpi__detalle { font-size: var(--t-xs); color: var(--ink-2); margin-top: var(--e-2); }
+.kpi__detalle { font-size: var(--t-xs); color: var(--ink-2); }
+/* Una ficha sin pie no debe encoger la franja: la comparten todas. */
+.kpi__detalle:empty::after { content: '\200B'; }
 
 /* Rejilla de dos columnas fijas: dos tarjetas "media" siempre se emparejan,
    sin dejar huecos según el ancho de la ventana. */

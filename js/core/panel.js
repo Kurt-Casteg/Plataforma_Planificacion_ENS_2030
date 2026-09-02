@@ -189,8 +189,11 @@ export class Panel {
       }, [
         el('p', { class: 'kpi__etiqueta', text: etiqueta }),
         el('p', { class: 'kpi__valor', text: valor }),
-        detalle && el('p', { class: 'kpi__detalle', text: detalle })
-      ].filter(Boolean));
+        // El pie se dibuja siempre, aunque venga vacío: las tres franjas de
+        // cada ficha se alinean entre sí, y para eso todas deben tener las
+        // mismas tres piezas.
+        el('p', { class: 'kpi__detalle', text: detalle || '' })
+      ]);
 
     /** «M$ 750 · 34 % del total» — la parte sirve de poco sin el todo. */
     const detalleSt = (st) => {
