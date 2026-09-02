@@ -213,7 +213,9 @@ function construirCascaron() {
         ]),
         el('div', {}, [
           el('p', { class: 'pie__titulo', text: 'Desarrollo' }),
-          el('p', { class: 'pie__texto', text: 'Departamento de Control de Gestión y Calidad Institucional' }),
+          // Los créditos salen de config.js: son un texto que cambia con la
+          // orgánica de la SEREMI y no debería obligar a tocar código.
+          ...(CONFIG.desarrollo ?? []).map((linea) => el('p', { class: 'pie__texto', text: linea })),
           el('p', { class: 'pie__texto', text: CONFIG.institucion })
         ]),
         el('div', {}, [

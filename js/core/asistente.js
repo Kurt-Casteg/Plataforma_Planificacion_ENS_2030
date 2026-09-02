@@ -178,6 +178,17 @@ export class Asistente {
     document.addEventListener('keydown', this.__alTeclear);
 
     if (localStorage.getItem(CLAVE_MINIMIZADO) === '1') this.raiz.hidden = true;
+    this.#marcarPresencia();
+  }
+
+  /**
+   * Avisa al resto de la página de que hay un botón flotante abajo a la
+   * derecha, para que el pie aparte ese espacio. Sin esto, el botón tapa el
+   * número de versión, que es lo único que permite comprobar de un vistazo si
+   * el navegador cargó la última publicación o una copia en caché.
+   */
+  #marcarPresencia() {
+    document.documentElement.dataset.asistente = this.raiz.hidden ? 'oculto' : 'visible';
   }
 
   #pestana(id, texto) {
@@ -223,12 +234,14 @@ export class Asistente {
     localStorage.setItem(CLAVE_MINIMIZADO, '1');
     this.raiz.hidden = true;
     this.abierto = false;
+    this.#marcarPresencia();
     avisar('Asistente oculto. Para volver a mostrarlo: botón «Ayuda» de la cabecera.', 'info', { duracion: 8000 });
   }
 
   mostrar() {
     localStorage.removeItem(CLAVE_MINIMIZADO);
     this.raiz.hidden = false;
+    this.#marcarPresencia();
   }
 
   get oculto() { return this.raiz.hidden; }
@@ -712,5 +725,6 @@ export class Asistente {
   destruir() {
     document.removeEventListener('keydown', this.__alTeclear);
     this.raiz.remove();
+    delete document.documentElement.dataset.asistente;
   }
 }

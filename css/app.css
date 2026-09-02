@@ -956,6 +956,12 @@ select.campo__control {
 
 @media print { .asistente { display: none !important; } }
 
+/* El botón flotante ocupa la esquina inferior derecha, justo donde el pie pone
+   el número de versión. Se aparta ese espacio solo mientras el asistente esté
+   a la vista: sin esto, el dato que sirve para saber si el navegador cargó la
+   última publicación queda debajo del botón. */
+:root[data-asistente='visible'] .pie__base { padding-right: 68px; }
+
 /* --- Cargando --------------------------------------------------------------- */
 
 .cargando {

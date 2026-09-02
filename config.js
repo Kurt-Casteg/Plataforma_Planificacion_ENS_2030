@@ -15,7 +15,7 @@ export const CONFIG = {
    * comprobar de un vistazo si el navegador está mostrando la última versión
    * publicada o una copia guardada en caché. Súbela con cada despliegue.
    */
-  version: '3.2.2',
+  version: '3.3.0',
 
   /**
    * Sincronización con la nube (Supabase).
@@ -32,6 +32,16 @@ export const CONFIG = {
     /** Dominios de correo autorizados para registrarse. Vacío = sin restricción. */
     dominiosPermitidos: ['redsalud.gob.cl', 'minsal.cl']
   },
+
+  /**
+   * Créditos que aparecen en el pie de página, bajo «Desarrollo».
+   * Una línea por elemento, de lo más específico a lo más general. El nombre
+   * de la institución se agrega solo al final: no hace falta repetirlo aquí.
+   */
+  desarrollo: [
+    'Creado por la Unidad de Gestión de Datos y Control Interno',
+    'Departamento de Control de Gestión y Calidad Institucional'
+  ],
 
   /** Correo del equipo que da soporte a la plataforma. */
   soporte: 'kurt.castro@redsalud.gob.cl',

@@ -542,6 +542,23 @@ nombre. Idealmente cuadrada y de al menos 128 × 128 píxeles.
 
 ---
 
+## Cambiar los créditos del pie de página
+
+`config.js` → `desarrollo`. Es una lista de líneas, de lo más específico a lo
+más general:
+
+```js
+desarrollo: [
+  'Creado por la Unidad de Gestión de Datos y Control Interno',
+  'Departamento de Control de Gestión y Calidad Institucional'
+],
+```
+
+El nombre de la institución se agrega solo al final, así que no hay que
+repetirlo. Agrega o quita líneas según cambie la orgánica.
+
+---
+
 ## Cambiar el correo de soporte
 
 `config.js` → `soporte`.
