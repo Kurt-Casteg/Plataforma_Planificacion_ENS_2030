@@ -220,6 +220,56 @@ a Adquisiciones sin recortar nada.
 
 ---
 
+## El asistente
+
+El botón redondo de abajo a la derecha. **No es inteligencia artificial**, y el
+propio panel lo dice: son reglas que leen el formulario en curso más un banco de
+respuestas escritas a mano. Se eligió así a propósito. Un modelo pequeño corriendo
+en el navegador no conoce la ENS, ni los lineamientos, ni el clasificador: se
+inventaría un código de resultado inmediato que parece correcto, y alguien lo
+copiaría. Esto no puede equivocarse en ese sentido, porque no genera nada.
+
+Tiene tres pestañas:
+
+- **Revisión** — mira lo que se está escribiendo y avisa de vacíos e
+  incoherencias: cadena ENS a medio elegir, cronograma vacío, compras que no
+  cuadran con el subtítulo 22, fechas de compra posteriores a la de ejecución,
+  medio de verificación faltante (con el que corresponde según el tipo de
+  actividad). Cada aviso trae un atajo «Ir al campo». También resume lo ya
+  guardado del plan.
+- **Preguntas** — el banco de preguntas frecuentes.
+- **Guía** — los siete pasos del formulario, en orden.
+
+El punto de color sobre el botón aparece solo cuando hay algo concreto que decir.
+Cualquiera puede ocultar el asistente por completo desde el pie del panel, y la
+elección queda guardada en su navegador.
+
+### Editar lo que dice
+
+Todo el contenido vive en **`data/asistente.json`** y se edita sin tocar código:
+
+```json
+{
+  "p": "¿Por qué no puedo editar ni eliminar nada?",
+  "r": "Estás usando un perfil de solo lectura...",
+  "claves": ["observador", "no puedo", "bloqueado", "permiso"]
+}
+```
+
+`claves` son las palabras extra por las que la búsqueda debe encontrar esa
+entrada: sinónimos, errores de tipeo frecuentes y, sobre todo, **cómo lo llama la
+gente en la práctica**. Ahí está la diferencia entre un buscador que sirve y uno
+que no. Cuando un equipo te haga una pregunta que el asistente no responde,
+agrégala: es la forma en que esto mejora.
+
+El bloque `mediosSugeridos` relaciona cada tipo de actividad con el medio de
+verificación que le corresponde, y `campos` explica campo por campo.
+
+> Si `asistente.json` no cargara, la plataforma funciona igual y el botón
+> simplemente no aparece. Nunca es el motivo de que algo no arranque.
+
+---
+
 ## Perfiles: qué puede hacer cada uno
 
 | Perfil | Ve | Modifica |

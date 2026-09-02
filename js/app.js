@@ -19,6 +19,7 @@ import { exportarExcel, exportarCSV, exportarJSON, leerRespaldo } from './core/e
 import { numero } from './core/formato.js';
 import { perfil, nombrePerfil, PERFILES } from './core/perfil.js';
 import { siguienteCodigo, previsualizarCodigo } from './core/codigos.js';
+import { Asistente, cargarContenidoAsistente } from './core/asistente.js';
 
 const estado = {
   plan: null,
@@ -29,7 +30,8 @@ const estado = {
   clasificador: { items: [] },
   formulario: null,
   tabla: null,
-  panel: null
+  panel: null,
+  asistente: null
 };
 
 /* ------------------------------------------------------------------ */
@@ -71,12 +73,15 @@ alCargar(async () => {
   almacen.addEventListener('cambio', () => refrescar());
   addEventListener('hashchange', () => activarPlan(planDesdeURL()));
 
+  montarAsistente();
+
   // Iniciar sesión, cerrarla o cambiar de perfil altera qué se puede hacer:
   // el selector y los bloqueos se rehacen desde un solo lugar.
   perfil.addEventListener('cambio', () => {
     sincronizarSelectorPerfil();
     aplicarPermisos();
     dibujarAccionesListado();
+    estado.asistente?.actualizar();
     // El listado dibuja sus botones según los permisos del momento, y la sesión
     // llega DESPUÉS de la primera pintada: sin esto, alguien que entra como
     // Observador vería «Editar» y «Eliminar» en cada fila hasta recargar.
@@ -428,6 +433,47 @@ function dibujarAccionesListado() {
 }
 
 /* ------------------------------------------------------------------ */
+/* Asistente                                                           */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Monta el asistente. Su contenido se carga aparte y sin bloquear: si el
+ * archivo no llegara, la plataforma sigue funcionando igual y simplemente no
+ * aparece el botón. Nunca debe ser el motivo de que algo no cargue.
+ */
+async function montarAsistente() {
+  let contenido;
+  try {
+    contenido = await cargarContenidoAsistente();
+  } catch (e) {
+    console.warn('El asistente no se cargó:', e);
+    return;
+  }
+
+  estado.asistente = new Asistente({
+    contenedor: document.body,
+    contenido,
+    contexto: () => ({
+      plan: estado.plan,
+      formulario: estado.formulario,
+      actividades: estado.plan ? almacen.porPlan(estado.plan.id) : [],
+      catalogos: estado.catalogos,
+      indicadores: estado.indicadores
+    })
+  });
+
+  // Revisa mientras se escribe, no solo al guardar. Va delegado en el
+  // documento porque el formulario se reconstruye con cada cambio de plan.
+  const alEscribir = (e) => {
+    if (e.target.closest?.('#zonaFormulario')) estado.asistente?.revisar();
+  };
+  document.addEventListener('input', alEscribir);
+  document.addEventListener('change', alEscribir);
+
+  estado.asistente.actualizar();
+}
+
+/* ------------------------------------------------------------------ */
 /* Perfil activo                                                       */
 /* ------------------------------------------------------------------ */
 
@@ -527,6 +573,7 @@ function refrescar() {
   estado.panel?.actualizar(actividades);
   // El próximo código previsto cambia con cada alta o baja.
   estado.formulario?.aplicarPerfil();
+  estado.asistente?.actualizar();
   for (const p of PLANES) {
     const contador = document.querySelector(`[data-contador="${p.id}"]`);
     if (contador) contador.textContent = String(almacen.porPlan(p.id).length);

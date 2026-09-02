@@ -1,0 +1,219 @@
+{
+ "_nota": "Contenido del asistente. Se edita aquí, sin tocar código. `claves` son palabras extra por las que la búsqueda debe encontrar la entrada (sinónimos, errores de tipeo frecuentes, cómo lo llama la gente en la práctica).",
+
+ "guia": [
+  {
+   "titulo": "1. Identificación",
+   "texto": "No la llenes: se completa sola con los datos de tu sesión. El código correlativo se reserva recién al guardar, por eso dice «Automático»."
+  },
+  {
+   "titulo": "2. Cadena de resultados",
+   "texto": "Se elige de arriba hacia abajo: Objetivo Estratégico → Tema → Objetivo de Impacto → Resultado Esperado → Resultado Inmediato. Cada nivel filtra al siguiente, así que si te equivocas arriba, los de abajo se vacían."
+  },
+  {
+   "titulo": "3. Descripción de la actividad",
+   "texto": "El nombre debe permitir reconocer la actividad en una planilla de cien filas. «Capacitación» no sirve; «Capacitación en manejo de alimentos a manipuladoras de JUNAEB» sí."
+  },
+  {
+   "titulo": "4. Cronograma",
+   "texto": "Cuántas veces ejecutas la actividad en cada mes, no si la ejecutas. Si haces tres talleres en abril, va un 3 en abril. Los meses sin ejecución se dejan en blanco."
+  },
+  {
+   "titulo": "5. Presupuesto",
+   "texto": "En miles de pesos: si el gasto es $1.500.000, escribe 1500. Si la actividad no requiere recursos, marca la casilla del principio y el resto se apaga solo."
+  },
+  {
+   "titulo": "6. Plan Anual de Compras",
+   "texto": "Solo dentro del subtítulo 22 y solo si activas el interruptor. Una actividad puede tener varias compras: cada una se imputa por separado."
+  },
+  {
+   "titulo": "7. Guardar y revisar",
+   "texto": "Al guardar recibes el código correlativo. Después puedes editar, duplicar o eliminar desde el listado, y exportar todo a Excel cuando sea la entrega oficial."
+  }
+ ],
+
+ "campos": {
+  "departamento": {
+   "titulo": "Departamento o unidad",
+   "texto": "Sale de tu perfil institucional y por eso viene completo. Si está equivocado, no lo corrijas aquí: avisa a Control de Gestión para que se arregle en la nómina, porque de ese dato depende tu numeración."
+  },
+  "responsable": {
+   "titulo": "Responsable",
+   "texto": "Quien responde por la ejecución de la actividad, no necesariamente quien la carga en la plataforma."
+  },
+  "objetivoEstrategico": {
+   "titulo": "Objetivo Estratégico (OE)",
+   "texto": "El primer nivel de la Estrategia Nacional de Salud 2021-2030. Al elegirlo se habilita el Tema, y así hacia abajo. Si cambias el OE, los niveles siguientes se vacían."
+  },
+  "tema": {
+   "titulo": "Tema",
+   "texto": "El asunto sanitario dentro del objetivo estratégico. Es el nivel donde de verdad se decide qué se hace."
+  },
+  "objetivoImpacto": {
+   "titulo": "Objetivo de Impacto (OI)",
+   "texto": "El cambio poblacional que se busca. No lo redactas tú: se elige de la lista oficial."
+  },
+  "resultadoEsperado": {
+   "titulo": "Resultado Esperado (RE)",
+   "texto": "El resultado intermedio. Es el nivel al que están asociados los indicadores oficiales, así que al elegirlo la plataforma te muestra cuáles miden tu trabajo."
+  },
+  "resultadoInmediato": {
+   "titulo": "Resultado Inmediato (RI)",
+   "texto": "El último nivel de la cadena y el que amarra tu actividad a la ENS. Es lo que hace que tu actividad sea rastreable hasta la estrategia nacional, así que conviene elegirlo con cuidado y no por descarte."
+  },
+  "nombreActividad": {
+   "titulo": "Nombre de la actividad",
+   "texto": "Debe permitir reconocerla sin abrir el detalle. Incluye qué se hace, a quién y dónde si aplica. Evita nombres genéricos que se repitan entre departamentos."
+  },
+  "tipoActividad": {
+   "titulo": "Tipo de actividad",
+   "texto": "La naturaleza de lo que se hace: capacitación, fiscalización, coordinación, vigilancia. Sirve para agrupar en el panel de análisis y para orientar qué medio de verificación corresponde."
+  },
+  "componentesTransversales": {
+   "titulo": "Componentes transversales",
+   "texto": "Los enfoques que atraviesan toda la estrategia (equidad, género, interculturalidad, curso de vida). Marca el que la actividad incorpora de verdad, no todos por si acaso."
+  },
+  "descripcionActividad": {
+   "titulo": "Descripción detallada",
+   "texto": "El alcance, la población objetivo y la metodología. Es lo que permite que otra persona entienda la actividad el año siguiente, cuando tú ya no estés a cargo."
+  },
+  "medioVerificacion": {
+   "titulo": "Medio de verificación",
+   "texto": "El documento con el que demuestras que la actividad se ejecutó. Debe existir de verdad y ser recuperable: si dices «planilla de asistencia», alguien va a pedirla."
+  },
+  "cronograma": {
+   "titulo": "Cronograma de ejecución",
+   "texto": "Cantidad de ejecuciones por mes, no una marca. Tres talleres en abril son un 3 en abril. La suma anual es tu meta de ejecuciones."
+  },
+  "presupuesto": {
+   "titulo": "Presupuesto",
+   "texto": "Siempre en miles de pesos: $1.500.000 se escribe 1500. Se distribuye por mes y por subtítulo. Si la actividad no necesita recursos, marca la casilla y se apaga todo el bloque."
+  },
+  "objetivoEstrategicoTexto": {
+   "titulo": "Objetivo estratégico (texto)",
+   "texto": "En el Plan de Gestión Institucional no hay cadena ENS: el objetivo se redacta libremente, alineado a la gestión interna de la SEREMI."
+  },
+  "objetivoOperacional": {
+   "titulo": "Objetivo operacional",
+   "texto": "Qué se propone lograr la unidad este año, en términos concretos y verificables."
+  },
+  "producto": {
+   "titulo": "Producto",
+   "texto": "El entregable con el que se cierra el objetivo: un protocolo, un informe, un sistema en marcha."
+  }
+ },
+
+ "preguntas": [
+  {
+   "p": "¿De dónde sale el código de la actividad?",
+   "r": "Lo asigna la plataforma sola al guardar, y la serie es por departamento, plan y año. Mientras escribes dice «Automático · N° 5» porque es una estimación: el número definitivo se reserva en el servidor al presionar Guardar, así que dos personas del mismo departamento guardando al mismo tiempo nunca reciben el mismo.",
+   "claves": ["correlativo", "numero", "número", "codigo", "código", "automatico", "automático"]
+  },
+  {
+   "p": "Eliminé una actividad y su número no se reutilizó",
+   "r": "Es a propósito. Quedan huecos en la serie y está bien: lo importante es que dos actividades nunca compartan número. Reutilizarlos obligaría a renumerar y rompería cualquier documento ya emitido.",
+   "claves": ["hueco", "salto", "falta un numero", "numeracion", "numeración"]
+  },
+  {
+   "p": "¿Cómo corrijo una actividad ya guardada?",
+   "r": "En el listado, botón «Editar» de esa fila. Se carga en el formulario, cambias lo que corresponda y vuelves a guardar. Conserva su código: no se genera uno nuevo.",
+   "claves": ["modificar", "cambiar", "corregir", "editar", "arreglar"]
+  },
+  {
+   "p": "¿Por qué no puedo editar ni eliminar nada?",
+   "r": "Estás usando un perfil de solo lectura. Míralo en el selector de la cabecera: si aparece en ámbar, ese es el motivo. Si tienes otro perfil asignado, cámbialo ahí mismo. Si no, pide el cambio a Control de Gestión.",
+   "claves": ["observador", "no puedo", "bloqueado", "permiso", "solo lectura", "no aparece editar", "deshabilitado"]
+  },
+  {
+   "p": "¿En qué se diferencian las dos fechas del Plan Anual de Compras?",
+   "r": "La «fecha estimada de compra o contratación» es cuándo presentas la solicitud a Adquisiciones. La «fecha estimada de ejecución» es cuándo realizas la actividad, ya con los insumos disponibles. La primera va antes que la segunda, con el margen que necesite el proceso de compra.",
+   "claves": ["fechas", "pac", "compra", "ejecucion", "ejecución", "adquisiciones", "diferencia"]
+  },
+  {
+   "p": "Las compras no me cuadran con el subtítulo 22",
+   "r": "Es un aviso, no un bloqueo: puedes guardar igual. Durante la estimación es normal que todavía no calce. Cuadra antes de la entrega oficial, porque el PAC se envía a Adquisiciones como una planilla aparte y ahí las diferencias sí se notan.",
+   "claves": ["descuadre", "no cuadra", "diferencia", "pac", "suma", "22"]
+  },
+  {
+   "p": "¿Los montos van en pesos o en miles?",
+   "r": "En miles de pesos, siempre. Si el gasto es $1.500.000, escribe 1500. La plataforma muestra «M$» delante de cada total para recordarlo.",
+   "claves": ["monto", "miles", "pesos", "M$", "cifra", "presupuesto", "unidad"]
+  },
+  {
+   "p": "Mi actividad no requiere presupuesto",
+   "r": "Marca la casilla «esta actividad no requiere presupuesto» al comienzo del bloque. Se apagan los montos y también el Plan Anual de Compras. Es distinto de dejar todo en cero: deja constancia de que fue una decisión y no un olvido.",
+   "claves": ["sin presupuesto", "cero", "no necesita", "sin recursos", "gratis"]
+  },
+  {
+   "p": "¿Qué pongo en el cronograma si la actividad es continua?",
+   "r": "La cantidad de ejecuciones por mes. Una supervisión mensual son doce filas con 1. Una campaña que dura tres meses pero es una sola son tres ejecuciones si haces algo cada mes, o una sola en el mes en que se realiza. Lo que se cuenta son ejecuciones, no meses de duración.",
+   "claves": ["cronograma", "meses", "continua", "permanente", "todo el año", "cuantas veces"]
+  },
+  {
+   "p": "¿Qué medio de verificación corresponde?",
+   "r": "Depende del tipo de actividad. Para cursos y talleres, planilla de asistencia con fecha. Para fiscalizaciones y supervisiones, el acta. Para coordinación, acta de reunión. Para campañas, el material difundido y sus registros. Lo esencial es que el documento exista y se pueda recuperar después.",
+   "claves": ["verificacion", "verificación", "respaldo", "evidencia", "medio", "documento", "acta", "planilla"]
+  },
+  {
+   "p": "Guardé algo y no lo veo en el listado",
+   "r": "Revisa que estés en el plan correcto: el Plan Nacional de Salud y el Plan de Gestión Institucional tienen listados separados. Después revisa la barra de búsqueda y los filtros de departamento y tipo, que pueden estar dejando fuera la actividad.",
+   "claves": ["no aparece", "no veo", "perdi", "perdí", "desaparecio", "desapareció", "filtro"]
+  },
+  {
+   "p": "¿Puedo trabajar sin internet?",
+   "r": "Sí. Todo se guarda primero en tu navegador y funciona sin conexión. Cuando vuelve internet se sincroniza solo. Eso sí: si trabajas sin sesión iniciada, la numeración es provisoria hasta que te conectes.",
+   "claves": ["internet", "conexion", "conexión", "offline", "sin red", "caida", "caída"]
+  },
+  {
+   "p": "¿Qué diferencia hay entre exportar a Excel y respaldar en JSON?",
+   "r": "El Excel es la entrega oficial: legible, con el detalle y una hoja aparte para el Plan Anual de Compras. El respaldo JSON es para la plataforma: sirve para volver a importarlo aquí o enviarlo a Control de Gestión para consolidar. Un Excel no se puede reimportar.",
+   "claves": ["exportar", "excel", "json", "respaldo", "backup", "importar", "entrega"]
+  },
+  {
+   "p": "Cambié algo y sigo viendo la versión antigua",
+   "r": "Es la caché del navegador. Presiona Ctrl+Shift+R para forzar la recarga. Para confirmar qué versión tienes cargada, mírala al final de la página, en el pie.",
+   "claves": ["cache", "caché", "no se actualiza", "version", "versión", "antiguo", "viejo"]
+  },
+  {
+   "p": "¿Quién ve lo que yo cargo?",
+   "r": "Depende del perfil de cada quien. Tu jefatura ve todo lo del departamento; Control de Gestión ve toda la institución; un observador ve todo pero no puede modificar nada. Alguien de otro departamento con perfil de equipo no ve tus actividades.",
+   "claves": ["privacidad", "quien ve", "quién ve", "visibilidad", "jefatura", "perfil", "otros"]
+  },
+  {
+   "p": "¿Para qué sirve el selector de perfil de la cabecera?",
+   "r": "Aparece solo si tu cuenta tiene más de un perfil asignado y sirve para alternar entre ellos sin volver a iniciar sesión. No es un filtro visual: el servidor aplica el perfil que tengas activo, así que en modo Observador no puedes escribir aunque tengas otro perfil con permisos.",
+   "claves": ["perfil", "selector", "cambiar", "rol", "observador", "cabecera"]
+  },
+  {
+   "p": "¿Puedo duplicar una actividad parecida en vez de escribirla de nuevo?",
+   "r": "Sí, con el botón «Duplicar» del listado. Crea una copia sin código, con «(copia)» en el nombre, para que la ajustes y la guardes como actividad nueva.",
+   "claves": ["duplicar", "copiar", "repetir", "parecida", "similar", "clonar"]
+  },
+  {
+   "p": "¿Qué son los indicadores que aparecen al elegir el Resultado Esperado?",
+   "r": "Son los indicadores oficiales de la ENS asociados a ese resultado, con su fórmula, fuente, línea base y meta al 2030. No hay que llenarlos: se muestran para que sepas con qué se va a medir el avance del resultado al que estás contribuyendo.",
+   "claves": ["indicador", "indicadores", "meta", "linea base", "línea base", "formula", "fórmula", "medicion", "medición"]
+  }
+ ],
+
+ "mediosSugeridos": {
+  "capacitacion": "Cursos y talleres",
+  "participacion_social": "Cursos y talleres",
+  "fiscalizacion": "Actas de supervisión o fiscalización",
+  "supervision": "Actas de supervisión o fiscalización",
+  "coordinacion": "Actas de reunión",
+  "comision_equidad": "Actas de reunión",
+  "promocion": "Campañas de difusión",
+  "prevencion": "Campañas de difusión",
+  "vigilancia": "Reportes",
+  "monitoreo": "Reportes",
+  "evaluacion": "Informes",
+  "investigacion": "Informes",
+  "alerta_sanitaria": "Informes",
+  "planificacion": "Planes, protocolos y evaluaciones",
+  "regulacion": "Planes, protocolos y evaluaciones",
+  "formalizacion": "Planes, protocolos y evaluaciones",
+  "proa": "Planes, protocolos y evaluaciones",
+  "sgc_ssp": "Planes, protocolos y evaluaciones"
+ }
+}
