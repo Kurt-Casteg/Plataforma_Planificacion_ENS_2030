@@ -101,15 +101,40 @@ comment on column public.perfiles.rol_activo is
 
 
 -- =============================================================================
---  2. FUNCIONES AUXILIARES DE SEGURIDAD
---     Se declaran antes de cualquier política que las use.
+--  2. FUNCIONES INTERNAS DE SEGURIDAD
+--
+--  Viven en el esquema `privado`, NO en `public`, y la razón es concreta:
+--  PostgREST publica como API REST todo lo que hay en los esquemas expuestos,
+--  así que una función en `public` queda disponible en /rest/v1/rpc/<nombre>
+--  para cualquiera que tenga la clave anon. Estas son plomería interna de las
+--  políticas de seguridad y no tienen por qué ser un punto de entrada.
+--
+--  IMPORTANTE — no revocar el permiso de ejecución:
+--  PostgreSQL comprueba el privilegio EXECUTE de estas funciones al evaluar las
+--  políticas, con la identidad de quien consulta. Si se les revoca EXECUTE a
+--  `anon` y `authenticated`, TODA consulta falla con «permission denied for
+--  function» y nadie puede entrar. Sacarlas del esquema expuesto quita el
+--  endpoint sin tocar el permiso, que es lo que hay que hacer.
+--
+--  Todas llevan `set search_path = ''` y referencias calificadas: así no
+--  dependen del search_path de quien las invoca, que en una función SECURITY
+--  DEFINER es una vía de escalada conocida.
 -- =============================================================================
+
+create schema if not exists privado;
+
+comment on schema privado is
+  'Funciones internas de seguridad. Queda FUERA de los esquemas expuestos por la API: nada de aquí es invocable desde el navegador.';
+
+-- El navegador no debe poder ni mirar qué hay aquí dentro.
+revoke all on schema privado from public;
+grant usage on schema privado to anon, authenticated;
 
 -- Perfil que rige AHORA para quien hace la consulta. Si el perfil activo no
 -- está entre los suyos (dato viejo, lista recortada por el administrador), se
 -- cae al primero de la lista en vez de conceder nada.
-create or replace function public.mi_rol()
-returns text language sql stable security definer set search_path = public as $$
+create or replace function privado.mi_rol()
+returns text language sql stable security definer set search_path = '' as $$
   select coalesce(
     (select case
               when p.rol_activo is not null and p.rol_activo = any (p.roles) then p.rol_activo
@@ -122,32 +147,41 @@ returns text language sql stable security definer set search_path = public as $$
 $$;
 
 -- Todos los perfiles a los que la cuenta tiene derecho.
-create or replace function public.mis_roles()
-returns text[] language sql stable security definer set search_path = public as $$
+create or replace function privado.mis_roles()
+returns text[] language sql stable security definer set search_path = '' as $$
   select coalesce(
     (select roles from public.perfiles where id = auth.uid()),
     array['equipo']::text[]
   );
 $$;
 
-create or replace function public.mi_departamento()
-returns text language sql stable security definer set search_path = public as $$
+create or replace function privado.mi_departamento()
+returns text language sql stable security definer set search_path = '' as $$
   select (select departamento from public.perfiles where id = auth.uid());
 $$;
 
 -- Un único lugar donde se decide quién puede modificar datos. Las políticas de
 -- escritura la consultan, así que agregar mañana otro perfil de solo lectura es
 -- editar esta función y nada más.
-create or replace function public.puede_escribir()
-returns boolean language sql stable security definer set search_path = public as $$
-  select public.mi_rol() <> 'observador';
+create or replace function privado.puede_escribir()
+returns boolean language sql stable security definer set search_path = '' as $$
+  select privado.mi_rol() <> 'observador';
 $$;
 
 -- ¿Ve el trabajo de toda la institución?
-create or replace function public.ve_todo()
-returns boolean language sql stable security definer set search_path = public as $$
-  select public.mi_rol() in ('control_gestion', 'observador');
+create or replace function privado.ve_todo()
+returns boolean language sql stable security definer set search_path = '' as $$
+  select privado.mi_rol() in ('control_gestion', 'observador');
 $$;
+
+-- Nombre legible a partir del correo, para quien no esté en la nómina:
+-- albert.mercado@… → "Albert Mercado".
+create or replace function privado.nombre_desde_correo(p_correo text)
+returns text language sql immutable set search_path = '' as $$
+  select initcap(replace(replace(split_part(coalesce(p_correo, ''), '@', 1), '.', ' '), '_', ' '));
+$$;
+
+grant execute on all functions in schema privado to anon, authenticated;
 
 
 -- =============================================================================
@@ -202,37 +236,25 @@ alter table public.usuarios_autorizados enable row level security;
 
 drop policy if exists "control de gestión ve la nómina" on public.usuarios_autorizados;
 create policy "control de gestión ve la nómina" on public.usuarios_autorizados
-  for select using (public.mi_rol() = 'control_gestion');
+  for select using (privado.mi_rol() = 'control_gestion');
 
 drop policy if exists "control de gestión edita la nómina" on public.usuarios_autorizados;
 create policy "control de gestión edita la nómina" on public.usuarios_autorizados
-  for all using (public.mi_rol() = 'control_gestion')
-  with check (public.mi_rol() = 'control_gestion');
+  for all using (privado.mi_rol() = 'control_gestion')
+  with check (privado.mi_rol() = 'control_gestion');
 
 
 -- =============================================================================
 --  4. ALTA AUTOMÁTICA Y PROTECCIÓN DEL PERFIL
 -- =============================================================================
 
--- --- Nombre legible a partir del correo ---------------------------------------
--- Para quien no esté en la nómina: albert.mercado@… → "Albert Mercado".
-
-create or replace function public.nombre_desde_correo(p_correo text)
-returns text
-language sql
-immutable
-as $$
-  select initcap(replace(replace(split_part(coalesce(p_correo, ''), '@', 1), '.', ' '), '_', ' '));
-$$;
-
-
 -- --- Creación automática del perfil al registrarse -----------------------------
 
-create or replace function public.crear_perfil()
+create or replace function privado.crear_perfil()
 returns trigger
 language plpgsql
 security definer
-set search_path = public
+set search_path = ''
 as $$
 declare
   autorizado public.usuarios_autorizados%rowtype;
@@ -249,7 +271,7 @@ begin
     new.id,
     new.email,
     -- Si está en la nómina se usa su nombre oficial; si no, se deduce del correo.
-    coalesce(nullif(autorizado.nombre, ''), public.nombre_desde_correo(new.email)),
+    coalesce(nullif(autorizado.nombre, ''), privado.nombre_desde_correo(new.email)),
     nullif(autorizado.departamento, ''),
     v_roles,
     v_roles[1]
@@ -263,7 +285,7 @@ $$;
 drop trigger if exists al_crear_usuario on auth.users;
 create trigger al_crear_usuario
   after insert on auth.users
-  for each row execute function public.crear_perfil();
+  for each row execute function privado.crear_perfil();
 
 
 -- --- Nadie se asigna perfiles a sí mismo ---------------------------------------
@@ -276,11 +298,11 @@ create trigger al_crear_usuario
 -- que ya tenga en `roles`. Ahí está toda la seguridad del selector: la lista de
 -- perfiles la fija el administrador y el navegador no puede tocarla.
 
-create or replace function public.proteger_perfil()
+create or replace function privado.proteger_perfil()
 returns trigger
 language plpgsql
 security definer
-set search_path = public
+set search_path = ''
 as $$
 declare
   v_activo text;
@@ -338,7 +360,7 @@ $$;
 drop trigger if exists al_actualizar_perfil on public.perfiles;
 create trigger al_actualizar_perfil
   before insert or update on public.perfiles
-  for each row execute function public.proteger_perfil();
+  for each row execute function privado.proteger_perfil();
 
 
 -- =============================================================================
@@ -368,7 +390,7 @@ create index if not exists actividades_datos_idx          on public.actividades 
 -- El navegador puede enviar cualquier cosa: aquí se corrige. Esto impide que
 -- alguien atribuya actividades a otro departamento o a otra persona.
 
-create or replace function public.normalizar_actividad()
+create or replace function privado.normalizar_actividad()
 returns trigger
 language plpgsql
 security definer
@@ -386,7 +408,7 @@ begin
     return new;
   end if;
 
-  v_rol := public.mi_rol();
+  v_rol := privado.mi_rol();
 
   -- Las políticas de más abajo ya rechazan la escritura de un observador. Esto
   -- es una segunda barrera con un mensaje legible: un rechazo de RLS llega al
@@ -431,7 +453,7 @@ drop function if exists public.tocar_actualizada_en();
 drop trigger if exists al_guardar_actividad on public.actividades;
 create trigger al_guardar_actividad
   before insert or update on public.actividades
-  for each row execute function public.normalizar_actividad();
+  for each row execute function privado.normalizar_actividad();
 
 
 -- =============================================================================
@@ -456,11 +478,17 @@ comment on table public.correlativos is
 -- número, nunca datos de nadie.
 alter table public.correlativos enable row level security;
 
+-- Esta SÍ vive en `public` y SÍ es invocable desde el navegador: es la única
+-- función pensada como API. El linter de Supabase la marcará como «SECURITY
+-- DEFINER ejecutable por usuarios autenticados», y es correcto que lo haga —
+-- conviene que avise. Es deliberado, y está acotada: exige sesión, valida el
+-- plan y el año, rechaza a los perfiles de solo lectura, toma el departamento
+-- del perfil y nunca de un parámetro, y devuelve un número, jamás datos.
 create or replace function public.reservar_codigo(p_plan text, p_anio integer)
 returns integer
 language plpgsql
 security definer
-set search_path = public
+set search_path = ''
 as $$
 declare
   v_depto  text;
@@ -479,7 +507,7 @@ begin
   -- Un observador no registra actividades, así que tampoco consume numeración:
   -- de otro modo dejaría huecos en la serie de su departamento con solo abrir
   -- el formulario.
-  if not public.puede_escribir() then
+  if not privado.puede_escribir() then
     raise exception 'El perfil Observador es de solo lectura: no puede reservar códigos'
       using errcode = 'P0001';
   end if;
@@ -553,8 +581,8 @@ drop policy if exists "ver mi perfil" on public.perfiles;
 create policy "ver mi perfil" on public.perfiles
   for select using (
     id = auth.uid()
-    or public.ve_todo()
-    or (public.mi_rol() = 'jefatura' and departamento = public.mi_departamento())
+    or privado.ve_todo()
+    or (privado.mi_rol() = 'jefatura' and departamento = privado.mi_departamento())
   );
 
 -- Un observador SÍ puede actualizar su propia fila: es la vía por la que cambia
@@ -563,8 +591,8 @@ create policy "ver mi perfil" on public.perfiles
 -- que ya tenga asignado.
 drop policy if exists "editar mi perfil" on public.perfiles;
 create policy "editar mi perfil" on public.perfiles
-  for update using (id = auth.uid() or public.mi_rol() = 'control_gestion')
-  with check  (id = auth.uid() or public.mi_rol() = 'control_gestion');
+  for update using (id = auth.uid() or privado.mi_rol() = 'control_gestion')
+  with check  (id = auth.uid() or privado.mi_rol() = 'control_gestion');
 
 -- No hay política de INSERT ni de DELETE: los perfiles solo los crea el trigger
 -- de registro y se eliminan en cascada al borrar la cuenta.
@@ -575,34 +603,56 @@ drop policy if exists "leer actividades" on public.actividades;
 create policy "leer actividades" on public.actividades
   for select using (
     propietario = auth.uid()
-    or public.ve_todo()
-    or (public.mi_rol() = 'jefatura' and departamento = public.mi_departamento())
+    or privado.ve_todo()
+    or (privado.mi_rol() = 'jefatura' and departamento = privado.mi_departamento())
   );
 
 drop policy if exists "crear actividades" on public.actividades;
 create policy "crear actividades" on public.actividades
   for insert with check (
-    public.puede_escribir()
-    and (propietario = auth.uid() or public.mi_rol() = 'control_gestion')
+    privado.puede_escribir()
+    and (propietario = auth.uid() or privado.mi_rol() = 'control_gestion')
   );
 
 drop policy if exists "editar mis actividades" on public.actividades;
 create policy "editar mis actividades" on public.actividades
   for update using (
-    public.puede_escribir()
-    and (propietario = auth.uid() or public.mi_rol() = 'control_gestion')
+    privado.puede_escribir()
+    and (propietario = auth.uid() or privado.mi_rol() = 'control_gestion')
   )
   with check (
-    public.puede_escribir()
-    and (propietario = auth.uid() or public.mi_rol() = 'control_gestion')
+    privado.puede_escribir()
+    and (propietario = auth.uid() or privado.mi_rol() = 'control_gestion')
   );
 
 drop policy if exists "eliminar mis actividades" on public.actividades;
 create policy "eliminar mis actividades" on public.actividades
   for delete using (
-    public.puede_escribir()
-    and (propietario = auth.uid() or public.mi_rol() = 'control_gestion')
+    privado.puede_escribir()
+    and (propietario = auth.uid() or privado.mi_rol() = 'control_gestion')
   );
+
+
+-- =============================================================================
+--  7b. LIMPIEZA DE LA VERSIÓN ANTERIOR
+--
+--  Hasta la versión 3 estas funciones vivían en `public` y quedaban publicadas
+--  como API REST. Ahora están en `privado`; las copias viejas se eliminan aquí,
+--  DESPUÉS de recrear las políticas: mientras una política dependa de ellas,
+--  PostgreSQL se niega a borrarlas.
+--
+--  Correr esto dos veces no molesta: la segunda no encuentra nada que borrar.
+-- =============================================================================
+
+drop function if exists public.mi_rol();
+drop function if exists public.mis_roles();
+drop function if exists public.mi_departamento();
+drop function if exists public.puede_escribir();
+drop function if exists public.ve_todo();
+drop function if exists public.nombre_desde_correo(text);
+drop function if exists public.crear_perfil();
+drop function if exists public.proteger_perfil();
+drop function if exists public.normalizar_actividad();
 
 
 -- =============================================================================

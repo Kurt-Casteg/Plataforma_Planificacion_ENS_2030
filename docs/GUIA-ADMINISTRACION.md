@@ -290,6 +290,54 @@ verificación que le corresponde, y `campos` explica campo por campo.
 
 ---
 
+## El Security Advisor de Supabase
+
+Supabase trae un revisor automático (**Advisors → Security**). Esto es lo que
+dice sobre esta base y qué se hizo con cada aviso.
+
+### El esquema `privado` y por qué existe
+
+PostgREST —la capa que atiende al navegador— **publica como API REST todo lo que
+viva en un esquema expuesto**. Una función en `public` queda disponible en
+`/rest/v1/rpc/<nombre>` para cualquiera que tenga la clave anon. Las funciones
+que sostienen las políticas de seguridad (`mi_rol`, `puede_escribir`, `ve_todo`,
+los triggers) son plomería interna y no tienen por qué ser un punto de entrada,
+así que viven en el esquema **`privado`**, que no está expuesto.
+
+> **No les revoques el permiso de ejecución.** Es lo que sugiere el texto del
+> aviso, y probado contra PostgreSQL **deja a todo el mundo fuera**: la base
+> comprueba el privilegio `EXECUTE` de estas funciones al evaluar cada política,
+> con la identidad de quien consulta, y toda consulta falla con «permission
+> denied for function». Sacarlas del esquema expuesto quita el endpoint sin
+> tocar el permiso. Eso es lo que hace `esquema.sql`.
+
+Después de ejecutar el esquema, en `public` queda **una sola función**:
+`reservar_codigo`.
+
+### `reservar_codigo` seguirá apareciendo marcada, y está bien
+
+Es la única función pensada como API: el navegador la llama para obtener el
+correlativo. El aviso «SECURITY DEFINER ejecutable por usuarios autenticados»
+es correcto y conviene que exista, pero aquí es deliberado. Está acotada: exige
+sesión iniciada, valida el plan y el año, rechaza a los perfiles de solo
+lectura, **toma el departamento del perfil y nunca de un parámetro**, y devuelve
+un número, jamás datos de nadie.
+
+### `search_path` fijo en todas
+
+Todas las funciones declaran `set search_path = ''` y califican cada referencia.
+En una función `SECURITY DEFINER`, dejar el `search_path` al criterio de quien
+la invoca es una vía de escalada conocida.
+
+### Protección de contraseñas filtradas
+
+Este aviso **no aplica hoy**: la plataforma entra con enlace por correo, no con
+contraseñas. Aun así conviene activarlo —**Authentication → Providers →
+Password**— porque no cuesta nada y deja la puerta cerrada si algún día se
+habilita el ingreso con contraseña. Es un interruptor del panel, no SQL.
+
+---
+
 ## Perfiles: qué puede hacer cada uno
 
 | Perfil | Ve | Modifica |
