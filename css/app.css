@@ -544,6 +544,15 @@ select.campo__control {
 
 .nota--solo-lectura { margin-bottom: var(--e-6); }
 
+/* Fila con un texto a la izquierda y su interruptor a la derecha, dentro del
+   modal de Ayuda. */
+.ayuda__interruptor {
+  display: flex; flex-wrap: wrap; gap: var(--e-4);
+  align-items: center; justify-content: space-between;
+  margin-top: var(--e-4); padding: var(--e-4);
+  border: 1px solid var(--borde); border-radius: var(--r-md);
+}
+
 /* --- Panel de análisis ------------------------------------------------------ */
 
 /* Fila de filtros: alcanza a todo lo que va debajo (fichas y gráficos). */

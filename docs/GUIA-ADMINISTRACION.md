@@ -241,8 +241,11 @@ Tiene tres pestañas:
 - **Guía** — los siete pasos del formulario, en orden.
 
 El punto de color sobre el botón aparece solo cuando hay algo concreto que decir.
-Cualquiera puede ocultar el asistente por completo desde el pie del panel, y la
-elección queda guardada en su navegador.
+
+**Ocultarlo y recuperarlo.** Cualquiera puede ocultar el asistente desde el pie
+de su panel, y la elección queda guardada en su navegador. Para volver a
+mostrarlo: botón **Ayuda** de la cabecera, al final del modal. El mismo
+interruptor sirve para las dos cosas.
 
 ### Editar lo que dice
 

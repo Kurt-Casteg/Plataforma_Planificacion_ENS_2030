@@ -16,6 +16,7 @@ import { monto, numero, fecha } from './formato.js';
 import { MESES, SUBTITULOS } from './modelo.js';
 import { etiquetaDe } from './catalogos.js';
 import { perfil } from './perfil.js';
+import { avisar } from './ui.js';
 
 const CLAVE_MINIMIZADO = 'seremi.asistente.minimizado';
 const CLAVE_GUIA_VISTA = 'seremi.asistente.guiaVista';
@@ -162,7 +163,9 @@ export class Asistente {
       this.cuerpo,
       el('button', {
         class: 'asistente__ocultar', attrs: { type: 'button' },
-        text: 'Ocultar el asistente en este navegador',
+        // El texto dice dónde se recupera. Un interruptor sin vuelta visible es
+        // una trampa: quien lo pulsa no tiene por qué saber que existe.
+        text: 'Ocultar en este navegador (se recupera desde Ayuda)',
         on: { click: () => this.ocultarDelTodo() }
       })
     ]);
@@ -220,6 +223,7 @@ export class Asistente {
     localStorage.setItem(CLAVE_MINIMIZADO, '1');
     this.raiz.hidden = true;
     this.abierto = false;
+    avisar('Asistente oculto. Para volver a mostrarlo: botón «Ayuda» de la cabecera.', 'info', { duracion: 8000 });
   }
 
   mostrar() {

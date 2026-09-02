@@ -763,8 +763,54 @@ function mostrarAyuda() {
             ? 'Tus actividades se sincronizan con el repositorio institucional.'
             : 'Las actividades se guardan en este navegador y en este equipo. Genera un respaldo antes de limpiar el historial o cambiar de computador.'
         ])
-      ])
+      ]),
+      // El interruptor del asistente vive aquí porque Ayuda es donde alguien lo
+      // va a buscar. Sin esto, ocultarlo era irreversible sin tocar la consola
+      // del navegador.
+      filaAsistente()
     ],
     acciones: [{ texto: 'Entendido', clase: 'btn--primario', alHacerClic: (m) => m.cerrar() }]
   });
+}
+
+/** Interruptor de mostrar/ocultar el asistente, dentro del modal de Ayuda. */
+function filaAsistente() {
+  if (!estado.asistente) return null;
+
+  const fila = el('div', { class: 'ayuda__interruptor' });
+
+  const pintar = () => {
+    const oculto = estado.asistente.oculto;
+    render(fila,
+      el('div', {}, [
+        el('p', { style: { fontWeight: '650' }, text: 'Asistente de la plataforma' }),
+        el('p', {
+          class: 'texto-cuerpo',
+          text: oculto
+            ? 'Está oculto en este navegador.'
+            : 'El botón redondo de abajo a la derecha. Revisa lo que escribes y responde dudas.'
+        })
+      ]),
+      el('button', {
+        class: oculto ? 'btn btn--primario' : 'btn btn--secundario',
+        attrs: { type: 'button' },
+        text: oculto ? 'Mostrar' : 'Ocultar',
+        on: {
+          click: () => {
+            if (oculto) {
+              estado.asistente.mostrar();
+              estado.asistente.actualizar();
+              avisar('El asistente volvió a aparecer, abajo a la derecha.', 'exito', { duracion: 4000 });
+            } else {
+              estado.asistente.ocultarDelTodo();
+            }
+            pintar();
+          }
+        }
+      })
+    );
+  };
+
+  pintar();
+  return fila;
 }
