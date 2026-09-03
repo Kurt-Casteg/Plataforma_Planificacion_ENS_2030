@@ -41,6 +41,8 @@ insert into public.usuarios_autorizados (correo, nombre, departamento, roles) va
   ('albert.mercado@redsalud.gob.cl', 'Albert Mercado', 'dpto_control_gestion', array['control_gestion']),
   ('juana.sanmartin@redsalud.gob.cl', 'Juana San Martin', 'dpto_control_gestion', array['control_gestion']),
   ('kurt.castro@redsalud.gob.cl', 'Kurt Castro', 'dpto_control_gestion', array['control_gestion']),
+  ('gbaeza2022@udec.cl', 'Gregorio Baeza', 'dpto_control_gestion', array['equipo','control_gestion','observador']),
+  ('marcia.sanchez@redsalud.gob.cl', 'Marcia Sánchez', 'dpto_control_gestion', array['control_gestion','observador']),
 
   -- Departamento de Acción Sanitaria (8)
   ('marcela.cuadra@redsalud.gob.cl', 'Marcela Cuadra', 'dpto_accion_sanitaria', array['jefatura']),
