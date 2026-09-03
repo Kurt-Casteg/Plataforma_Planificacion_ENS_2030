@@ -245,6 +245,123 @@ create policy "control de gestión edita la nómina" on public.usuarios_autoriza
 
 
 -- =============================================================================
+--  3b. QUIÉN PUEDE REGISTRARSE
+--
+--  Hasta la versión 3.4 esta restricción vivía SOLO en el navegador: un `if`
+--  en `js/core/nube.js` comparaba el dominio del correo antes de pedir el
+--  enlace de acceso. Eso no es una restricción, es una cortesía: cualquiera
+--  que abriera la consola del navegador y llamara directamente a la API de
+--  Supabase se registraba igual, con cualquier correo.
+--
+--  Aquí queda del lado del servidor, que es el único lugar donde una regla de
+--  acceso significa algo. Se puede entrar por dos caminos:
+--
+--    1. El dominio del correo está en `dominios_permitidos`  → entra la
+--       institución completa sin tener que enumerar a nadie.
+--    2. El correo exacto está en `usuarios_autorizados`      → la excepción
+--       nominal, persona por persona.
+--
+--  Nótese que la excepción NO es una lista aparte: es la misma nómina que ya
+--  define nombre, departamento y perfiles. Autorizar a alguien de fuera es el
+--  mismo gesto que dar de alta a cualquier funcionario, y no requiere tocar
+--  código ni desplegar el sitio.
+-- =============================================================================
+
+create table if not exists public.dominios_permitidos (
+  dominio     text primary key,
+  nota        text,
+  cargado_en  timestamptz not null default now()
+);
+
+comment on table public.dominios_permitidos is
+  'Dominios de correo que pueden registrarse sin estar en la nómina. Un registro con dominio = ''*'' desactiva la restricción por completo.';
+
+-- Semilla: los dos dominios institucionales. `on conflict do nothing` deja
+-- intactos los cambios que se hayan hecho a mano después.
+insert into public.dominios_permitidos (dominio, nota) values
+  ('redsalud.gob.cl', 'Correo institucional de la red asistencial'),
+  ('minsal.cl',       'Correo institucional del Ministerio de Salud')
+on conflict (dominio) do nothing;
+
+-- Solo Control de Gestión ve y edita esta lista: es una llave de acceso, no un
+-- catálogo. El trigger que la consulta corre con privilegios elevados, así que
+-- no necesita que nadie más pueda leerla.
+alter table public.dominios_permitidos enable row level security;
+
+drop policy if exists "control de gestión ve los dominios" on public.dominios_permitidos;
+create policy "control de gestión ve los dominios" on public.dominios_permitidos
+  for select using (privado.mi_rol() = 'control_gestion');
+
+drop policy if exists "control de gestión edita los dominios" on public.dominios_permitidos;
+create policy "control de gestión edita los dominios" on public.dominios_permitidos
+  for all using (privado.mi_rol() = 'control_gestion')
+  with check (privado.mi_rol() = 'control_gestion');
+
+
+-- --- ¿Este correo puede registrarse? -------------------------------------------
+--
+-- Todo en minúsculas a ambos lados: los correos llegan como los escribió la
+-- persona y «Nombre.Apellido@Redsalud.gob.cl» debe valer lo mismo que su
+-- versión en minúsculas.
+
+create or replace function privado.correo_autorizado(p_correo text)
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select
+    -- Excepción nominal: está en la nómina institucional.
+    exists (
+      select 1 from public.usuarios_autorizados u
+       where lower(u.correo) = lower(trim(coalesce(p_correo, '')))
+    )
+    -- O su dominio está autorizado en bloque.
+    or exists (
+      select 1 from public.dominios_permitidos d
+       where d.dominio = '*'
+          or lower(d.dominio) = lower(split_part(trim(coalesce(p_correo, '')), '@', 2))
+    );
+$$;
+
+
+-- --- El portero -----------------------------------------------------------------
+--
+-- Va en BEFORE INSERT sobre auth.users, así que corta el registro ANTES de que
+-- exista la cuenta: no queda ningún rastro de la persona rechazada.
+--
+-- Solo afecta a cuentas NUEVAS. Quien ya tiene cuenta creada sigue entrando con
+-- normalidad aunque su correo dejara de estar autorizado, porque en ese caso
+-- Supabase no inserta nada: solo envía el enlace. Para quitarle el acceso a
+-- alguien hay que eliminar su cuenta, no basta con sacarlo de la nómina.
+--
+-- Ojo: esto también aplica a las cuentas creadas a mano desde el panel de
+-- Supabase. Si hace falta crear una, primero se agrega el correo a la nómina.
+
+create or replace function privado.exigir_correo_autorizado()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  if not privado.correo_autorizado(new.email) then
+    raise exception 'El correo % no está autorizado para registrarse.', new.email
+      using errcode = 'insufficient_privilege',
+            hint = 'Solicita la autorización al Departamento de Control de Gestión.';
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists al_registrar_usuario on auth.users;
+create trigger al_registrar_usuario
+  before insert on auth.users
+  for each row execute function privado.exigir_correo_autorizado();
+
+
+-- =============================================================================
 --  4. ALTA AUTOMÁTICA Y PROTECCIÓN DEL PERFIL
 -- =============================================================================
 
@@ -286,6 +403,35 @@ drop trigger if exists al_crear_usuario on auth.users;
 create trigger al_crear_usuario
   after insert on auth.users
   for each row execute function privado.crear_perfil();
+
+
+-- --- Permisos del rol de autenticación ------------------------------------------
+--
+-- Quien inserta en `auth.users` no es la persona que se registra, sino el rol
+-- interno de Supabase `supabase_auth_admin`. PostgreSQL exige que ese rol pueda
+-- EJECUTAR las funciones de los triggers —aunque sean `security definer`— y el
+-- esquema `privado` solo concede USAGE a `anon` y `authenticated`.
+--
+-- Sin estas líneas, el alta de cualquier persona nueva falla con «permission
+-- denied for schema privado», incluidas las que sí están autorizadas. Es el
+-- mismo mecanismo que apareció al mover las funciones de seguridad fuera de
+-- `public`: PostgreSQL comprueba el permiso contra el rol que EJECUTA la
+-- operación, no contra el dueño de la función.
+--
+-- Va aquí, y no junto a cada función, porque a esta altura del archivo ya
+-- existen todas. El bloque se salta solo si el rol no existe, para que este
+-- archivo siga pudiendo ejecutarse en una base PostgreSQL corriente.
+
+do $$
+begin
+  if exists (select 1 from pg_roles where rolname = 'supabase_auth_admin') then
+    execute 'grant usage on schema privado to supabase_auth_admin';
+    execute 'grant execute on function privado.exigir_correo_autorizado() to supabase_auth_admin';
+    execute 'grant execute on function privado.correo_autorizado(text) to supabase_auth_admin';
+    execute 'grant execute on function privado.crear_perfil() to supabase_auth_admin';
+    execute 'grant execute on function privado.nombre_desde_correo(text) to supabase_auth_admin';
+  end if;
+end $$;
 
 
 -- --- Nadie se asigna perfiles a sí mismo ---------------------------------------

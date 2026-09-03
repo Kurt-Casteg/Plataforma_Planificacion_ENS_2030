@@ -431,6 +431,89 @@ necesites conservar.
 > cámbiale la lista a `array['observador']` y vuelve a ejecutar `nomina.sql`.
 > Conserva sus actividades y deja de poder tocarlas.
 
+---
+
+## Quién puede registrarse: dominios y excepciones
+
+Desde la versión 3.5 esta regla vive **en la base de datos**. Antes estaba en
+`config.js`, y ahí no era una restricción sino una cortesía: cualquiera que
+abriera la consola del navegador y llamara a la API de Supabase directamente se
+registraba igual, con el correo que quisiera. Ahora un *trigger* corta el alta
+antes de que la cuenta exista.
+
+Hay **dos caminos** para poder registrarse, y basta cumplir uno:
+
+| Camino | Dónde se define | Para qué sirve |
+|---|---|---|
+| El **dominio** del correo está autorizado | tabla `dominios_permitidos` | Deja entrar a la institución completa sin enumerar a nadie. |
+| El **correo exacto** está en la nómina | tabla `usuarios_autorizados` (`docs/nomina.sql`) | La excepción nominal, persona por persona. |
+
+Cualquier otro correo es rechazado y **no queda ningún rastro** de él: ni cuenta,
+ni perfil. En la plataforma la persona ve el mensaje *«Ese correo no está
+autorizado para acceder a la plataforma…»*.
+
+### Autorizar un correo que no es institucional
+
+Es el mismo gesto que dar de alta a cualquier funcionario: **se agrega a la
+nómina**. No hay una segunda lista que mantener, ni hay que tocar código ni
+desplegar el sitio.
+
+1. Abre `docs/nomina.sql` y agrega la línea, con el departamento y los perfiles
+   que le correspondan:
+
+   ```sql
+   ('nombre.apellido@gmail.com', 'Nombre Apellido', 'dpto_control_gestion',
+    array['equipo', 'control_gestion']),
+   ```
+
+2. Ejecuta el archivo completo en Supabase → **SQL Editor**.
+3. Pídele a la persona que entre desde la plataforma con ese correo.
+
+El **primer perfil de la lista es con el que entra**: con
+`array['equipo', 'control_gestion']` empieza como Equipo y cambia desde el
+selector de la cabecera. Si prefieres que entre directo a Control de Gestión,
+invierte el orden.
+
+> Piénsalo dos veces antes de dar `control_gestion` a un correo externo. Ese
+> perfil ve y edita las actividades de toda la institución, administra la nómina
+> y administra la propia lista de dominios autorizados.
+
+### Agregar o quitar un dominio completo
+
+Se hace desde Supabase → **SQL Editor**:
+
+```sql
+-- Agregar un dominio
+insert into public.dominios_permitidos (dominio, nota)
+values ('seremi.cl', 'Motivo por el que se autoriza');
+
+-- Quitarlo
+delete from public.dominios_permitidos where dominio = 'seremi.cl';
+
+-- Ver la lista actual
+select * from public.dominios_permitidos order by dominio;
+```
+
+Un registro con el dominio `'*'` **desactiva la restricción por completo** y
+deja entrar a cualquier correo. Está ahí como salida de emergencia; borrar esa
+fila vuelve a cerrar la puerta de inmediato.
+
+### Lo que conviene tener claro
+
+- **Solo afecta a cuentas nuevas.** Quien ya tiene cuenta creada sigue entrando
+  aunque su correo deje de estar autorizado, porque al volver a iniciar sesión
+  Supabase no registra nada: solo envía el enlace. Para cortarle el acceso hay
+  que eliminar su cuenta en **Authentication → Users**.
+- **También aplica a las cuentas creadas a mano** desde el panel de Supabase. Si
+  necesitas crear una, primero agrega el correo a la nómina; si no, la creación
+  falla con «Database error saving new user».
+- `dominiosPermitidos` en `config.js` **ya no restringe nada**: quedó solo como
+  el texto que se muestra en la pantalla de ingreso y en los mensajes de error.
+  Conviene mantenerlo al día con la tabla para que los mensajes no mientan, pero
+  editarlo no cambia quién puede entrar.
+- Ni la nómina ni la lista de dominios son visibles para nadie que no sea
+  Control de Gestión; el trigger las consulta con privilegios propios.
+
 ## Qué muestra el Panel de análisis
 
 **Filtro por departamento.** Sobre las fichas hay un desplegable que alcanza a

@@ -97,6 +97,30 @@ insert into public.usuarios_autorizados (correo, nombre, departamento, roles) va
   -- Unidad de Salud Ocupacional (1)
   ('angelo.labra@redsalud.gob.cl', 'Angelo Labra', 'unidad_salud_ocupacional', array['equipo'])
 
+  -- ---------------------------------------------------------------------------
+  -- EXCEPCIONES: correos que NO son @redsalud.gob.cl ni @minsal.cl
+  --
+  -- Esta lista es también la lista de excepciones. Un correo que aparezca aquí
+  -- puede registrarse aunque su dominio no esté autorizado; uno que no aparezca
+  -- y venga de otro dominio, la base de datos lo rechaza antes de crear la
+  -- cuenta. No hay que tocar código ni desplegar el sitio.
+  --
+  -- Quita el `--` de las líneas siguientes, completa los datos y agrega una coma
+  -- al final de la línea anterior (la de Angelo Labra).
+  --
+  --   ('nombre.apellido@gmail.com', 'Nombre Apellido', 'dpto_control_gestion',
+  --    array['equipo', 'control_gestion'])
+  --
+  -- Recuerda que el PRIMER perfil de la lista es con el que entra: con
+  -- array['equipo', 'control_gestion'] la persona empieza como Equipo y cambia
+  -- desde el selector de la cabecera. Si prefieres que entre directo a Control
+  -- de Gestión, invierte el orden.
+  --
+  -- Piénsalo dos veces antes de dar `control_gestion` a un correo externo: ese
+  -- perfil ve y edita las actividades de toda la institución, administra esta
+  -- misma nómina y la lista de dominios autorizados.
+  -- ---------------------------------------------------------------------------
+
 on conflict (correo) do update
   set nombre       = excluded.nombre,
       departamento = excluded.departamento,

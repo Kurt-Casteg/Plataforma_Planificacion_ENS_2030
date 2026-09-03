@@ -105,19 +105,51 @@ export const nube = {
     return data.session;
   },
 
-  /** Envía un enlace de acceso al correo institucional (sin contraseñas). */
+  /**
+   * Envía un enlace de acceso al correo institucional (sin contraseñas).
+   *
+   * Quién puede registrarse lo decide el SERVIDOR, no este archivo. Hasta la
+   * versión 3.4 aquí había un filtro por dominio, y era una cortesía disfrazada
+   * de restricción: bastaba abrir la consola del navegador y llamar a la API
+   * directamente para saltárselo. Ahora la regla vive en un trigger de la base
+   * de datos (`privado.exigir_correo_autorizado`), que además admite
+   * excepciones nominales desde la nómina institucional —algo que este código
+   * no puede consultar, porque quien pide el enlace todavía no tiene sesión.
+   *
+   * Por eso se envía la solicitud siempre y se traduce el rechazo del servidor
+   * a un mensaje que se entienda.
+   */
   async enviarEnlace(correo) {
-    const dominios = CONFIG.nube.dominiosPermitidos || [];
-    const dominio = String(correo).split('@')[1]?.toLowerCase();
-    if (dominios.length && !dominios.includes(dominio)) {
-      throw new Error(`Solo se permiten correos de: ${dominios.join(', ')}`);
+    const limpio = String(correo || '').trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(limpio)) {
+      throw new Error('Escribe un correo electrónico válido.');
     }
+
     const sb = await obtenerCliente();
     const { error } = await sb.auth.signInWithOtp({
-      email: correo,
+      email: limpio,
       options: { emailRedirectTo: location.origin + location.pathname }
     });
-    if (error) throw new Error(error.message);
+    if (!error) return;
+
+    // El trigger aborta el alta antes de crear la cuenta, y Supabase lo informa
+    // como un fallo genérico al registrar. Se reconoce por eso, no por el texto
+    // exacto, que cambia entre versiones de la API.
+    const esRechazo = /database error|saving new user|not authorized|no est[áa] autorizado|unexpected_failure|insufficient/i
+      .test(error.message || '');
+
+    if (esRechazo) {
+      const dominios = CONFIG.nube.dominiosPermitidos || [];
+      const sufijo = dominios.length
+        ? ` Si no es un correo institucional (${dominios.map((d) => `@${d}`).join(' o ')}),`
+        : ' Si es la primera vez que entras,';
+      throw new Error(
+        `Ese correo no está autorizado para acceder a la plataforma.${sufijo}` +
+        ' pide al Departamento de Control de Gestión que lo agregue a la nómina.'
+      );
+    }
+
+    throw new Error(error.message);
   },
 
   async cerrarSesion() {

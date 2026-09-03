@@ -15,7 +15,7 @@ export const CONFIG = {
    * comprobar de un vistazo si el navegador está mostrando la última versión
    * publicada o una copia guardada en caché. Súbela con cada despliegue.
    */
-  version: '3.4.0',
+  version: '3.5.0',
 
   /**
    * Sincronización con la nube (Supabase).
@@ -29,7 +29,16 @@ export const CONFIG = {
     habilitada: true,
     url: 'https://slaizgcqzagzxunrkumy.supabase.co',        // Solo el dominio del proyecto, SIN /rest/v1 ni barra final
     anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNsYWl6Z2NxemFnenh1bnJrdW15Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwMzg0MzQsImV4cCI6MjEwMjYxNDQzNH0.YaGeBsnO7Kk42cAKBwJET0yO_nkto-_RlNTLqM7I4Gk',    // Clave pública "anon" del proyecto (no es secreta)
-    /** Dominios de correo autorizados para registrarse. Vacío = sin restricción. */
+    /**
+     * Dominios institucionales que se muestran como ayuda en la pantalla de
+     * ingreso y en los mensajes de error.
+     *
+     * OJO: esto es TEXTO, no la restricción. Quién puede registrarse lo decide
+     * la base de datos (tabla `dominios_permitidos` y la nómina
+     * `usuarios_autorizados` en Supabase), porque cualquier control escrito en
+     * este archivo viaja al navegador y se puede saltar desde la consola.
+     * Para autorizar un correo externo, ver docs/GUIA-ADMINISTRACION.md.
+     */
     dominiosPermitidos: ['redsalud.gob.cl', 'minsal.cl']
   },
 

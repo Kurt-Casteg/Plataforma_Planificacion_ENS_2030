@@ -7,6 +7,7 @@
  * de cerrar sesión.
  */
 
+import { CONFIG } from '../../config.js';
 import { el } from './dom.js';
 import { abrirModal, avisar, confirmar, mostrarCargando } from './ui.js';
 import { almacen } from './almacen.js';
@@ -71,9 +72,14 @@ export async function iniciarSesionEnLaNube({ indicador, catalogos }) {
 /* ------------------------------------------------------------------ */
 
 function pedirAcceso(nube) {
+  const dominios = CONFIG.nube.dominiosPermitidos || [];
   const entrada = el('input', {
     class: 'campo__control', id: 'correoAcceso',
-    attrs: { type: 'email', placeholder: 'nombre@redsalud.gob.cl', autocomplete: 'email', required: true }
+    attrs: {
+      type: 'email',
+      placeholder: dominios.length ? `nombre@${dominios[0]}` : 'nombre@institucion.cl',
+      autocomplete: 'email', required: true
+    }
   });
 
   const modal = abrirModal({
@@ -83,8 +89,15 @@ function pedirAcceso(nube) {
       el('p', { class: 'texto-cuerpo', text: 'Te enviaremos un enlace de acceso a tu correo institucional. No necesitas recordar contraseñas.' }),
       el('div', { class: 'campo', style: { marginTop: '16px' } }, [
         el('label', { class: 'campo__etiqueta', text: 'Correo institucional', attrs: { for: 'correoAcceso' } }),
-        entrada
-      ])
+        entrada,
+        // Orientación, no una regla: quién puede entrar lo decide el servidor, y
+        // admite excepciones nominales que este texto no puede conocer.
+        dominios.length && el('p', {
+          class: 'campo__ayuda',
+          text: `Usa tu correo ${dominios.map((d) => `@${d}`).join(' o ')}. `
+            + 'Si necesitas acceder con otro correo, primero debe autorizarlo el Departamento de Control de Gestión.'
+        })
+      ].filter(Boolean))
     ],
     acciones: [
       { texto: 'Cancelar', clase: 'btn--secundario', alHacerClic: (m) => m.cerrar() },

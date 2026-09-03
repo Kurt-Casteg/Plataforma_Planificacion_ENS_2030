@@ -116,6 +116,10 @@ nube: {
 }
 ```
 
+> `dominiosPermitidos` es **texto informativo**: se muestra en la pantalla de
+> ingreso y en los mensajes de error. Quién puede registrarse lo deciden las
+> tablas `dominios_permitidos` y `usuarios_autorizados` en la base de datos.
+
 3. Guarda, haz `git add . && git commit -m "Activar sincronización" && git push`.
 
 > La clave `anon` es pública por diseño: viaja al navegador de cada persona.
@@ -258,9 +262,15 @@ tanto en **Site URL** como en **Redirect URLs**. Debe coincidir exactamente con 
 dirección donde está publicada la plataforma, incluida la barra final:
 `https://kurt-casteg.github.io/Plataforma_Planificacion_ENS_2030/`
 
-**«Solo se permiten correos de: …»**
-El dominio del correo no está en `dominiosPermitidos` de `config.js`. Agrégalo o
-deja la lista vacía (`[]`) para no restringir.
+**«Ese correo no está autorizado para acceder a la plataforma»**
+El correo no cumple ninguno de los dos caminos de acceso: su dominio no está en
+la tabla `dominios_permitidos` y el correo exacto no está en la nómina
+`usuarios_autorizados`. Para autorizarlo, agrégalo a `docs/nomina.sql` y ejecuta
+ese archivo; para abrir un dominio entero, agrégalo a `dominios_permitidos`.
+El detalle está en `GUIA-ADMINISTRACION.md` → «Quién puede registrarse».
+
+Editar `dominiosPermitidos` en `config.js` **no** resuelve esto: desde la versión
+3.5 ese valor es solo el texto que se muestra en pantalla, no la restricción.
 
 **Inicio de sesión correcto, pero no aparece ninguna actividad**
 Es lo esperado la primera vez: cada persona ve solo lo suyo. Si eres Control de
