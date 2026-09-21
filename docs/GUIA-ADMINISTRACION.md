@@ -575,6 +575,36 @@ volver a guardarlas.
 
 ---
 
+## Imprimir la pantalla («Más» → Imprimir o guardar como PDF)
+
+Es la impresión rápida de lo que se está viendo, distinta del informe
+consolidado. Funciona igual con Ctrl+P.
+
+Lo que sale en el papel: el **nombre del plan**, un **sello** con la institución
+y la fecha y hora de impresión, el **listado completo de actividades** y el
+**panel de análisis** con sus gráficos, cada uno acompañado de su tabla de
+datos (las tablas se abren solas al imprimir y se vuelven a cerrar al terminar,
+porque un gráfico en papel no se puede consultar y los números sí).
+
+Lo que **no** sale: la cabecera, las pestañas de plan, el formulario de
+registro, la barra de búsqueda, la columna de botones de cada fila, el
+asistente y los diálogos abiertos.
+
+La hoja es **A4 vertical**. La tabla se imprime con siete columnas de ancho
+fijo —Código, Actividad, Departamento, Tema (u Objetivo operacional en el PGI),
+Tipo, Ejec. y Presupuesto— y su encabezado se repite en cada página.
+
+Todo esto vive en el bloque `@media print` de `css/app.css`, salvo dos cosas que
+la hoja de estilos no puede hacer sola y están en `prepararImpresion()`, en
+`js/app.js`: calcular la fecha del sello en el momento de imprimir y abrir las
+tablas de datos de los gráficos.
+
+> Si se agrega o se quita una columna del listado, hay que revisar los anchos
+> `nth-child` de la tabla en el bloque de impresión: están fijados a mano y
+> suman 100 %.
+
+---
+
 ## El informe consolidado («Exportar informe»)
 
 El botón **«Exportar informe»** aparece en la barra del listado y **solo lo ve el

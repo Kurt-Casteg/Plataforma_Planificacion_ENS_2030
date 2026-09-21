@@ -16,7 +16,7 @@ import { TablaActividades } from './core/tabla.js';
 import { Panel } from './core/panel.js';
 import { avisar, confirmar, abrirModal, aplicarTema, alternarTema, temaActual, mostrarCargando } from './core/ui.js';
 import { exportarExcel, exportarCSV, exportarJSON, leerRespaldo } from './core/exportar.js';
-import { numero } from './core/formato.js';
+import { numero, fechaHora } from './core/formato.js';
 import { perfil, nombrePerfil, PERFILES } from './core/perfil.js';
 import { siguienteCodigo, previsualizarCodigo } from './core/codigos.js';
 import { Asistente, cargarContenidoAsistente } from './core/asistente.js';
@@ -74,6 +74,7 @@ alCargar(async () => {
   addEventListener('hashchange', () => activarPlan(planDesdeURL()));
 
   montarAsistente();
+  prepararImpresion();
 
   // Iniciar sesión, cerrarla o cambiar de perfil altera qué se puede hacer:
   // el selector y los bloqueos se rehacen desde un solo lugar.
@@ -409,9 +410,52 @@ function dibujarPortada(plan) {
       enlace && el('a', {
         class: 'portada__enlace', href: enlace,
         attrs: { target: '_blank', rel: 'noopener noreferrer' }
-      }, [plan.enlace.texto, el('span', { text: ' ↗', attrs: { 'aria-hidden': 'true' } })])
+      }, [plan.enlace.texto, el('span', { text: ' ↗', attrs: { 'aria-hidden': 'true' } })]),
+      // Solo aparece en papel. Una hoja impresa sin institución ni fecha no se
+      // puede archivar: nadie sabe de qué momento de la planificación habla.
+      el('p', {
+        class: 'portada__sello solo-impresion', id: 'selloImpresion',
+        text: `${CONFIG.institucion} · Planificación ${CONFIG.anio}`
+      })
     ].filter(Boolean))
   ]));
+}
+
+/* ------------------------------------------------------------------ */
+/* Impresión                                                           */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Ajustes que la hoja de estilos no puede hacer sola.
+ *
+ * `beforeprint` se dispara tanto desde el botón «Imprimir o guardar como PDF»
+ * como desde Ctrl+P, así que basta conectarlo una vez y las dos vías quedan
+ * cubiertas.
+ *
+ *  - La fecha se calcula en el momento de imprimir, no al cargar la página:
+ *    una pestaña abierta desde ayer imprimiría el sello equivocado.
+ *  - Las tablas de datos de cada gráfico se abren. Un gráfico en papel no se
+ *    puede consultar; los números sí. Se cierran después para dejar la
+ *    pantalla como estaba, salvo las que ya estaban abiertas.
+ */
+function prepararImpresion() {
+  let abiertasPorNosotros = [];
+
+  addEventListener('beforeprint', () => {
+    const sello = $('#selloImpresion');
+    if (sello && estado.plan) {
+      sello.textContent =
+        `${CONFIG.institucion} · Planificación ${CONFIG.anio} · Impreso el ${fechaHora(new Date())}`;
+    }
+
+    abiertasPorNosotros = [...document.querySelectorAll('.tabla-datos:not([open])')];
+    for (const d of abiertasPorNosotros) d.open = true;
+  });
+
+  addEventListener('afterprint', () => {
+    for (const d of abiertasPorNosotros) d.open = false;
+    abiertasPorNosotros = [];
+  });
 }
 
 function dibujarAccionesListado() {
@@ -847,7 +891,27 @@ function mostrarMasAcciones() {
       }),
       el('button', {
         class: 'btn btn--secundario', attrs: { type: 'button' }, text: 'Imprimir o guardar como PDF',
-        on: { click: () => print() }
+        // El diálogo se cierra ANTES de imprimir; si no, «Más acciones» y su
+        // fondo oscurecido se quedan sobre la vista previa.
+        //
+        // Se hace en dos tiempos a propósito. El clic en la × cierra bien —
+        // devuelve el foco, suelta los escuchas—, pero el nodo no desaparece
+        // hasta que termina su animación de salida, y ese `animationend` no es
+        // algo en lo que se pueda confiar para algo tan visible como esto. Así
+        // que además se quita a mano, y se esperan dos fotogramas para que el
+        // navegador ya haya repintado cuando abre la impresión.
+        //
+        // La red de seguridad final está en la hoja de estilos, que excluye
+        // `.modal` del papel: aunque todo esto fallara, el diálogo no saldría
+        // impreso.
+        on: {
+          click: (e) => {
+            const dialogo = e.target.closest('.modal');
+            dialogo.querySelector('.modal__cerrar').click();
+            dialogo.remove();
+            requestAnimationFrame(() => requestAnimationFrame(() => print()));
+          }
+        }
       }),
       perfil.permisos.puedeEliminar && el('button', {
         class: 'btn btn--peligro', attrs: { type: 'button' }, text: `Vaciar el ${estado.plan.nombreCorto}`,

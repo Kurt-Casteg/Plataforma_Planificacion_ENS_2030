@@ -999,17 +999,162 @@ select.campo__control {
   display: flex; flex-wrap: wrap; gap: var(--e-3); justify-content: space-between;
 }
 
-/* --- Impresión --------------------------------------------------------------- */
+/* --- Impresión ---------------------------------------------------------------
+
+   Imprimir la plataforma NO es imprimir la pantalla. En papel no hay
+   desplazamiento horizontal, no hay botones que pulsar y no tiene ningún
+   sentido un formulario vacío: lo que debe quedar es un documento que se
+   entienda solo —qué plan, de qué institución, impreso cuándo—, el listado de
+   actividades completo y el panel de análisis.
+
+   Los dos defectos que esto corrige y que no se ven en pantalla:
+
+     · `.tabla__contenedor` tiene `overflow-x: auto`. En pantalla eso desplaza;
+       en papel RECORTA, y se perdían las columnas Tipo, Ejecuciones y
+       Presupuesto sin ningún aviso.
+     · Los lienzos de Chart.js llevan su ancho en píxeles escrito en el
+       atributo `style`. Al pasar a una hoja más angosta que la ventana, el
+       gráfico conservaba el ancho de pantalla y se salía del papel.
+   --------------------------------------------------------------------------- */
+
+/* Elementos que solo existen en papel (el sello con institución y fecha). */
+.solo-impresion { display: none; }
 
 @media print {
-  .cabecera, .formulario__acciones, .panel__acciones, .tabla__barra, .avisos, .pie__base,
-  /* Los controles no se imprimen; el resumen del filtro sí, para que la hoja
-     diga a qué conjunto corresponden las cifras. */
-  .panel-filtros__etiqueta, #filtroPanelDepartamento, .panel-filtros .btn { display: none !important; }
+  /* --- Lo que no se imprime ------------------------------------------------
+     Todo esto es interfaz, no contenido: cabecera, pestañas, buscadores,
+     botones y avisos. Y, sobre todo, el formulario de registro: en blanco
+     ocupaba cinco de las trece hojas. */
+  .cabecera,
+  .planes,
+  #zonaFormulario,
+  #avisoSoloLectura,
+  .formulario__acciones,
+  .panel__acciones,
+  .tabla__barra,
+  .panel__descripcion,
+  .col--acciones,
+  .avisos,
+  .asistente,
+  .modal,
+  .saltar-al-contenido,
+  .pie__base,
+  .pie__grilla > div:nth-child(3),
+  /* Los controles del filtro no se imprimen; el resumen de lo filtrado sí,
+     para que la hoja diga a qué conjunto corresponden las cifras. */
+  .panel-filtros__etiqueta, #filtroPanelDepartamento, .panel-filtros .btn {
+    display: none !important;
+  }
+
   .panel-filtros { border: 0; padding: 0; }
-  body { background: #fff; }
-  .panel, .seccion, .grafico, .kpi { box-shadow: none; border-color: #ccc; break-inside: avoid; }
+
+  /* --- Base ----------------------------------------------------------------- */
+  body { background: #fff; font-size: 10pt; }
+  .solo-impresion { display: block; }
+
+  /* La envoltura reserva ancho para una pantalla; en papel el margen lo pone
+     `@page` y este relleno solo roba espacio útil a la tabla. */
+  .envoltura { max-width: none; padding-inline: 0; }
+  .contenido { padding-block: 0; gap: var(--e-5); }
+
+  .panel, .seccion, .grafico, .kpi {
+    box-shadow: none; border-color: #ccc;
+  }
+  /* Un panel entero no cabe en una hoja: pedirle que no se parta solo consigue
+     que empiece en la siguiente y deje la primera en blanco. Se parte él, y se
+     protege lo que sí debe viajar junto: una ficha, un gráfico, una fila. */
+  .panel { break-inside: auto; margin-bottom: 10mm; }
+  .seccion, .grafico, .kpi { break-inside: avoid; }
+  .panel__titulo { break-after: avoid; }
+
+  /* --- Sello del documento --------------------------------------------------- */
+  .portada { padding: 0; border: 0; box-shadow: none; }
+  .portada__titulo { font-size: 16pt; }
+  .portada__descripcion { font-size: 9pt; }
+  .portada__enlace { display: none; }
+  .portada__sello {
+    margin-top: 2mm; padding-top: 2mm;
+    border-top: 1px solid #ccc;
+    font-size: 8.5pt; color: #555;
+  }
+
+  /* --- Listado --------------------------------------------------------------- */
+  /* `visible` es la corrección de fondo: sin esto la tabla se recorta en seco
+     por el borde derecho de la hoja. */
+  .tabla__contenedor { overflow: visible; border: 0; border-radius: 0; }
+  .tabla { font-size: 7.5pt; width: 100%; table-layout: fixed; }
+  .tabla thead th, .tabla tbody td { padding: 3px 4px; }
+  .tabla thead th {
+    background: #f0f2f5; border-bottom: 1px solid #999;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    /* En pantalla los encabezados no se parten porque hay desplazamiento
+       lateral. Con columnas de ancho fijo, esos mismos encabezados invaden la
+       columna vecina: «DEPARTAMENTO» se montaba sobre «TEMA». Se achican, se
+       les quita el espaciado entre letras y, si aun así no caben, se parten. */
+    font-size: 6.5pt; letter-spacing: 0;
+    white-space: normal; overflow-wrap: anywhere;
+    position: static;
+  }
+  /* El encabezado se repite en cada hoja que ocupe la tabla, y ninguna fila
+     queda partida entre dos páginas. */
+  .tabla thead { display: table-header-group; }
+  .tabla tbody tr { break-inside: avoid; }
+  .tabla tbody tr:hover { background: transparent; }
+
+  /* Anchos explícitos: con `table-layout: fixed` el navegador deja de repartir
+     según el contenido, así que dos hojas seguidas salen con las columnas en
+     el mismo sitio. Suman 100 %. */
+  .tabla th:nth-child(1), .tabla td:nth-child(1) { width: 8%; }
+  .tabla th:nth-child(2), .tabla td:nth-child(2) { width: 26%; }
+  .tabla th:nth-child(3), .tabla td:nth-child(3) { width: 16%; }
+  .tabla th:nth-child(4), .tabla td:nth-child(4) { width: 18%; }
+  .tabla th:nth-child(5), .tabla td:nth-child(5) { width: 12%; }
+  .tabla th:nth-child(6), .tabla td:nth-child(6) { width: 6%; }
+  .tabla th:nth-child(7), .tabla td:nth-child(7) { width: 14%; }
+
+  /* Los nombres largos se reparten en varias líneas en vez de ensanchar la
+     columna, y el botón «Ver» se imprime como el texto que es. */
+  .tabla td { overflow-wrap: anywhere; word-break: normal; }
+  .enlace-tabla {
+    color: inherit; text-decoration: none; font-weight: 650;
+    text-align: left; padding: 0; white-space: normal;
+  }
+  .etiqueta {
+    background: transparent; color: inherit; padding: 0;
+    font-weight: 600; font-size: 7pt;
+  }
+
+  /* --- Panel ---------------------------------------------------------------- */
+  .kpis { gap: 4mm; }
+  .kpi { padding: var(--e-3); }
+  .kpi__valor { font-size: 13pt; }
+
+  /* Una sola columna de gráficos: en 186 mm de ancho útil, dos quedan
+     ilegibles. */
+  .graficos { grid-template-columns: 1fr !important; gap: 8mm; }
+  .grafico { break-inside: avoid; padding: var(--e-4); }
+  .grafico__lienzo { height: auto; }
+
+  /* La regla que devuelve los gráficos al papel: `!important` es necesario
+     porque Chart.js escribe el tamaño en el atributo `style` del lienzo. */
+  .grafico__lienzo canvas {
+    max-width: 100% !important;
+    width: 100% !important;
+    height: auto !important;
+  }
+
+  /* Las tablas de datos de cada gráfico se abren al imprimir (lo hace app.js):
+     un gráfico en papel no se puede consultar, los números sí. */
+  .tabla-datos > summary { display: none; }
+  .tabla-datos table { font-size: 7pt; }
+  .tabla-datos th, .tabla-datos td { padding: 2px 4px; }
+
+  /* --- Pie ------------------------------------------------------------------ */
+  .pie { border-top: 1px solid #ccc; margin-top: 8mm; }
+  .pie__grilla { gap: var(--e-5); }
+  .pie__titulo, .pie__texto { font-size: 8pt; }
 }
+
 
 /* --- Campos completados desde la sesión --------------------------------------- */
 
