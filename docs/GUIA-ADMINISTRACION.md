@@ -475,6 +475,52 @@ necesites conservar.
 
 ---
 
+## La entrada a la plataforma (inicio de sesión)
+
+Desde la versión 3.7, a quien llega sin sesión la plataforma se lo hace notar de
+tres formas, de la más insistente a la más discreta:
+
+1. **Pantalla de ingreso.** Lo primero que se ve es una tarjeta centrada con el
+   campo de correo y el botón «Enviarme el enlace de acceso». Al enviarlo, la
+   misma tarjeta confirma a qué correo se mandó. Abajo está siempre
+   **«Continuar sin sesión»**, que también se activa con Escape.
+2. **Franja ámbar sobre el formulario.** Si se continúa sin sesión, arriba del
+   formulario queda una franja que dice la consecuencia —«lo que registres se
+   guardará solo en este navegador y no llegará a Control de Gestión»— con su
+   propio botón para entrar.
+3. **Botón azul en la cabecera.** «Iniciar sesión →» deja de ser una píldora gris
+   y pasa a ser el botón principal de la cabecera. Con sesión vuelve a verse
+   discreto, con el nombre de la persona.
+
+«Continuar sin sesión» se recuerda **solo en esa pestaña**. Al recargar no
+vuelve a aparecer la pantalla, pero al abrir la plataforma otro día sí. Si se
+recordara para siempre, un clic distraído borraría el recordatorio durante todo
+el ciclo de planificación.
+
+Casos en que nada de esto aparece:
+
+- **Con sesión iniciada.** Nada cambia respecto de antes.
+- **Servidor caído** («Sin conexión» en la cabecera). No se ofrece un ingreso
+  que no puede funcionar: queda solo la franja, que explica que lo registrado se
+  guarda en el navegador.
+- **Nube desactivada** en `config.js` (`habilitada: false`). Trabajar en el
+  navegador es el modo previsto y el indicador sigue diciendo «Guardado en este
+  equipo», sin llamar la atención.
+
+Todo vive en `js/core/sesion.js` (`mostrarPantallaIngreso`, `mostrarAvisoSesion`)
+y los estilos en `css/app.css`, secciones «Aviso sin sesión» y «Pantalla de
+ingreso». Nada de esto se imprime.
+
+> **Lo registrado sin sesión no se sube después.** Si alguien registra
+> actividades sin sesión y luego inicia sesión en el mismo navegador, esas
+> actividades siguen solo en ese navegador: al entrar, la plataforma *baja* lo
+> que hay en la nube, pero no *sube* lo que se hizo sin sesión. Para enviarlas,
+> hay que abrir cada una y volver a guardarla ya con la sesión iniciada. Por eso
+> los textos de la pantalla y de la franja dicen «no llegará a Control de
+> Gestión» y no «llegará cuando inicies sesión».
+
+---
+
 ## Quién puede registrarse: dominios y excepciones
 
 Desde la versión 3.5 esta regla vive **en la base de datos**. Antes estaba en

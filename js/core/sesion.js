@@ -8,7 +8,7 @@
  */
 
 import { CONFIG } from '../../config.js';
-import { el } from './dom.js';
+import { el, render } from './dom.js';
 import { abrirModal, avisar, confirmar, mostrarCargando } from './ui.js';
 import { almacen } from './almacen.js';
 import { perfil } from './perfil.js';
@@ -42,13 +42,23 @@ export async function iniciarSesionEnLaNube({ indicador, catalogos }) {
   } catch (e) {
     console.error(e);
     marcar('error', 'Sin conexión', 'No se pudo contactar el repositorio institucional. Tus datos siguen guardados en este equipo.');
+    // Sin servidor no tiene sentido ofrecer el ingreso: se explica qué pasa
+    // con lo que se registre mientras tanto y nada más.
+    mostrarAvisoSesion({ nube, sinConexion: true });
     return null;
   }
 
   if (!sesion) {
-    marcar('local', 'Iniciar sesión', 'Inicia sesión para consolidar tus actividades con el resto de los equipos.');
+    // Estado propio, distinto de «local»: «local» es el modo sin nube, que es
+    // deliberado y se ve tranquilo. Esto es otra cosa —la nube existe y la
+    // persona no ha entrado— y tiene que verse como una acción pendiente.
+    marcar('sin-sesion', 'Iniciar sesión', 'Entra con tu correo institucional para que tus actividades lleguen a Control de Gestión.');
+    mostrarAvisoSesion({ nube });
+    if (!ingresoOmitido()) mostrarPantallaIngreso(nube);
     return null;
   }
+
+  ocultarAvisoSesion();
 
   // El perfil se carga antes que las actividades: el formulario lo necesita
   // para completar identificación y para pedir el correlativo al servidor.
@@ -94,7 +104,7 @@ function pedirAcceso(nube) {
         // admite excepciones nominales que este texto no puede conocer.
         dominios.length && el('p', {
           class: 'campo__ayuda',
-          text: `Usa tu correo ${dominios.map((d) => `@${d}`).join(' o ')}. `
+          text: `${textoDominios()} `
             + 'Si necesitas acceder con otro correo, primero debe autorizarlo el Departamento de Control de Gestión.'
         })
       ].filter(Boolean))
@@ -123,6 +133,216 @@ function pedirAcceso(nube) {
       modal.ventana.querySelector('.modal__pie .btn--primario')?.click();
     }
   });
+  entrada.focus();
+}
+
+/* ------------------------------------------------------------------ */
+/* Aviso de «sin sesión» sobre el formulario                           */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Franja ámbar entre la portada y el formulario.
+ *
+ * Dice la CONSECUENCIA, no solo el estado: «no has iniciado sesión» se lee y se
+ * ignora; «lo que registres no llegará a Control de Gestión» no. Y trae su
+ * propio botón, para que la solución esté donde se descubre el problema.
+ *
+ * El texto es literal a propósito. Hoy lo que se guarda sin sesión NO se sube
+ * después al iniciarla: queda en ese navegador. Prometer otra cosa aquí sería
+ * peor que no avisar.
+ */
+function mostrarAvisoSesion({ nube, sinConexion = false }) {
+  const caja = document.getElementById('avisoSesion');
+  if (!caja) return;
+
+  const contenido = sinConexion
+    ? [
+        el('p', { class: 'aviso-sesion__titulo', text: 'Sin conexión con el servidor institucional' }),
+        el('p', { class: 'aviso-sesion__texto', text: 'Puedes seguir trabajando, pero lo que registres ahora se guardará solo en este navegador y no llegará a Control de Gestión. Vuelve a cargar la página más tarde para iniciar sesión.' })
+      ]
+    : [
+        el('p', { class: 'aviso-sesion__titulo', text: 'No has iniciado sesión' }),
+        el('p', { class: 'aviso-sesion__texto', text: 'Lo que registres se guardará solo en este navegador y no llegará a Control de Gestión.' }),
+        el('div', { class: 'aviso-sesion__acciones' }, [
+          el('button', {
+            class: 'btn btn--primario', attrs: { type: 'button' },
+            text: 'Iniciar sesión con mi correo',
+            on: { click: () => pedirAcceso(nube) }
+          })
+        ])
+      ];
+
+  render(caja, el('div', {
+    class: `aviso-sesion${sinConexion ? ' aviso-sesion--sin-conexion' : ''}`,
+    attrs: { role: 'status' }
+  }, [
+    el('span', { class: 'aviso-sesion__icono', text: '!', attrs: { 'aria-hidden': 'true' } }),
+    el('div', { class: 'aviso-sesion__cuerpo' }, contenido)
+  ]));
+  caja.hidden = false;
+}
+
+function ocultarAvisoSesion() {
+  const caja = document.getElementById('avisoSesion');
+  if (caja) caja.hidden = true;
+}
+
+/* ------------------------------------------------------------------ */
+/* Pantalla de ingreso                                                 */
+/* ------------------------------------------------------------------ */
+
+/*
+ * «Continuar sin sesión» se recuerda solo en esta pestaña (sessionStorage), no
+ * para siempre. Quien la cierra hoy no vuelve a verla mientras trabaja, pero
+ * mañana, al abrir la plataforma de nuevo, la encuentra otra vez. Si se
+ * recordara para siempre, bastaría un clic distraído para perder el recordatorio
+ * durante todo el ciclo de planificación.
+ */
+const CLAVE_OMITIDO = 'seremi.ingresoOmitido';
+
+function ingresoOmitido() {
+  try { return sessionStorage.getItem(CLAVE_OMITIDO) === '1'; } catch { return false; }
+}
+function omitirIngreso() {
+  try { sessionStorage.setItem(CLAVE_OMITIDO, '1'); } catch { /* ventana privada */ }
+}
+
+/** «Usa tu correo @redsalud.gob.cl o @minsal.cl.», o nada si no hay dominios. */
+function textoDominios() {
+  const dominios = CONFIG.nube.dominiosPermitidos || [];
+  return dominios.length ? `Usa tu correo ${dominios.map((d) => `@${d}`).join(' o ')}.` : '';
+}
+
+/**
+ * Lo primero que ve quien llega sin sesión: una tarjeta centrada con un solo
+ * campo y un solo botón, antes de la plataforma.
+ *
+ * No es una barrera. «Continuar sin sesión» está siempre ahí, porque la
+ * plataforma sigue funcionando sin nube (y porque si Supabase fallara, nadie
+ * podría trabajar). Lo que cambia es que continuar sin sesión pasa a ser una
+ * decisión y no un descuido.
+ */
+function mostrarPantallaIngreso(nube) {
+  if (document.querySelector('.ingreso')) return;
+
+  const anterior = document.activeElement;
+  const idTitulo = 'ingresoTitulo';
+
+  const entrada = el('input', {
+    class: 'campo__control ingreso__entrada', id: 'ingresoCorreo',
+    attrs: {
+      type: 'email', autocomplete: 'email', required: true,
+      placeholder: `nombre@${(CONFIG.nube.dominiosPermitidos || [])[0] || 'institucion.cl'}`,
+      'aria-describedby': 'ingresoAyuda ingresoError'
+    }
+  });
+  const error = el('p', { class: 'campo__error', id: 'ingresoError', attrs: { hidden: true, role: 'alert' } });
+  const botonEnviar = el('button', {
+    class: 'btn btn--primario btn--grande ingreso__boton', attrs: { type: 'submit' },
+    text: 'Enviarme el enlace de acceso'
+  });
+
+  const formulario = el('form', {
+    class: 'ingreso__formulario', attrs: { novalidate: true },
+    on: { submit: (e) => { e.preventDefault(); enviar(); } }
+  }, [
+    el('label', { class: 'campo__etiqueta', text: 'Correo institucional', attrs: { for: 'ingresoCorreo' } }),
+    entrada,
+    el('p', { class: 'campo__ayuda', id: 'ingresoAyuda', text: `${textoDominios()} Te llegará un correo con un enlace: no hay contraseñas que recordar.`.trim() }),
+    error,
+    botonEnviar
+  ]);
+
+  // Segundo paso: confirmación. Se dibuja en el mismo lugar que el formulario.
+  const confirmacion = el('div', { class: 'ingreso__confirmacion', attrs: { hidden: true, role: 'status' } });
+
+  const continuar = el('button', {
+    class: 'btn btn--texto ingreso__continuar', attrs: { type: 'button' },
+    text: 'Continuar sin sesión →',
+    on: { click: () => cerrar() }
+  });
+
+  const tarjeta = el('div', { class: 'ingreso__tarjeta' }, [
+    el('div', { class: 'ingreso__marca' }, [
+      el('img', { class: 'ingreso__logo', src: 'assets/logo-nuble.png', attrs: { alt: '' } }),
+      el('div', {}, [
+        el('p', { class: 'ingreso__institucion', text: CONFIG.institucion }),
+        el('p', { class: 'ingreso__plataforma', text: `Plataforma de Planificación ${CONFIG.anio}` })
+      ])
+    ]),
+    el('h1', { class: 'ingreso__titulo', id: idTitulo, text: 'Ingresa con tu correo institucional' }),
+    el('p', { class: 'ingreso__texto', text: 'Así tus actividades quedan registradas a tu nombre y llegan a Control de Gestión.' }),
+    formulario,
+    confirmacion,
+    el('div', { class: 'ingreso__pie' }, [
+      continuar,
+      el('p', { class: 'ingreso__nota', text: 'Sin sesión puedes usar la plataforma, pero lo que registres quedará solo en este navegador.' })
+    ])
+  ]);
+
+  const pantalla = el('div', {
+    class: 'ingreso',
+    attrs: { role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': idTitulo }
+  }, [tarjeta]);
+
+  async function enviar() {
+    error.hidden = true;
+    entrada.removeAttribute('aria-invalid');
+    const correo = entrada.value.trim();
+    botonEnviar.disabled = true;
+    botonEnviar.textContent = 'Enviando…';
+    try {
+      await nube.enviarEnlace(correo);
+      formulario.hidden = true;
+      render(confirmacion,
+        el('p', { class: 'ingreso__confirmacion-titulo', text: 'Revisa tu correo' }),
+        el('p', {}, [
+          'Te enviamos un enlace de acceso a ',
+          el('strong', { text: correo }),
+          '. Ábrelo desde este mismo equipo y navegador para entrar.'
+        ]),
+        el('p', { class: 'campo__ayuda', text: 'Si no llega en unos minutos, revisa la carpeta de correo no deseado.' }),
+        el('button', {
+          class: 'btn btn--secundario', attrs: { type: 'button' }, text: 'Usar otro correo',
+          on: {
+            click: () => {
+              confirmacion.hidden = true;
+              formulario.hidden = false;
+              entrada.select();
+              entrada.focus();
+            }
+          }
+        })
+      );
+      confirmacion.hidden = false;
+    } catch (e) {
+      error.textContent = e.message;
+      error.hidden = false;
+      entrada.setAttribute('aria-invalid', 'true');
+      entrada.focus();
+    } finally {
+      botonEnviar.disabled = false;
+      botonEnviar.textContent = 'Enviarme el enlace de acceso';
+    }
+  }
+
+  function alTeclear(e) {
+    // Escape equivale a «Continuar sin sesión»: un diálogo que no se cierra con
+    // Escape es una trampa para quien navega con teclado.
+    if (e.key === 'Escape') { e.preventDefault(); cerrar(); }
+  }
+
+  function cerrar() {
+    omitirIngreso();
+    document.removeEventListener('keydown', alTeclear, true);
+    pantalla.remove();
+    document.body.classList.remove('sin-scroll', 'con-ingreso');
+    (anterior && document.contains(anterior) ? anterior : document.getElementById('contenidoPrincipal'))?.focus?.();
+  }
+
+  document.body.append(pantalla);
+  document.body.classList.add('sin-scroll', 'con-ingreso');
+  document.addEventListener('keydown', alTeclear, true);
   entrada.focus();
 }
 

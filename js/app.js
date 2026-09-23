@@ -195,6 +195,10 @@ function construirCascaron() {
 
   const principal = el('main', { class: 'envoltura contenido', id: 'contenidoPrincipal', attrs: { tabindex: '-1' } }, [
     el('div', { id: 'portada' }),
+    // Aviso de «sin sesión». Lo llena y lo muestra js/core/sesion.js, que es el
+    // único que sabe si hay sesión; aquí solo se le reserva el lugar, justo
+    // encima del formulario, que es donde se toma la decisión de registrar.
+    el('div', { id: 'avisoSesion', attrs: { hidden: true } }),
     // Ocupa el lugar del formulario cuando el perfil activo no puede escribir,
     // para que la ausencia se entienda en vez de parecer una falla.
     el('div', {

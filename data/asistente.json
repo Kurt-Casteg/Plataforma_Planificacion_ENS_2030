@@ -105,6 +105,11 @@
 
  "preguntas": [
   {
+   "p": "¿Tengo que iniciar sesión para registrar actividades?",
+   "r": "Para que tus actividades lleguen a Control de Gestión, sí. Sin sesión la plataforma funciona, pero lo que registres queda guardado solo en ese navegador: nadie más lo ve y no se consolida. Para entrar, pulsa «Iniciar sesión» arriba a la derecha, escribe tu correo institucional y abre el enlace que te llega, desde el mismo equipo. No hay contraseñas.",
+   "claves": ["sesion", "sesión", "iniciar", "entrar", "ingresar", "login", "correo", "enlace", "contraseña", "no llega", "consolidar"]
+  },
+  {
    "p": "¿Por qué no puedo apagar el Plan Anual de Compras?",
    "r": "Porque la actividad tiene presupuesto en el subtítulo 22. Ese gasto se va en bienes y servicios, y Adquisiciones necesita saber qué se comprará y cuándo, así que el PAC es obligatorio y el interruptor queda fijo. Si el monto del 22 fue un error, bórralo: el interruptor se libera y, si todavía no habías escrito nada en la compra, el bloque se vuelve a cerrar solo.",
    "claves": ["apagar", "desactivar", "pac", "obligatorio", "interruptor", "bloqueado", "no puedo", "22", "compras"]

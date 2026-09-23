@@ -1037,6 +1037,8 @@ select.campo__control {
   .avisos,
   .asistente,
   .modal,
+  .ingreso,
+  #avisoSesion,
   .saltar-al-contenido,
   .pie__base,
   .pie__grilla > div:nth-child(3),
@@ -1190,6 +1192,116 @@ button.indicador-almacen:hover:not(:disabled) {
   background: var(--superficie); border-color: var(--borde-fuerte);
 }
 button.indicador-almacen:disabled { cursor: default; font-weight: 500; }
+
+/* Sin sesión (con la nube activada), el indicador deja de ser un indicador y
+   pasa a ser el botón principal de la cabecera. Antes era una píldora gris con
+   punto VERDE —el color de «todo bien»— justo cuando las actividades no estaban
+   llegando a ninguna parte. El estado «local» (nube desactivada a propósito)
+   conserva su aspecto tranquilo: ahí trabajar en el navegador es lo esperado. */
+button.indicador-almacen[data-estado='sin-sesion'] {
+  background: var(--marca); color: #fff; border-color: var(--marca);
+  padding: var(--e-2) var(--e-4);
+  font-size: var(--t-sm); font-weight: 650;
+  border-radius: var(--r-md);
+  box-shadow: var(--sombra-1);
+}
+button.indicador-almacen[data-estado='sin-sesion']::before { display: none; }
+button.indicador-almacen[data-estado='sin-sesion']::after { content: '→'; font-weight: 700; }
+button.indicador-almacen[data-estado='sin-sesion']:hover:not(:disabled) {
+  background: var(--marca-hover); border-color: var(--marca-hover);
+}
+button.indicador-almacen[data-estado='sin-sesion']:focus-visible {
+  outline: none; box-shadow: var(--anillo);
+}
+
+/* --- Aviso «sin sesión» sobre el formulario ------------------------------- */
+
+.aviso-sesion {
+  display: flex; gap: var(--e-4); align-items: flex-start;
+  margin-bottom: var(--e-6);
+  padding: var(--e-4) var(--e-5);
+  background: var(--alerta-suave);
+  border: 1px solid var(--alerta);
+  border-left-width: 4px;
+  border-radius: var(--r-md);
+  color: var(--ink);
+}
+.aviso-sesion__icono {
+  display: grid; place-items: center; flex-shrink: 0;
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--alerta); color: #1a1300;
+  font-weight: 800; font-size: var(--t-base);
+}
+.aviso-sesion__cuerpo { display: grid; gap: var(--e-1); min-width: 0; }
+.aviso-sesion__titulo { font-weight: 700; }
+.aviso-sesion__texto { font-size: var(--t-sm); color: var(--ink-2); }
+.aviso-sesion__acciones { margin-top: var(--e-2); }
+@media (max-width: 560px) {
+  .aviso-sesion { flex-direction: column; gap: var(--e-2); }
+  .aviso-sesion__acciones .btn { width: 100%; }
+}
+
+/* --- Pantalla de ingreso -------------------------------------------------- */
+
+/* Cubre la plataforma entera con el fondo de la página, no con un velo oscuro:
+   no es un aviso que interrumpe, es la puerta de entrada. */
+.ingreso {
+  /* Sobre la cabecera fija y los diálogos (200), bajo los avisos (300): si el
+     envío del enlace falla, el aviso tiene que verse encima de la tarjeta. */
+  position: fixed; inset: 0; z-index: 250;
+  display: grid; place-items: center;
+  padding: var(--e-5);
+  overflow-y: auto;
+  background: var(--plano);
+  animation: ingreso-entra 200ms ease-out;
+}
+@keyframes ingreso-entra { from { opacity: 0; } to { opacity: 1; } }
+/* El asistente flota por encima de casi todo; sobre la puerta de entrada solo
+   distrae de lo único que hay que hacer ahí. */
+body.con-ingreso .asistente { display: none; }
+
+.ingreso__tarjeta {
+  width: 100%; max-width: 440px;
+  padding: var(--e-8);
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sombra-3);
+}
+.ingreso__marca { display: flex; align-items: center; gap: var(--e-3); margin-bottom: var(--e-6); }
+.ingreso__logo { width: 44px; height: 44px; object-fit: contain; flex-shrink: 0; }
+.ingreso__institucion {
+  font-size: var(--t-xs); font-weight: 650; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--ink-3);
+}
+.ingreso__plataforma { font-weight: 650; }
+.ingreso__titulo { font-size: var(--t-xl); line-height: 1.2; }
+.ingreso__texto { margin-top: var(--e-2); color: var(--ink-2); font-size: var(--t-sm); }
+
+.ingreso__formulario { display: grid; gap: var(--e-2); margin-top: var(--e-6); }
+.ingreso__entrada { font-size: var(--t-base); min-height: 46px; }
+.ingreso__boton { width: 100%; margin-top: var(--e-3); }
+
+.ingreso__confirmacion {
+  display: grid; gap: var(--e-3); justify-items: start;
+  margin-top: var(--e-6); padding: var(--e-4) var(--e-5);
+  background: var(--exito-suave); border-left: 3px solid var(--exito);
+  border-radius: var(--r-md);
+  font-size: var(--t-sm);
+}
+.ingreso__confirmacion-titulo { font-weight: 700; font-size: var(--t-base); color: var(--exito-ink); }
+
+.ingreso__pie {
+  margin-top: var(--e-6); padding-top: var(--e-5);
+  border-top: 1px solid var(--linea);
+  display: grid; gap: var(--e-1); justify-items: center; text-align: center;
+}
+.ingreso__nota { font-size: var(--t-xs); color: var(--ink-3); }
+
+@media (max-width: 480px) {
+  .ingreso { padding: var(--e-3); align-items: start; }
+  .ingreso__tarjeta { padding: var(--e-5); }
+}
 
 /* --- Plan Anual de Compras (PAC) ---------------------------------------------- */
 
