@@ -12,7 +12,7 @@
   },
   {
    "titulo": "3. Descripción de la actividad",
-   "texto": "El nombre debe permitir reconocer la actividad en una planilla de cien filas. «Capacitación» no sirve; «Capacitación en manejo de alimentos a manipuladoras de JUNAEB» sí."
+   "texto": "El nombre debe permitir reconocer la actividad en una planilla de cien filas. «Capacitación» no sirve; «Capacitación en manejo de alimentos a manipuladoras de JUNAEB» sí. La descripción detallada y el medio de verificación son obligatorios: sin ellos la actividad no se puede guardar."
   },
   {
    "titulo": "4. Cronograma",
@@ -24,7 +24,7 @@
   },
   {
    "titulo": "6. Plan Anual de Compras",
-   "texto": "Solo dentro del subtítulo 22 y solo si activas el interruptor. Una actividad puede tener varias compras: cada una se imputa por separado."
+   "texto": "Si la actividad tiene presupuesto en el subtítulo 22, el Plan Anual de Compras se abre solo y es obligatorio: al menos una compra, con sus seis datos completos (clasificador, producto, cantidad, fecha de compra, fecha de ejecución y monto). Una actividad puede tener varias compras: cada una se imputa por separado."
   },
   {
    "titulo": "7. Guardar y revisar",
@@ -75,11 +75,11 @@
   },
   "descripcionActividad": {
    "titulo": "Descripción detallada",
-   "texto": "El alcance, la población objetivo y la metodología. Es lo que permite que otra persona entienda la actividad el año siguiente, cuando tú ya no estés a cargo."
+   "texto": "Obligatoria. El alcance, la población objetivo y la metodología. Es lo que permite que otra persona entienda la actividad el año siguiente, cuando tú ya no estés a cargo."
   },
   "medioVerificacion": {
    "titulo": "Medio de verificación",
-   "texto": "El documento con el que demuestras que la actividad se ejecutó. Debe existir de verdad y ser recuperable: si dices «planilla de asistencia», alguien va a pedirla."
+   "texto": "Obligatorio. El documento con el que demuestras que la actividad se ejecutó. Debe existir de verdad y ser recuperable: si dices «planilla de asistencia», alguien va a pedirla."
   },
   "cronograma": {
    "titulo": "Cronograma de ejecución",
@@ -104,6 +104,11 @@
  },
 
  "preguntas": [
+  {
+   "p": "¿Por qué no puedo apagar el Plan Anual de Compras?",
+   "r": "Porque la actividad tiene presupuesto en el subtítulo 22. Ese gasto se va en bienes y servicios, y Adquisiciones necesita saber qué se comprará y cuándo, así que el PAC es obligatorio y el interruptor queda fijo. Si el monto del 22 fue un error, bórralo: el interruptor se libera y, si todavía no habías escrito nada en la compra, el bloque se vuelve a cerrar solo.",
+   "claves": ["apagar", "desactivar", "pac", "obligatorio", "interruptor", "bloqueado", "no puedo", "22", "compras"]
+  },
   {
    "p": "¿De dónde sale el código de la actividad?",
    "r": "Lo asigna la plataforma sola al guardar, y la serie es por departamento, plan y año. Mientras escribes dice «Automático · N° 5» porque es una estimación: el número definitivo se reserva en el servidor al presionar Guardar, así que dos personas del mismo departamento guardando al mismo tiempo nunca reciben el mismo.",

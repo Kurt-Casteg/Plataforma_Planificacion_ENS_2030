@@ -13,7 +13,7 @@
 
 import { el, render, vaciar, debounce } from './dom.js';
 import { monto, numero, fecha } from './formato.js';
-import { MESES, SUBTITULOS } from './modelo.js';
+import { MESES, SUBTITULOS, exigePac } from './modelo.js';
 import { etiquetaDe } from './catalogos.js';
 import { perfil } from './perfil.js';
 import { avisar } from './ui.js';
@@ -341,7 +341,7 @@ export class Asistente {
       agregar('sugerencia', 'No has indicado el tipo de actividad. Sirve para agrupar en el panel y para saber qué medio de verificación corresponde.', { campo: 'tipoActividad' });
     }
     if (!a.descripcionActividad) {
-      agregar('sugerencia', 'Falta la descripción detallada. Es lo que permitirá entender la actividad el año siguiente, cuando ya no estés a cargo.', { campo: 'descripcionActividad' });
+      agregar('alerta', 'Falta la descripción detallada, que es obligatoria. Es lo que permitirá entender la actividad el año siguiente, cuando ya no estés a cargo.', { campo: 'descripcionActividad' });
     } else if (a.descripcionActividad.trim().length < 40) {
       agregar('sugerencia', 'La descripción es muy breve. Vale la pena decir el alcance, la población objetivo y cómo se hará.', { campo: 'descripcionActividad' });
     }
@@ -351,8 +351,8 @@ export class Asistente {
       const detalle = sugerido && catalogos?.mediosVerificacion?.find((m) => m.tipo === sugerido)?.detalle;
       agregar('alerta',
         sugerido
-          ? `Falta el medio de verificación. Para una actividad de tipo «${etiquetaDe(catalogos.tiposActividad, a.tipoActividad)}» corresponde «${sugerido}»${detalle ? `: ${detalle}` : '.'}`
-          : 'Falta el medio de verificación: el documento con el que demostrarás que la actividad se ejecutó. Debe existir de verdad y poder recuperarse después.',
+          ? `Falta el medio de verificación, que es obligatorio. Para una actividad de tipo «${etiquetaDe(catalogos.tiposActividad, a.tipoActividad)}» corresponde «${sugerido}»${detalle ? `: ${detalle}` : '.'}`
+          : 'Falta el medio de verificación, que es obligatorio: el documento con el que demostrarás que la actividad se ejecutó. Debe existir de verdad y poder recuperarse después.',
         { campo: 'medioVerificacion' });
     }
 
@@ -390,9 +390,10 @@ export class Asistente {
     }
 
     /* --- Plan Anual de Compras --- */
-    if (!a.sinPresupuesto && a.totales.presupuesto22 > 0 && !a.pac.aplica) {
-      agregar('sugerencia',
-        `El subtítulo 22 tiene ${monto(a.totales.presupuesto22)} y el Plan Anual de Compras está apagado. Si esos recursos se van en bienes o servicios, activa el interruptor y detalla las compras.`,
+    const pacObligatorio = exigePac(a);
+    if (pacObligatorio && !a.pac.aplica) {
+      agregar('alerta',
+        `El subtítulo 22 tiene ${monto(a.totales.presupuesto22)} y el Plan Anual de Compras está vacío. Con presupuesto en el 22 el PAC es obligatorio: detalla qué se comprará.`,
         { campo: 'pacAplica' });
     }
 
@@ -422,8 +423,12 @@ export class Asistente {
         if (!c.fechaCompra) sugeridos.push('la fecha de compra');
         if (!c.fechaEjecucion) sugeridos.push('la fecha de ejecución');
         if (sugeridos.length && !faltan.length) {
-          agregar('sugerencia',
-            `En ${nombre} falta ${sugeridos.join(', ')}. No bloquea el guardado, pero Adquisiciones lo va a pedir.`,
+          // Con subtítulo 22 son obligatorios y bloquean el guardado; en un PAC
+          // voluntario siguen siendo una sugerencia.
+          agregar(pacObligatorio ? 'alerta' : 'sugerencia',
+            pacObligatorio
+              ? `En ${nombre} falta ${sugeridos.join(', ')}. Con presupuesto en el subtítulo 22 los seis datos de cada compra son obligatorios.`
+              : `En ${nombre} falta ${sugeridos.join(', ')}. No bloquea el guardado, pero Adquisiciones lo va a pedir.`,
             { campo: `pac-${c.id}-${!c.cantidad ? 'cantidad' : !c.fechaCompra ? 'fechaCompra' : 'fechaEjecucion'}` });
         }
 
@@ -459,8 +464,12 @@ export class Asistente {
       });
     };
 
+    grupo(actividades.filter((a) => !a.descripcionActividad),
+      'sin descripción detallada.');
     grupo(actividades.filter((a) => !a.medioVerificacion),
       'sin medio de verificación.');
+    grupo(actividades.filter((a) => exigePac(a) && !(a.pac?.aplica && a.pac.compras.length)),
+      'con presupuesto en el subtítulo 22 y sin Plan Anual de Compras.');
     grupo(actividades.filter((a) => a.totales.cronograma === 0),
       'con el cronograma vacío.');
     grupo(actividades.filter((a) => !a.sinPresupuesto && a.totales.presupuesto === 0),

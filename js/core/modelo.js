@@ -27,6 +27,21 @@ export const SUBTITULOS = ['21', '22'];
 /** Campos de una compra que, si faltan, la dejan marcada como incompleta. */
 export const CAMPOS_PAC_SUGERIDOS = ['cantidad', 'fechaCompra', 'fechaEjecucion'];
 
+/**
+ * ¿Esta actividad está obligada a declarar su Plan Anual de Compras?
+ *
+ * Sí, cuando tiene presupuesto en el subtítulo 22: ese gasto se va en bienes y
+ * servicios, y Adquisiciones necesita saber qué se comprará y cuándo. En ese
+ * caso el PAC deja de ser opcional y los seis datos de cada compra pasan a ser
+ * obligatorios —incluidas cantidad y fechas, que en un PAC voluntario siguen
+ * siendo solo sugeridos—.
+ *
+ * Se expone como función para que el formulario, la validación, el asistente y
+ * el informe hagan la MISMA pregunta con la misma respuesta.
+ */
+export const exigePac = (actividad) =>
+  !actividad.sinPresupuesto && (actividad.totales?.presupuesto22 ?? 0) > 0;
+
 const LIMITES = {
   texto: 300,
   textoLargo: 3000,
@@ -221,6 +236,11 @@ export function validarActividad(actividad, plan) {
 
   requerido('nombreActividad', 'Indica el nombre de la actividad.');
   requerido('departamento', 'Selecciona el departamento o unidad responsable.');
+  // Obligatorios en todos los planes: sin descripción la actividad no se
+  // entiende el año siguiente, y sin medio de verificación no se puede
+  // demostrar que se ejecutó.
+  requerido('descripcionActividad', 'Describe el alcance, la población objetivo y la metodología de la actividad.');
+  requerido('medioVerificacion', 'Indica el medio de verificación: el documento que demostrará que la actividad se ejecutó.');
 
   if (actividad.correoInstitucional && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(actividad.correoInstitucional)) {
     errores.correoInstitucional = 'El correo no tiene un formato válido.';
@@ -252,15 +272,33 @@ export function validarActividad(actividad, plan) {
   }
 
   // --- Plan Anual de Compras -----------------------------------------------
+  // Con presupuesto en el subtítulo 22 el PAC es obligatorio, y en ese caso
+  // cantidad y fechas dejan de ser sugeridas. En un PAC voluntario (activado
+  // sin subtítulo 22) se mantiene la regla anterior: tres obligatorios y tres
+  // sugeridos.
+  const pacObligatorio = exigePac(actividad);
+
+  if (pacObligatorio && !actividad.pac.aplica) {
+    errores.pac = 'La actividad tiene presupuesto en el subtítulo 22: registra en el Plan Anual de Compras qué se comprará.';
+  }
+
   if (actividad.pac.aplica) {
     if (!actividad.pac.compras.length) {
-      errores.pac = 'Agrega al menos una compra o desactiva el Plan Anual de Compras.';
+      errores.pac = pacObligatorio
+        ? 'La actividad tiene presupuesto en el subtítulo 22: agrega al menos una compra.'
+        : 'Agrega al menos una compra o desactiva el Plan Anual de Compras.';
     }
     actividad.pac.compras.forEach((compra, i) => {
-      // Obligatorios: sin estos tres, la ficha no sirve para el PAC.
+      // Obligatorios siempre: sin estos tres, la ficha no sirve para el PAC.
       if (!compra.clasificador) errores[`pac.${i}.clasificador`] = 'Selecciona el clasificador presupuestario.';
       if (!compra.producto) errores[`pac.${i}.producto`] = 'Indica el producto o servicio a contratar.';
       if (compra.monto <= 0) errores[`pac.${i}.monto`] = 'Ingresa el monto estimado.';
+      // Obligatorios solo cuando el PAC lo es.
+      if (pacObligatorio) {
+        if (!compra.cantidad) errores[`pac.${i}.cantidad`] = 'Indica la cantidad.';
+        if (!compra.fechaCompra) errores[`pac.${i}.fechaCompra`] = 'Indica la fecha estimada de compra o contratación.';
+        if (!compra.fechaEjecucion) errores[`pac.${i}.fechaEjecucion`] = 'Indica la fecha estimada de ejecución.';
+      }
       // Coherencia: no se puede ejecutar antes de comprar.
       if (compra.fechaCompra && compra.fechaEjecucion && compra.fechaEjecucion < compra.fechaCompra) {
         errores[`pac.${i}.fechaEjecucion`] = 'La ejecución no puede empezar antes de la compra.';
@@ -280,7 +318,11 @@ export function revisarActividad(actividad) {
   const avisos = [];
   if (!actividad.pac.aplica) return avisos;
 
-  const incompletas = actividad.pac.compras.filter((c) => camposPendientes(c).length).length;
+  // Con el PAC obligatorio, las compras sin cantidad o fechas ya son errores de
+  // validación: avisarlas también aquí las contaría dos veces.
+  const incompletas = exigePac(actividad)
+    ? 0
+    : actividad.pac.compras.filter((c) => camposPendientes(c).length).length;
   if (incompletas) {
     avisos.push({
       tipo: 'incompleto',

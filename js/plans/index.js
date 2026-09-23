@@ -49,11 +49,11 @@ const SECCION_DETALLE = {
     { id: 'tipoActividad', tipo: 'select', etiqueta: 'Tipo de actividad', catalogo: 'tiposActividad' },
     { id: 'componentesTransversales', tipo: 'select', etiqueta: 'Componente transversal', catalogo: 'componentesTransversales' },
     {
-      id: 'descripcionActividad', tipo: 'textoLargo', etiqueta: 'Descripción detallada', ancho: 'completo',
+      id: 'descripcionActividad', tipo: 'textoLargo', etiqueta: 'Descripción detallada', ancho: 'completo', requerido: true,
       placeholder: 'Describe el alcance, la población objetivo y la metodología de la actividad…', filas: 4
     },
     {
-      id: 'medioVerificacion', tipo: 'textoLargo', etiqueta: 'Medio de verificación', ancho: 'completo', filas: 2,
+      id: 'medioVerificacion', tipo: 'textoLargo', etiqueta: 'Medio de verificación', ancho: 'completo', filas: 2, requerido: true,
       placeholder: 'Ej: Informe trimestral, acta de reunión, planilla de asistencia…',
       ayudaExtendida: 'mediosVerificacion'
     }

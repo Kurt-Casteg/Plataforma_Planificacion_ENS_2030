@@ -1209,6 +1209,28 @@ button.indicador-almacen:disabled { cursor: default; font-weight: 500; }
 .pac__cuerpo { margin-top: var(--e-4); display: grid; gap: var(--e-4); }
 .pac__lista { display: grid; gap: var(--e-4); }
 
+/* --- PAC obligatorio (actividad con presupuesto en el subtítulo 22) ------------
+   El interruptor queda fijo y se ve fijo: sin cursor de clic y con una nota que
+   dice por qué. Un control bloqueado sin explicación parece una falla. */
+.pac--obligatorio .interruptor--pac,
+.pac--obligatorio .interruptor__entrada:disabled { cursor: default; }
+.pac__obligatorio {
+  margin-top: var(--e-3);
+  padding: var(--e-2) var(--e-3);
+  border-left: 3px solid var(--serie-2);
+  border-radius: var(--r-sm);
+  background: var(--serie-2-suave);
+  color: var(--ink);
+  font-size: var(--t-sm);
+}
+/* Los seis datos de cada compra llevan el mismo asterisco rojo que el resto
+   de los campos obligatorios del formulario. */
+.pac--obligatorio .pac__campos .campo__etiqueta-texto::after {
+  content: ' *';
+  color: var(--peligro);
+  margin-left: 0.2em;
+}
+
 .pac__tarjeta {
   padding: var(--e-4) var(--e-5) var(--e-5);
   background: var(--superficie);

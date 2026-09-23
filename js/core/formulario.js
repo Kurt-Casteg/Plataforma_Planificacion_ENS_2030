@@ -550,6 +550,14 @@ export class Formulario {
     this.conciliacion = el('p', { class: 'pac__conciliacion', attrs: { hidden: true, role: 'status' } });
     this.errorPac = el('p', { class: 'campo__error', attrs: { hidden: true, role: 'alert' } });
 
+    // Explica por qué el interruptor no se puede apagar. Sin esto, un control
+    // bloqueado parece una falla.
+    this.avisoPacObligatorio = el('p', {
+      class: 'pac__obligatorio', attrs: { hidden: true, role: 'status' },
+      text: 'Obligatorio: la actividad tiene presupuesto en el subtítulo 22. '
+        + 'Registra qué se comprará, con los seis datos de cada compra.'
+    });
+
     this.cuerpoPac = el('div', { class: 'pac__cuerpo', attrs: { hidden: true } }, [
       el('div', { class: 'nota nota--info' }, [
         el('p', {}, [
@@ -585,17 +593,68 @@ export class Formulario {
       this.errorPac
     ]);
 
-    return el('div', { class: 'pac', dataset: { campo: 'pac' } }, [
+    this.bloquePac = el('div', { class: 'pac', dataset: { campo: 'pac' } }, [
       el('label', { class: 'interruptor interruptor--pac' }, [
         interruptor,
         el('span', { class: 'interruptor__control', attrs: { 'aria-hidden': 'true' } }),
         el('span', { class: 'interruptor__texto' }, [
           'Esta actividad forma parte del Plan Anual de Compras (PAC)',
-          el('span', { class: 'interruptor__ayuda', text: 'Actívalo si el gasto del subtítulo 22 implica comprar o contratar.' })
+          el('span', { class: 'interruptor__ayuda', text: 'Se activa solo cuando la actividad tiene presupuesto en el subtítulo 22.' })
         ])
       ]),
+      this.avisoPacObligatorio,
       this.cuerpoPac
     ]);
+    return this.bloquePac;
+  }
+
+  /**
+   * Con presupuesto en el subtítulo 22 el PAC es obligatorio.
+   *
+   * Se llama cada vez que cambia un monto, así que responde en el momento en
+   * que la persona escribe la primera cifra del 22: el bloque se abre solo,
+   * ofrece la primera compra, marca los seis datos como obligatorios y el
+   * interruptor queda fijo —no se puede apagar mientras haya monto—.
+   *
+   * Y al revés: si la persona borra el monto del 22 y el PAC se había abierto
+   * solo sin que alcanzara a escribir nada, se vuelve a cerrar. Sin esto, una
+   * cifra puesta por error y corregida dejaba una compra vacía que impedía
+   * guardar con errores sobre un PAC que nadie pidió.
+   */
+  #sincronizarPacObligatorio() {
+    const interruptor = this.campos.get('pacAplica');
+    if (!interruptor || !this.bloquePac) return;
+
+    const sinPresupuesto = this.campos.get('sinPresupuesto')?.checked;
+    const totalST22 = IDS_MESES.reduce((a, m) => a + aNumero(this.campos.get(`pres-22-${m}`)?.value), 0);
+    const obligatorio = !sinPresupuesto && totalST22 > 0;
+
+    this.bloquePac.classList.toggle('pac--obligatorio', obligatorio);
+    this.avisoPacObligatorio.hidden = !obligatorio;
+    interruptor.disabled = obligatorio || Boolean(sinPresupuesto);
+
+    if (obligatorio) {
+      if (!interruptor.checked) {
+        interruptor.checked = true;
+        this.pacAbiertoSolo = true;
+        this.#alternarPac();
+      }
+      if (!this.compras.size) this.#agregarCompra();
+      return;
+    }
+
+    // Dejó de ser obligatorio. Solo se deshace lo que hizo la plataforma, y
+    // solo si sigue intacto: una compra con cualquier dato escrito se respeta.
+    if (this.pacAbiertoSolo && interruptor.checked) {
+      const intactas = this.#leerCompras().every((c) =>
+        !c.clasificador && !c.producto && !c.cantidad && !c.fechaCompra && !c.fechaEjecucion && !c.monto);
+      if (intactas) {
+        this.#vaciarCompras();
+        interruptor.checked = false;
+        this.#alternarPac();
+      }
+    }
+    this.pacAbiertoSolo = false;
   }
 
   #alternarPac() {
@@ -635,7 +694,12 @@ export class Formulario {
       // franjas y los controles quedan a la misma altura aunque una etiqueta
       // ocupe dos líneas y otra solo una.
       const grupo = el('div', { class: `campo ${ancho}`, dataset: { pacCampo: `${id}.${clave}` } }, [
-        el('label', { class: 'campo__etiqueta', text: etiqueta, attrs: { for: nodo.id } }),
+        // El texto va en su propio `span`: la etiqueta es flex (para alinear
+        // abajo), y el asterisco de «obligatorio» tiene que quedar pegado a la
+        // última palabra, no flotando al borde derecho cuando el texto se parte.
+        el('label', { class: 'campo__etiqueta', attrs: { for: nodo.id } }, [
+          el('span', { class: 'campo__etiqueta-texto', text: etiqueta })
+        ]),
         nodo,
         el('div', { class: 'campo__pie' }, [
           eco,
@@ -821,6 +885,7 @@ export class Formulario {
       if (this[`totalST${st}`]) this[`totalST${st}`].textContent = monto(t);
     }
     if (this.totalPresupuesto) this.totalPresupuesto.textContent = monto(general);
+    this.#sincronizarPacObligatorio();
     this.#actualizarConciliacion();
   }
 
@@ -899,6 +964,7 @@ export class Formulario {
     const interruptorPac = this.campos.get('pacAplica');
     if (interruptorPac) {
       interruptorPac.checked = Boolean(actividad.pac?.aplica);
+      this.pacAbiertoSolo = false;
       this.#alternarPac();
       for (const compra of actividad.pac?.compras ?? []) this.#agregarCompra(compra);
     }
@@ -948,6 +1014,7 @@ export class Formulario {
     this.#vaciarCompras();
     const pacLimpio = this.campos.get('pacAplica');
     if (pacLimpio) { pacLimpio.checked = false; this.#alternarPac(); }
+    this.pacAbiertoSolo = false;
     this.editando = null;
     this.creadaEn = null;
     this.#alternarPresupuesto();

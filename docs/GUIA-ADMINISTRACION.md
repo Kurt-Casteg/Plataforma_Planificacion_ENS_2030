@@ -182,23 +182,65 @@ tocar código.
 
 ---
 
+## Campos obligatorios del formulario
+
+Un campo obligatorio lleva **asterisco rojo** y la actividad no se guarda sin él.
+En ambos planes:
+
+- Nombre de la actividad y departamento.
+- **Descripción detallada** y **medio de verificación** (desde la versión 3.6).
+- Al menos un mes con ejecución en el cronograma.
+- Presupuesto, o la marca «esta actividad no requiere presupuesto».
+- Categoría programática y programa de cada subtítulo que tenga monto.
+- El **Plan Anual de Compras**, si hay monto en el subtítulo 22 (ver abajo).
+
+Además, en el PNS el resultado inmediato de la cadena ENS, y en el PGI el
+objetivo estratégico y el objetivo operacional.
+
+Las reglas viven en `validarActividad()`, en `js/core/modelo.js`. El asistente,
+el informe consolidado y el formulario consultan esa misma función, así que un
+campo nuevo que se marque ahí como obligatorio queda exigido en los tres a la
+vez. El asterisco, en cambio, se pone en `js/plans/index.js` con
+`requerido: true`: son dos cosas distintas —mostrar y exigir— y hay que tocar
+las dos.
+
+> **Actividades guardadas antes de la versión 3.6.** Las que no tengan
+> descripción, medio de verificación o PAC (teniendo subtítulo 22) no se pierden
+> ni se modifican: se siguen viendo y exportando igual. Pero al editarlas no se
+> podrán volver a guardar hasta completar lo que falta, y el asistente y el
+> informe consolidado las señalan con nombre.
+
+---
+
 ## Sobre el Plan Anual de Compras (PAC)
 
-- El bloque aparece dentro del **Subtítulo 22** y solo si se activa el
-  interruptor. Es deliberado: el PAC solo aplica a bienes y servicios de consumo.
+- El bloque vive dentro del **Subtítulo 22**: el PAC solo aplica a bienes y
+  servicios de consumo.
+- **Con presupuesto en el subtítulo 22, el PAC es obligatorio** (desde la
+  versión 3.6). Al escribir la primera cifra en cualquier mes del 22, el bloque
+  se abre solo, ofrece la primera compra y el interruptor queda fijo, con una
+  nota que explica por qué. No se puede guardar la actividad sin al menos una
+  compra.
+- En ese caso **los seis datos de cada compra son obligatorios**: clasificador,
+  producto, cantidad, fecha de compra, fecha de ejecución y monto. Llevan el
+  asterisco rojo como el resto de los campos obligatorios.
+- Si la persona borra el monto del 22 y todavía no había escrito nada en la
+  compra que se abrió sola, el bloque se vuelve a cerrar. Si ya había escrito
+  algo, se respeta: el interruptor se libera y la compra queda como estaba.
+- Un PAC **sin** subtítulo 22 se puede seguir activando a mano. En ese caso
+  mantiene la regla anterior: clasificador, producto y monto obligatorios;
+  cantidad y fechas sugeridos, marcados «Faltan N datos» pero sin bloquear.
 - Una actividad puede tener **varias compras**. Cada una lleva su propio
   clasificador, porque en el PAC cada línea se imputa por separado.
-- **Obligatorios**: clasificador, producto y monto. Cantidad y fechas quedan
-  sugeridos: si faltan, la compra se marca «Faltan N datos» y se avisa al
-  guardar, pero no bloquea. Así se puede completar por etapas.
 - **Las dos fechas** significan cosas distintas y el formulario lo explica en un
   cuadro: la *fecha de compra o contratación* es cuándo se presenta la solicitud
   de compra; la *fecha de ejecución*, cuándo se realiza la actividad con esos
   insumos ya disponibles. La primera debe ir antes que la segunda, con el margen
   que necesite el proceso de adquisición.
 - La plataforma **compara** la suma de las compras con el total del subtítulo 22
-  y avisa si no cuadran. Es solo un aviso: durante la estimación es normal que
-  todavía no calce.
+  y avisa si no cuadran. Sigue siendo solo un aviso, aun con el PAC obligatorio:
+  durante la estimación es normal que todavía no calce, y parte del gasto del 22
+  puede no pasar por compras.
 - Las fechas se repiten **en palabras** bajo cada campo («miércoles, 15 de abril
   de 2026»). El formato del calendario nativo depende del idioma del navegador,
   y en un equipo en inglés `04/09` se lee como 4 de septiembre en vez de 9 de
@@ -650,8 +692,9 @@ formulario y del asistente. Distingue tres estados:
 
 - **Completa** — no le falta nada.
 - **Faltan datos recomendados** — no impide entregar, pero conviene completar:
-  código, responsable, correo, tipo de actividad, componente transversal,
-  descripción, medio de verificación; o alguna observación del PAC.
+  código, responsable, correo, tipo de actividad, componente transversal; o
+  alguna observación del PAC. (Descripción y medio de verificación estaban
+  aquí hasta la versión 3.5; ahora son obligatorios.)
 - **Faltan datos obligatorios** — hay que corregirla: es lo mismo que el
   formulario rechazaría al guardar.
 
