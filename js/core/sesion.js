@@ -162,7 +162,7 @@ function mostrarAvisoSesion({ nube, sinConexion = false }) {
     ]
     : [
       el('p', { class: 'aviso-sesion__titulo', text: 'No has iniciado sesión' }),
-      el('p', { class: 'aviso-sesion__texto', text: 'Lo que registres se guardará solo en este navegador y no llegará a Control de Gestión.' }),
+      el('p', { class: 'aviso-sesion__texto', text: 'Lo que registres se guardará solo en este navegador y no se guardará en la plataforma.' }),
       el('div', { class: 'aviso-sesion__acciones' }, [
         el('button', {
           class: 'btn btn--primario', attrs: { type: 'button' },
@@ -271,7 +271,7 @@ function mostrarPantallaIngreso(nube) {
       ])
     ]),
     el('h1', { class: 'ingreso__titulo', id: idTitulo, text: 'Ingresa con tu correo institucional' }),
-    el('p', { class: 'ingreso__texto', text: 'Así tus actividades quedan registradas a tu nombre y llegan a Control de Gestión.' }),
+    el('p', { class: 'ingreso__texto', text: 'Así tus actividades quedan registradas a tu nombre y en la plataforma.' }),
     formulario,
     confirmacion,
     el('div', { class: 'ingreso__pie' }, [
