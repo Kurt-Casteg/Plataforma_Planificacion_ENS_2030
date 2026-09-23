@@ -52,7 +52,7 @@ export async function iniciarSesionEnLaNube({ indicador, catalogos }) {
     // Estado propio, distinto de «local»: «local» es el modo sin nube, que es
     // deliberado y se ve tranquilo. Esto es otra cosa —la nube existe y la
     // persona no ha entrado— y tiene que verse como una acción pendiente.
-    marcar('sin-sesion', 'Iniciar sesión', 'Entra con tu correo institucional para que tus actividades lleguen a Control de Gestión.');
+    marcar('sin-sesion', 'Iniciar sesión', 'Entra con tu correo institucional para poder guardar tus actividades.');
     mostrarAvisoSesion({ nube });
     if (!ingresoOmitido()) mostrarPantallaIngreso(nube);
     return null;
@@ -157,20 +157,20 @@ function mostrarAvisoSesion({ nube, sinConexion = false }) {
 
   const contenido = sinConexion
     ? [
-        el('p', { class: 'aviso-sesion__titulo', text: 'Sin conexión con el servidor institucional' }),
-        el('p', { class: 'aviso-sesion__texto', text: 'Puedes seguir trabajando, pero lo que registres ahora se guardará solo en este navegador y no llegará a Control de Gestión. Vuelve a cargar la página más tarde para iniciar sesión.' })
-      ]
+      el('p', { class: 'aviso-sesion__titulo', text: 'Sin conexión con el servidor institucional' }),
+      el('p', { class: 'aviso-sesion__texto', text: 'Puedes seguir trabajando, pero lo que registres ahora se guardará solo en este navegador y no llegará a Control de Gestión. Vuelve a cargar la página más tarde para iniciar sesión.' })
+    ]
     : [
-        el('p', { class: 'aviso-sesion__titulo', text: 'No has iniciado sesión' }),
-        el('p', { class: 'aviso-sesion__texto', text: 'Lo que registres se guardará solo en este navegador y no llegará a Control de Gestión.' }),
-        el('div', { class: 'aviso-sesion__acciones' }, [
-          el('button', {
-            class: 'btn btn--primario', attrs: { type: 'button' },
-            text: 'Iniciar sesión con mi correo',
-            on: { click: () => pedirAcceso(nube) }
-          })
-        ])
-      ];
+      el('p', { class: 'aviso-sesion__titulo', text: 'No has iniciado sesión' }),
+      el('p', { class: 'aviso-sesion__texto', text: 'Lo que registres se guardará solo en este navegador y no llegará a Control de Gestión.' }),
+      el('div', { class: 'aviso-sesion__acciones' }, [
+        el('button', {
+          class: 'btn btn--primario', attrs: { type: 'button' },
+          text: 'Iniciar sesión con mi correo',
+          on: { click: () => pedirAcceso(nube) }
+        })
+      ])
+    ];
 
   render(caja, el('div', {
     class: `aviso-sesion${sinConexion ? ' aviso-sesion--sin-conexion' : ''}`,
@@ -353,9 +353,9 @@ function mostrarPantallaIngreso(nube) {
 function panelDeSesion(nube, catalogos) {
   const dato = (etiqueta, valor) => valor
     ? el('div', { class: 'detalle__dato' }, [
-        el('dt', { text: etiqueta }),
-        el('dd', { text: String(valor) })
-      ])
+      el('dt', { text: etiqueta }),
+      el('dd', { text: String(valor) })
+    ])
     : null;
 
   const departamento = catalogos
