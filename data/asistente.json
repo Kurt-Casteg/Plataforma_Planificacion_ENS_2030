@@ -105,6 +105,11 @@
 
  "preguntas": [
   {
+   "p": "¿Qué es una «compra crítica para el SGC»?",
+   "r": "Es la marca que identifica las adquisiciones críticas para el Sistema de Gestión de Calidad. Se marca en cada compra del Plan Anual de Compras, con la casilla al final de la tarjeta. No es obligatoria: si no la marcas, la compra queda como no crítica. Sirve para priorizar esas adquisiciones y hacerles seguimiento: aparecen identificadas en la hoja PAC del Excel y en el informe consolidado. Si tienes dudas sobre si una compra lo es, consulta al Departamento de Control de Gestión y Calidad Institucional.",
+   "claves": ["sgc", "calidad", "sistema de gestion", "sistema de gestión", "critica", "crítica", "prioridad", "priorizar", "compra", "pac"]
+  },
+  {
    "p": "¿Tengo que iniciar sesión para registrar actividades?",
    "r": "Para que tus actividades lleguen a Control de Gestión, sí. Sin sesión la plataforma funciona, pero lo que registres queda guardado solo en ese navegador: nadie más lo ve y no se consolida. Para entrar, pulsa «Iniciar sesión» arriba a la derecha, escribe tu correo institucional y abre el enlace que te llega, desde el mismo equipo. No hay contraseñas.",
    "claves": ["sesion", "sesión", "iniciar", "entrar", "ingresar", "login", "correo", "enlace", "contraseña", "no llega", "consolidar"]

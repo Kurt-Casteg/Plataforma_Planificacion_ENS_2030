@@ -344,7 +344,8 @@ export class TablaActividades {
                 c.cantidad ? el('span', { class: 'chip', text: `Cantidad: ${numero(c.cantidad)}` }) : null,
                 c.fechaCompra ? el('span', { class: 'chip', text: `Compra: ${fecha(c.fechaCompra)}` }) : null,
                 c.fechaEjecucion ? el('span', { class: 'chip', text: `Ejecuta: ${fecha(c.fechaEjecucion)}` }) : null,
-                el('span', { class: 'chip', text: monto(c.monto) })
+                el('span', { class: 'chip', text: monto(c.monto) }),
+                c.criticaSGC ? el('span', { class: 'chip chip--sgc', text: 'Crítica para el SGC' }) : null
               ].filter(Boolean))
             ].filter(Boolean));
           })

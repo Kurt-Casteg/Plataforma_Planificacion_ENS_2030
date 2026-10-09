@@ -255,8 +255,38 @@ las dos.
   una, los recuadros quedan a la misma altura. Si alargas el texto de una
   etiqueta no hay que ajustar nada.
 
+- **Compra crítica para el SGC** (desde la versión 3.8). Cada compra trae al
+  final una casilla «Compra crítica para el Sistema de Gestión de Calidad
+  (SGC)». No es obligatoria: desmarcada significa «no crítica», y las compras
+  registradas antes de esta versión quedan así hasta que alguien las marque.
+  Una compra marcada muestra el distintivo «Crítica SGC» en su cabecera, y el
+  detalle («Ver») lo indica en cada compra.
+
 En la exportación a Excel, el PAC ocupa **su propia hoja**, con una fila por
-compra y el código, ítem y asignación del clasificador. El Plan Anual de Compras
+compra y el código, ítem y asignación del clasificador. Desde la versión 3.8
+trae además dos columnas pensadas para el seguimiento:
+
+- **Programa (subtítulo 22)**, junto al clasificador. No se pide en cada
+  compra: el PAC vive dentro del subtítulo 22 de la actividad, así que la compra
+  se carga al programa que esa actividad eligió para su subtítulo 22. Si una
+  actividad activó el PAC sin tener monto en el 22, la celda queda vacía.
+- **Crítica para el SGC**, con «Sí» o «No», después del monto.
+
+La hoja tiene autofiltro, así que basta un clic para ver solo las compras
+críticas o solo las de un programa.
+
+En el **informe consolidado**, la portada suma cuántas compras son críticas y
+por qué monto. La hoja «Conciliación PAC» agrega dos bloques: compras por
+programa (con cuántas son críticas en cada uno) y la lista de compras críticas
+ordenada por fecha estimada de compra, que es el orden en que hay que
+gestionarlas. La vista imprimible trae lo mismo, y el anexo marca cada compra
+crítica.
+
+> Cuatro programas del catálogo se repiten con el mismo nombre en dos
+> categorías (por ejemplo, «Continuidad / Marea Roja»). En la columna
+> «Programa» se ven iguales aunque correspondan a categorías distintas. Si eso
+> llegara a importar para el análisis, se puede agregar la categoría
+> programática como otra columna. El Plan Anual de Compras
 es una entrega distinta del plan de actividades, así que queda lista para enviar
 a Adquisiciones sin recortar nada.
 

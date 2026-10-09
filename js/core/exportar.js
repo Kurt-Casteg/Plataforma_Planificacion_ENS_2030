@@ -9,7 +9,7 @@
  * al exportar, para evitar la inyección de fórmulas en Excel (CSV injection).
  */
 
-import { MESES, IDS_MESES, SUBTITULOS, normalizarActividad } from './modelo.js';
+import { MESES, IDS_MESES, SUBTITULOS, normalizarActividad, textoSGC } from './modelo.js';
 import { nombreArchivo } from './formato.js';
 import { etiquetaDe, buscarAsignacion } from './catalogos.js';
 
@@ -156,14 +156,22 @@ export function construirFilas(actividades, { plan, catalogos, ens }) {
  * El PAC es una entrega distinta del plan de actividades —va a Adquisiciones—
  * así que se arma como su propia tabla, con la actividad de origen como
  * referencia para poder rastrearla.
+ *
+ * Dos columnas pensadas para el seguimiento (versión 3.8):
+ *  - «Programa (subtítulo 22)»: el programa al que se carga la compra. No se
+ *    pide por compra: el PAC vive dentro del subtítulo 22 de la actividad, así
+ *    que es el programa que esa actividad eligió para su subtítulo 22. Va junto
+ *    al clasificador porque las dos responden lo mismo: con cargo a qué.
+ *  - «Crítica para el SGC»: Sí / No, para filtrar y priorizar.
  */
 export function construirFilasPac(actividades, { catalogos, clasificador, plan }) {
   const encabezados = [
     'Código actividad', 'Actividad', 'Departamento', 'Responsable',
     'Código clasificador', 'Ítem', 'Nombre del ítem', 'Asignación',
+    'Programa (subtítulo 22)',
     'Producto o servicio a contratar', 'Cantidad',
     'Fecha estimada de compra', 'Fecha estimada de ejecución',
-    'Monto estimado (M$)', 'Estado de la ficha'
+    'Monto estimado (M$)', 'Crítica para el SGC', 'Estado de la ficha'
   ];
 
   const filas = [];
@@ -181,11 +189,13 @@ export function construirFilasPac(actividades, { catalogos, clasificador, plan }
         seguro(ref?.item.codigo ?? ''),
         seguro(ref?.item.nombre ?? ''),
         seguro(ref?.asignacion.nombre ?? ''),
+        seguro(a.presupuesto?.['22']?.programa ?? ''),
         seguro(c.producto),
         c.cantidad || '',
         c.fechaCompra || '',
         c.fechaEjecucion || '',
         c.monto,
+        textoSGC(c),
         faltan.length ? `Incompleta (faltan ${faltan.length} datos)` : 'Completa'
       ]);
     }
@@ -218,8 +228,9 @@ export async function exportarExcel(actividades, ctx) {
     hojaPac['!cols'] = [
       { wch: 10 }, { wch: 40 }, { wch: 30 }, { wch: 22 },
       { wch: 14 }, { wch: 8 }, { wch: 32 }, { wch: 40 },
+      { wch: 34 },
       { wch: 40 }, { wch: 10 },
-      { wch: 18 }, { wch: 20 }, { wch: 16 }, { wch: 26 }
+      { wch: 18 }, { wch: 20 }, { wch: 16 }, { wch: 12 }, { wch: 26 }
     ];
     hojaPac['!freeze'] = { xSplit: 0, ySplit: 1 };
     hojaPac['!autofilter'] = {

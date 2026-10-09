@@ -647,7 +647,7 @@ export class Formulario {
     // solo si sigue intacto: una compra con cualquier dato escrito se respeta.
     if (this.pacAbiertoSolo && interruptor.checked) {
       const intactas = this.#leerCompras().every((c) =>
-        !c.clasificador && !c.producto && !c.cantidad && !c.fechaCompra && !c.fechaEjecucion && !c.monto);
+        !c.clasificador && !c.producto && !c.cantidad && !c.fechaCompra && !c.fechaEjecucion && !c.monto && !c.criticaSGC);
       if (intactas) {
         this.#vaciarCompras();
         interruptor.checked = false;
@@ -725,11 +725,30 @@ export class Formulario {
 
     const indice = el('span', { class: 'pac__indice' });
     const estado = el('span', { class: 'pac__estado', attrs: { hidden: true } });
+    // Distintivo en la cabecera de la tarjeta: con varias compras abiertas, se
+    // ve de un vistazo cuáles son críticas sin tener que bajar a la casilla.
+    const distintivoSGC = el('span', { class: 'pac__sgc', text: 'Crítica SGC', attrs: { hidden: true } });
+
+    // La marca de criticidad para el Sistema de Gestión de Calidad. No es
+    // obligatoria —es una casilla, «no» es una respuesta válida— y por eso va
+    // fuera de la grilla de datos de la compra, que tiene sus propias reglas de
+    // alineación.
+    const casillaSGC = el('input', {
+      class: 'pac__sgc-casilla', id: `pac-${id}-criticaSGC`, name: `pac-${id}-criticaSGC`,
+      attrs: { type: 'checkbox', 'aria-describedby': `pac-${id}-criticaSGC-ayuda` }
+    });
+    casillaSGC.checked = datos.criticaSGC === true;
+    distintivoSGC.hidden = !casillaSGC.checked;
+    casillaSGC.addEventListener('change', () => {
+      distintivoSGC.hidden = !casillaSGC.checked;
+      this.#alCambiarCompra(id, 'criticaSGC');
+    });
 
     const tarjeta = el('article', { class: 'pac__tarjeta', dataset: { compra: id } }, [
       el('header', { class: 'pac__cabecera' }, [
         indice,
         estado,
+        distintivoSGC,
         el('button', {
           class: 'btn btn--icono btn--peligro-texto',
           attrs: { type: 'button', title: 'Quitar esta compra', 'aria-label': 'Quitar esta compra' },
@@ -749,6 +768,16 @@ export class Formulario {
         control('monto', 'Monto estimado',
           entrada('monto', 'text', { inputmode: 'decimal', placeholder: '0' }),
           { ayuda: 'En miles de pesos (M$).' })
+      ]),
+      el('div', { class: 'pac__sgc-fila' }, [
+        el('label', { class: 'pac__sgc-etiqueta', attrs: { for: casillaSGC.id } }, [
+          casillaSGC,
+          el('span', { text: 'Compra crítica para el Sistema de Gestión de Calidad (SGC)' })
+        ]),
+        el('p', {
+          class: 'campo__ayuda', id: `pac-${id}-criticaSGC-ayuda`,
+          text: 'Márcala si esta adquisición es crítica para el SGC. Se usa para priorizarla y hacerle seguimiento en los reportes.'
+        })
       ])
     ]);
 
@@ -760,7 +789,7 @@ export class Formulario {
       if (nodo.type === 'date') nodo.dispatchEvent(new Event('change'));
     }
 
-    this.compras.set(id, { nodo: tarjeta, campos, indice, estado });
+    this.compras.set(id, { nodo: tarjeta, campos, indice, estado, casillaSGC });
     this.listaCompras.append(tarjeta);
     this.#renumerarCompras();
     this.#actualizarConciliacion();
@@ -806,7 +835,8 @@ export class Formulario {
       cantidad: ref.campos.cantidad.value,
       fechaCompra: ref.campos.fechaCompra.value,
       fechaEjecucion: ref.campos.fechaEjecucion.value,
-      monto: ref.campos.monto.value
+      monto: ref.campos.monto.value,
+      criticaSGC: ref.casillaSGC.checked
     }));
   }
 

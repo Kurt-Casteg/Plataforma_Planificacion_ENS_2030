@@ -125,9 +125,17 @@ function normalizarCompra(entrada = {}) {
     cantidad: aNumero(entrada.cantidad, 1000000),
     fechaCompra: fechaISO(entrada.fechaCompra),
     fechaEjecucion: fechaISO(entrada.fechaEjecucion),
-    monto: aNumero(entrada.monto, LIMITES.mesMonto)
+    monto: aNumero(entrada.monto, LIMITES.mesMonto),
+    // ¿Compra crítica para el Sistema de Gestión de Calidad? Sirve para
+    // priorizar y seguir las adquisiciones en los reportes. Por omisión, no:
+    // las compras guardadas antes de que existiera esta marca quedan como no
+    // críticas hasta que alguien las marque.
+    criticaSGC: entrada.criticaSGC === true || entrada.criticaSGC === 'true'
   };
 }
+
+/** «Sí» / «No» para las planillas: un booleano crudo se lee mal en Excel. */
+export const textoSGC = (compra) => (compra?.criticaSGC ? 'Sí' : 'No');
 
 /** Una compra está incompleta si le faltan datos sugeridos pero no obligatorios. */
 export function camposPendientes(compra) {

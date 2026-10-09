@@ -224,11 +224,42 @@ function planAnualCompras(informe) {
   const descuadres = p.conciliacion.filter((c) => !c.cuadra);
 
   return bloque('Plan Anual de Compras',
-    el('div', { class: 'inf-kpis inf-kpis--tres' }, [
+    el('div', { class: 'inf-kpis' }, [
       fichaKpi('Compras registradas', numero(p.totales.compras), `en ${numero(p.totales.actividades)} actividades`),
       fichaKpi('Monto estimado', monto(p.totales.monto), 'suma de todas las compras'),
+      fichaKpi('Críticas para el SGC', numero(p.totales.criticasSGC), monto(p.totales.montoSGC)),
       fichaKpi('Compras incompletas', numero(p.totales.incompletas), 'sin cantidad o sin fechas')
     ]),
+
+    // Las críticas van primero: es la lista que se usa para priorizar.
+    el('h3', { class: 'inf-sub', text: 'Compras críticas para el Sistema de Gestión de Calidad' }),
+    p.totales.criticasSGC
+      ? [
+          nota('Ordenadas por fecha estimada de compra, que es el orden en que hay que gestionarlas.'),
+          tabla(
+            ['Fecha de compra', 'Producto o servicio', 'Actividad', 'Departamento', 'Programa', 'Monto'],
+            p.criticas.map((c) => [
+              c.compra.fechaCompra ? fecha(c.compra.fechaCompra) : 'Sin fecha',
+              c.compra.producto || '—',
+              [c.actividad.codigoActividad, c.actividad.nombreActividad].filter(Boolean).join(' · '),
+              c.departamento,
+              c.programa || '—',
+              monto(c.compra.monto)
+            ]),
+            { numericas: new Set([5]), compacta: true, pie: ['Total', '', '', '', '', monto(p.totales.montoSGC)] }
+          )
+        ]
+      : nota('No hay compras marcadas como críticas para el SGC.'),
+
+    el('h3', { class: 'inf-sub', text: 'Compras por programa (subtítulo 22)' }),
+    tabla(
+      ['Programa', 'Compras', 'Críticas SGC', 'Monto'],
+      p.porPrograma.map((x) => [x.nombre, numero(x.compras), numero(x.criticas), monto(x.monto)]),
+      {
+        numericas: new Set([1, 2, 3]),
+        pie: ['Total', numero(p.totales.compras), numero(p.totales.criticasSGC), monto(p.totales.monto)]
+      }
+    ),
 
     el('h3', { class: 'inf-sub', text: 'Compras por ítem del clasificador presupuestario' }),
     barras(p.porItem.map((i) => ({ nombre: i.nombre, valor: i.monto })), { formato: monto, tono: 'presupuesto' }),
@@ -384,7 +415,8 @@ function detalleActividad({ actividad: a, plan, estado }, informe) {
             c.cantidad ? chip(`Cantidad: ${numero(c.cantidad)}`) : null,
             c.fechaCompra ? chip(`Compra: ${fecha(c.fechaCompra)}`) : null,
             c.fechaEjecucion ? chip(`Ejecuta: ${fecha(c.fechaEjecucion)}`) : null,
-            chip(monto(c.monto))
+            chip(monto(c.monto)),
+            c.criticaSGC ? chip('Crítica SGC', 'sgc') : null
           ].filter(Boolean))
         ].filter(Boolean));
       })

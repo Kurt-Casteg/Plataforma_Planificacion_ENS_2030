@@ -521,6 +521,7 @@ select.campo__control {
   background: var(--superficie-3); color: var(--ink-2);
   font-size: var(--t-xs); font-variant-numeric: tabular-nums;
 }
+.chip--sgc { background: var(--marca-suave); color: var(--marca-ink); font-weight: 650; }
 
 /* --- Selector de perfil activo ---------------------------------------------- */
 
@@ -1368,6 +1369,28 @@ body.con-ingreso .asistente { display: none; }
 }
 .pac__cabecera .btn { margin-left: auto; }
 
+/* --- Compra crítica para el SGC --------------------------------------------
+   Una casilla nativa, no un interruptor: es un dato de la compra («sí / no»),
+   no un modo que encienda o apague una sección. */
+.pac__sgc-fila {
+  margin-top: var(--e-4); padding-top: var(--e-4);
+  border-top: 1px dashed var(--linea);
+  display: grid; gap: var(--e-1);
+}
+.pac__sgc-etiqueta {
+  display: inline-flex; align-items: center; gap: var(--e-2);
+  font-size: var(--t-sm); font-weight: 600; cursor: pointer;
+  justify-self: start;
+}
+.pac__sgc-casilla { width: 18px; height: 18px; margin: 0; accent-color: var(--marca); cursor: pointer; flex-shrink: 0; }
+.pac__sgc-fila .campo__ayuda { padding-left: calc(18px + var(--e-2)); }
+.pac__sgc {
+  padding: 2px 9px; border-radius: var(--r-full);
+  background: var(--marca-suave); color: var(--marca-ink);
+  border: 1px solid var(--marca-borde);
+  font-size: var(--t-xs); font-weight: 650;
+}
+
 /* Los cuatro campos cortos (cantidad, las dos fechas y el monto) forman una
    fila. El número de columnas se decide por el ancho de la tarjeta, no por el
    de la ventana, y se pasa de 4 a 2 y de 2 a 1: con `auto-fit` caía a veces en
@@ -1616,6 +1639,7 @@ body.con-ingreso .asistente { display: none; }
 .inf-chip[data-tono='parcial'] { background: var(--alerta-suave); color: var(--alerta-ink); }
 .inf-chip[data-tono='incompleta'] { background: var(--peligro-suave); color: var(--peligro-ink); }
 .inf-chip[data-tono='completa'] { background: var(--exito-suave); color: var(--exito-ink); }
+.inf-chip[data-tono='sgc'] { background: var(--marca-suave); color: var(--marca-ink); border: 1px solid var(--marca-borde); }
 
 /* --- Impresión del informe ------------------------------------------- */
 
