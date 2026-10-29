@@ -11,6 +11,7 @@
  */
 
 import { CONFIG } from '../../config.js';
+import { periodo } from './periodo.js';
 import { normalizarActividad } from './modelo.js';
 
 const CDN = 'https://esm.sh/@supabase/supabase-js@2';
@@ -86,7 +87,7 @@ const aFila = (a, usuarioId) => ({
   id: a.id,
   plan: a.plan,
   departamento: a.departamento || null,
-  anio: CONFIG.anio,
+  anio: periodo.anio,
   propietario: usuarioId,
   datos: a,
   creada_en: a.creadaEn,
@@ -231,7 +232,7 @@ export const nube = {
     const { data, error } = await sb
       .from('actividades')
       .select('id, plan, datos, creada_en, actualizada_en')
-      .eq('anio', CONFIG.anio);
+      .eq('anio', periodo.anio);
     if (error) throw new Error(error.message);
     return (data || []).map(desdeFila);
   },

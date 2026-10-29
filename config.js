@@ -11,11 +11,21 @@ export const CONFIG = {
   anio: 2027,
 
   /**
+   * Otros períodos que Control de Gestión puede abrir con el selector
+   * «Período» de la cabecera, además del vigente (`anio`). Sirve para revisar
+   * un ciclo anterior o para hacer pruebas sin mezclarlas con el vigente.
+   *
+   * Los equipos no ven el selector: trabajan siempre en `anio`.
+   * Para quitar el selector, deja la lista vacía: `otrosPeriodos: []`.
+   */
+  otrosPeriodos: [2026],
+
+  /**
    * Versión de la plataforma. Aparece en el pie de página y sirve para
    * comprobar de un vistazo si el navegador está mostrando la última versión
    * publicada o una copia guardada en caché. Súbela con cada despliegue.
    */
-  version: '3.9.0',
+  version: '3.10.0',
 
   /**
    * Sincronización con la nube (Supabase).

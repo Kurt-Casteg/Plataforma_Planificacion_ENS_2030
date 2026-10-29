@@ -13,8 +13,19 @@
 import { CONFIG } from '../../config.js';
 import { normalizarActividad, nuevoId } from './modelo.js';
 import { perfil } from './perfil.js';
+import { periodo } from './periodo.js';
 
-const CLAVE = 'seremi.planificacion.v2';
+/**
+ * Copia del navegador del período con que trabaja la pestaña.
+ *
+ * El vigente usa la clave de siempre. Un período elegido con el selector de
+ * Control de Gestión (ver periodo.js) tiene su propia clave,
+ * `seremi.planificacion.v2.periodo.2026`, para que abrir un año de prueba
+ * jamás toque ni archive la copia del ciclo real.
+ */
+const CLAVE = periodo.esVigente
+  ? 'seremi.planificacion.v2'
+  : `seremi.planificacion.v2.periodo.${periodo.anio}`;
 
 /**
  * Prefijo de los archivos de ciclos anteriores: `seremi.planificacion.archivo.2026`.
@@ -59,7 +70,7 @@ const almacenLocal = {
    *  - `sincronizadas`: ids que este navegador sabe que existen en la nube.
    */
   leer() {
-    const vacio = { actividades: [], anio: CONFIG.anio, sincronizadas: [] };
+    const vacio = { actividades: [], anio: periodo.anio, sincronizadas: [] };
     try {
       const crudo = localStorage.getItem(CLAVE);
       if (!crudo) return vacio;
@@ -86,7 +97,7 @@ const almacenLocal = {
       return vacio;
     }
   },
-  escribir(actividades, { anio = CONFIG.anio, sincronizadas = [] } = {}) {
+  escribir(actividades, { anio = periodo.anio, sincronizadas = [] } = {}) {
     const carga = JSON.stringify({
       version: 2, actualizado: new Date().toISOString(), anio, sincronizadas, actividades
     });
@@ -168,8 +179,10 @@ class Almacen extends EventTarget {
    * año y carga lo que exista.
    */
   async iniciar() {
-    const { migradas } = migrarSiCorresponde();
-    const archivadas = this.#archivarCicloAnterior();
+    // La migración y el cambio de ciclo son asuntos del período vigente: en un
+    // período elegido a mano no hay nada que migrar ni que archivar.
+    const { migradas } = periodo.esVigente ? migrarSiCorresponde() : { migradas: 0 };
+    const archivadas = periodo.esVigente ? this.#archivarCicloAnterior() : null;
     const { actividades, sincronizadas } = almacenLocal.leer();
     this.#actividades = actividades;
     this.#sincronizadas = new Set(sincronizadas);
@@ -437,7 +450,7 @@ class Almacen extends EventTarget {
 
   #persistir() {
     const r = almacenLocal.escribir(this.#actividades, {
-      anio: CONFIG.anio,
+      anio: periodo.anio,
       sincronizadas: (() => {
         const presentes = new Set(this.#actividades.map((a) => a.id));
         return [...this.#sincronizadas].filter((id) => presentes.has(id));

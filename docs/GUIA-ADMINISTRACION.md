@@ -46,6 +46,9 @@ Lo que **no** cambia solo, y hay que revisar cada año:
   cadena de resultados ENS del año siguiente».
 - El enlace `lineamientos` en `config.js` y el texto «Lineamientos Temáticos
   ENS 2026» en `js/plans/index.js`.
+- `otrosPeriodos` en `config.js`: los años que Control de Gestión puede seguir
+  abriendo con el selector «Período» (ver la sección siguiente). Lo habitual es
+  dejar ahí el año que termina.
 
 > **Si alguna vez hiciera falta borrar de verdad un año en la nube**, se hace
 > desde el SQL Editor de Supabase, siempre después de respaldar:
@@ -61,6 +64,45 @@ Lo que **no** cambia solo, y hay que revisar cada año:
 > ```
 >
 > Para empezar un ciclo nuevo no es necesario: basta cambiar el año.
+
+---
+
+## Trabajar en otro período (selector «Período», solo Control de Gestión)
+
+Desde la versión 3.10, quien está con el perfil **Control de Gestión** ve en la
+cabecera un selector **«Período 2027 (vigente)»** junto al de perfil. Sirve para
+abrir un año que no es el vigente —revisar el ciclo anterior o seguir haciendo
+pruebas en 2026— sin que nada se mezcle con el ciclo real.
+
+Al elegir otro año, la plataforma se recarga y **todo** pasa a ese período:
+listado, formulario, numeración correlativa, panel, exportaciones, informe e
+impresión. Arriba aparece una franja azul fija: «Estás en el período 2026, no
+en el vigente (2027)», con un botón **Volver al 2027**.
+
+Reglas que conviene tener presentes:
+
+- **Vale solo para esa pestaña.** Al cerrarla, o al abrir la plataforma en otra,
+  vuelve al vigente. Nadie queda trabajando en otro año por olvido.
+- **Los equipos nunca lo ven.** Trabajan siempre en el año de `anio`. Si en esa
+  pestaña se cambia a un perfil que no es Control de Gestión, o se cierra
+  sesión, la plataforma vuelve sola al vigente.
+- **No se mezcla nada.** Lo que se registra en 2026 queda guardado con año
+  2026, con la numeración del 2026, y no aparece en 2027. El navegador guarda
+  una copia separada por período.
+- **Cuidado con lo que se edita.** Es el mismo servidor de siempre: si se abre
+  2026, lo que se edite o elimine ahí cambia los datos reales de 2026. Para
+  pruebas desechables, conviene registrar actividades nuevas con un nombre que
+  las delate («PRUEBA …») y borrarlas al terminar.
+
+Qué años aparecen en el selector se decide en `config.js`:
+
+```js
+otrosPeriodos: [2026],
+```
+
+Para agregar otro, súmalo a la lista (`[2025, 2026]`). Para quitar el selector
+por completo, déjala vacía: `otrosPeriodos: []`. El vigente siempre está y no
+hace falta repetirlo.
 
 ---
 

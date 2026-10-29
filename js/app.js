@@ -18,6 +18,7 @@ import { avisar, confirmar, abrirModal, aplicarTema, alternarTema, temaActual, m
 import { exportarExcel, exportarCSV, exportarJSON, exportarArchivoCiclo, leerRespaldo } from './core/exportar.js';
 import { numero, fechaHora } from './core/formato.js';
 import { perfil, nombrePerfil, PERFILES } from './core/perfil.js';
+import { periodo } from './core/periodo.js';
 import { siguienteCodigo, previsualizarCodigo } from './core/codigos.js';
 import { Asistente, cargarContenidoAsistente } from './core/asistente.js';
 
@@ -79,7 +80,9 @@ alCargar(async () => {
   // Iniciar sesión, cerrarla o cambiar de perfil altera qué se puede hacer:
   // el selector y los bloqueos se rehacen desde un solo lugar.
   perfil.addEventListener('cambio', () => {
+    if (verificarPeriodo()) return;
     sincronizarSelectorPerfil();
+    sincronizarSelectorPeriodo();
     aplicarPermisos();
     dibujarAccionesListado();
     estado.asistente?.actualizar();
@@ -97,7 +100,12 @@ alCargar(async () => {
         indicador: $('#indicadorAlmacen'),
         catalogos: estado.catalogos
       }))
-      .then(() => refrescar())
+      .then(() => {
+        // Sin sesión (o sin conexión) no hay perfil de Control de Gestión que
+        // justifique seguir en un período que no es el vigente.
+        if (verificarPeriodo()) return;
+        refrescar();
+      })
       .catch((e) => console.error('Sincronización no disponible:', e));
   }
 
@@ -105,7 +113,7 @@ alCargar(async () => {
   // Se avisa una sola vez, el día en que ocurre; después queda en «Más».
   if (archivadas) {
     avisar(
-      `Comenzó el ciclo de planificación ${CONFIG.anio}. Las ${numero(archivadas.total)} actividades del ` +
+      `Comenzó el ciclo de planificación ${periodo.anio}. Las ${numero(archivadas.total)} actividades del ` +
       `${archivadas.anio} que había en este navegador se archivaron; puedes descargarlas desde «Más».`,
       'info', { duracion: 12000 }
     );
@@ -150,6 +158,26 @@ async function asegurarENS() {
 
 function construirCascaron() {
   const cabecera = el('header', { class: 'cabecera' }, [
+    // Franja de período: solo existe fuera del período vigente. Va dentro de la
+    // cabecera fija para que no desaparezca al bajar por el formulario.
+    !periodo.esVigente && el('div', {
+      class: 'franja-periodo', id: 'franjaPeriodo', attrs: { role: 'status' }
+    }, [
+      el('div', { class: 'envoltura franja-periodo__fila' }, [
+        el('p', { class: 'franja-periodo__texto' }, [
+          el('strong', { text: `Estás en el período ${periodo.anio}, no en el vigente (${periodo.vigente}).` }),
+          el('span', {
+            class: 'franja-periodo__detalle',
+            text: ` Lo que registres, edites o elimines queda en ${periodo.anio} y no se mezcla con ${periodo.vigente}.`
+          })
+        ]),
+        el('button', {
+          class: 'btn btn--secundario franja-periodo__boton', text: `Volver al ${periodo.vigente}`,
+          attrs: { type: 'button' },
+          on: { click: () => periodo.cambiar(periodo.vigente) }
+        })
+      ])
+    ]),
     el('div', { class: 'envoltura' }, [
       el('div', { class: 'cabecera__fila' }, [
         el('div', { class: 'cabecera__marca' }, [
@@ -159,10 +187,18 @@ function construirCascaron() {
           }),
           el('div', { class: 'cabecera__textos' }, [
             el('p', { class: 'cabecera__subtitulo', text: CONFIG.institucion }),
-            el('h1', { class: 'cabecera__titulo', text: `Plataforma de Planificación ${CONFIG.anio}` })
+            el('h1', { class: 'cabecera__titulo', text: `Plataforma de Planificación ${periodo.anio}` })
           ])
         ]),
         el('div', { class: 'cabecera__herramientas' }, [
+          // Selector de período. Nace oculto: solo lo ve Control de Gestión, y
+          // solo si config.js habilita algún período además del vigente.
+          el('select', {
+            class: 'campo__control selector-perfil selector-periodo', id: 'selectorPeriodo',
+            dataset: { distinto: String(!periodo.esVigente) },
+            attrs: { hidden: true, 'aria-label': 'Período de planificación' },
+            on: { change: (e) => cambiarPeriodo(Number(e.target.value)) }
+          }),
           // Selector de perfil activo. Nace oculto: solo aparece si la cuenta
           // tiene más de un perfil asignado, que es la única situación en que
           // hay algo que elegir.
@@ -246,7 +282,7 @@ function construirCascaron() {
     el('div', { class: 'envoltura' }, [
       el('div', { class: 'pie__grilla' }, [
         el('div', {}, [
-          el('p', { class: 'pie__titulo', text: `Plataforma de Planificación ${CONFIG.anio}` }),
+          el('p', { class: 'pie__titulo', text: `Plataforma de Planificación ${periodo.anio}` }),
           el('p', { class: 'pie__texto', text: 'Herramienta institucional para planificar, consolidar y analizar las actividades de los equipos.' })
         ]),
         el('div', {}, [
@@ -293,7 +329,7 @@ function construirNavegacion() {
 async function activarPlan(plan) {
   if (estado.plan?.id === plan.id) return;
   estado.plan = plan;
-  document.title = `${plan.nombre} · Planificación ${CONFIG.anio}`;
+  document.title = `${plan.nombre} · Planificación ${periodo.anio}`;
 
   for (const tab of document.querySelectorAll('.plan-tab')) {
     const activo = tab.dataset.plan === plan.id;
@@ -380,7 +416,7 @@ async function guardarActividad(actividad, { editaba }) {
     try {
       const r = await siguienteCodigo({
         plan: actividad.plan,
-        anio: CONFIG.anio,
+        anio: periodo.anio,
         actividadesLocales: almacen.porPlan(actividad.plan)
       });
       actividad.codigoActividad = r.codigo;
@@ -428,7 +464,7 @@ function dibujarPortada(plan) {
       // puede archivar: nadie sabe de qué momento de la planificación habla.
       el('p', {
         class: 'portada__sello solo-impresion', id: 'selloImpresion',
-        text: `${CONFIG.institucion} · Planificación ${CONFIG.anio}`
+        text: `${CONFIG.institucion} · Planificación ${periodo.anio}`
       })
     ].filter(Boolean))
   ]));
@@ -458,7 +494,7 @@ function prepararImpresion() {
     const sello = $('#selloImpresion');
     if (sello && estado.plan) {
       sello.textContent =
-        `${CONFIG.institucion} · Planificación ${CONFIG.anio} · Impreso el ${fechaHora(new Date())}`;
+        `${CONFIG.institucion} · Planificación ${periodo.anio} · Impreso el ${fechaHora(new Date())}`;
     }
 
     abiertasPorNosotros = [...document.querySelectorAll('.tabla-datos:not([open])')];
@@ -547,7 +583,7 @@ async function exportarInforme() {
       ens: estado.ensIndex,
       clasificador: estado.clasificador,
       institucion: CONFIG.institucion,
-      anio: CONFIG.anio
+      anio: periodo.anio
     });
 
     const descargarExcel = async () => {
@@ -688,6 +724,60 @@ function sincronizarSelectorPerfil() {
 }
 
 /**
+ * Muestra el selector de período solo a Control de Gestión, y solo si hay más
+ * de un período habilitado en config.js.
+ */
+function sincronizarSelectorPeriodo() {
+  const sel = $('#selectorPeriodo');
+  if (!sel) return;
+
+  sel.hidden = !(periodo.hayOtros && perfil.esControlDeGestion);
+  if (sel.hidden) { vaciar(sel); return; }
+
+  render(sel, ...periodo.disponibles.map((anio) => el('option', {
+    text: anio === periodo.vigente ? `Período ${anio} (vigente)` : `Período ${anio}`,
+    attrs: { value: String(anio) }
+  })));
+  sel.value = String(periodo.anio);
+  sel.title = periodo.esVigente
+    ? 'Período vigente. Puedes abrir otro para revisarlo o hacer pruebas.'
+    : `Estás en el período ${periodo.anio}, no en el vigente.`;
+}
+
+/** Cambia el período de esta pestaña, previa confirmación, y recarga. */
+async function cambiarPeriodo(anio) {
+  const sel = $('#selectorPeriodo');
+  if (!anio || anio === periodo.anio) return;
+
+  const aVigente = anio === periodo.vigente;
+  const ok = await confirmar({
+    titulo: aVigente ? `Volver al período vigente (${anio})` : `Trabajar en el período ${anio}`,
+    mensaje: aVigente
+      ? 'La plataforma se recargará con las actividades del período vigente. Guarda primero lo que tengas a medio escribir.'
+      : `La plataforma se recargará y mostrará solo las actividades del ${anio}. Todo lo que registres, ` +
+        `edites, elimines o exportes quedará en ese período, con su propia numeración, sin mezclarse con el ` +
+        `${periodo.vigente}. Esta elección vale solo para esta pestaña: al cerrarla, la plataforma vuelve al ` +
+        `${periodo.vigente}. Guarda primero lo que tengas a medio escribir.`,
+    textoConfirmar: aVigente ? `Volver al ${anio}` : `Abrir el ${anio}`
+  });
+  if (!ok) { if (sel) sel.value = String(periodo.anio); return; }
+  periodo.cambiar(anio);
+}
+
+/**
+ * Solo Control de Gestión puede estar fuera del período vigente. Si la pestaña
+ * quedó en otro período y quien la usa ya no es Control de Gestión —cerró
+ * sesión, cambió de perfil o nunca la inició—, se vuelve al vigente.
+ *
+ * @returns {boolean} true si se está recargando (no conviene seguir pintando).
+ */
+function verificarPeriodo() {
+  if (periodo.esVigente || perfil.esControlDeGestion) return false;
+  periodo.cambiar(periodo.vigente);
+  return true;
+}
+
+/**
  * Cambia el perfil activo.
  *
  * Después de confirmarlo en el servidor se recarga la página, igual que al
@@ -718,6 +808,9 @@ async function cambiarPerfilActivo(rol) {
       avisar('El servidor no aceptó ese perfil. Sigues con el anterior.', 'error', { duracion: 7000 });
       return;
     }
+    // Fuera de Control de Gestión no se puede estar en otro período: se vuelve
+    // al vigente en la misma recarga.
+    if (rol !== 'control_gestion') periodo.olvidar();
     location.reload();
   } catch (e) {
     cerrar();
@@ -781,7 +874,7 @@ function contexto() {
     ens: estado.ensIndex,
     clasificador: estado.clasificador,
     institucion: CONFIG.institucion,
-    anio: CONFIG.anio
+    anio: periodo.anio
   };
 }
 

@@ -12,6 +12,7 @@ import { el, render } from './dom.js';
 import { abrirModal, avisar, confirmar, mostrarCargando } from './ui.js';
 import { almacen } from './almacen.js';
 import { perfil } from './perfil.js';
+import { periodo } from './periodo.js';
 import { etiquetaDe } from './catalogos.js';
 
 export async function iniciarSesionEnLaNube({ indicador, catalogos }) {
@@ -267,7 +268,7 @@ function mostrarPantallaIngreso(nube) {
       el('img', { class: 'ingreso__logo', src: 'assets/logo-nuble.png', attrs: { alt: '' } }),
       el('div', {}, [
         el('p', { class: 'ingreso__institucion', text: CONFIG.institucion }),
-        el('p', { class: 'ingreso__plataforma', text: `Plataforma de Planificación ${CONFIG.anio}` })
+        el('p', { class: 'ingreso__plataforma', text: `Plataforma de Planificación ${periodo.anio}` })
       ])
     ]),
     el('h1', { class: 'ingreso__titulo', id: idTitulo, text: 'Ingresa con tu correo institucional' }),

@@ -141,7 +141,7 @@ img { max-width: 100%; height: auto; }
   .cabecera__marca { flex: 1 1 100%; }
   .cabecera__titulo { white-space: normal; font-size: var(--t-base); }
   .cabecera__subtitulo { font-size: 0.6875rem; letter-spacing: 0.04em; }
-  .cabecera__herramientas { margin-left: 0; flex: 1 1 100%; justify-content: flex-start; }
+  .cabecera__herramientas { margin-left: 0; flex: 1 1 100%; flex-wrap: wrap; justify-content: flex-start; }
   .indicador-almacen { font-size: 0.6875rem; }
 }
 
@@ -542,6 +542,45 @@ select.campo__control {
   color: var(--alerta-ink);
 }
 @media (max-width: 720px) { .selector-perfil { max-width: 150px; } }
+
+/* --- Período de planificación ---------------------------------------------
+   El selector solo lo ve Control de Gestión. Fuera del período vigente se tiñe
+   igual que la franja, para que la señal se lea también con la franja fuera
+   de la vista (por ejemplo, en una ventana muy angosta). */
+.selector-periodo[data-distinto='true'] {
+  background-color: var(--info-suave);
+  border-color: var(--info);
+  color: var(--info-ink);
+}
+
+/* Franja fija bajo la que se trabaja mientras la pestaña no está en el período
+   vigente. Es parte de la cabecera fija: no se va al bajar por el formulario. */
+.franja-periodo {
+  /* Oscurecido sobre el azul de información: el texto blanco necesita
+     contraste suficiente también con el azul más claro del modo oscuro. */
+  background: color-mix(in srgb, var(--info) 80%, #000);
+  color: #fff;
+}
+.franja-periodo__fila {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--e-4);
+  padding-block: var(--e-2);
+}
+.franja-periodo__texto { margin: 0; font-size: var(--t-sm); line-height: 1.4; }
+.franja-periodo__boton {
+  flex-shrink: 0;
+  min-height: 32px; padding: 0.25rem 0.9rem;
+  font-size: var(--t-sm);
+  background: #fff; color: #184f95; border-color: #fff;
+}
+.franja-periodo__boton:hover { background: #eaf2fd; color: #184f95; }
+/* En el teléfono basta la frase principal: la franja no puede comerse media
+   pantalla de una cabecera que además es fija. */
+@media (max-width: 720px) {
+  .franja-periodo__detalle { display: none; }
+  .franja-periodo__fila { gap: var(--e-3); }
+  .franja-periodo__boton { padding-inline: 0.7rem; }
+}
 
 .nota--solo-lectura { margin-bottom: var(--e-6); }
 
