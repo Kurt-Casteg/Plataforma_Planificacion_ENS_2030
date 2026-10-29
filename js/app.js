@@ -15,7 +15,7 @@ import { Formulario } from './core/formulario.js';
 import { TablaActividades } from './core/tabla.js';
 import { Panel } from './core/panel.js';
 import { avisar, confirmar, abrirModal, aplicarTema, alternarTema, temaActual, mostrarCargando } from './core/ui.js';
-import { exportarExcel, exportarCSV, exportarJSON, leerRespaldo } from './core/exportar.js';
+import { exportarExcel, exportarCSV, exportarJSON, exportarArchivoCiclo, leerRespaldo } from './core/exportar.js';
 import { numero, fechaHora } from './core/formato.js';
 import { perfil, nombrePerfil, PERFILES } from './core/perfil.js';
 import { siguienteCodigo, previsualizarCodigo } from './core/codigos.js';
@@ -64,7 +64,7 @@ alCargar(async () => {
     return;
   }
 
-  const { migradas, soportaAlmacenamiento } = await almacen.iniciar();
+  const { migradas, archivadas, soportaAlmacenamiento } = await almacen.iniciar();
   cerrarCarga();
 
   construirCascaron();
@@ -101,6 +101,15 @@ alCargar(async () => {
       .catch((e) => console.error('Sincronización no disponible:', e));
   }
 
+  // Cambio de ciclo: lo que había en este navegador del año anterior se apartó.
+  // Se avisa una sola vez, el día en que ocurre; después queda en «Más».
+  if (archivadas) {
+    avisar(
+      `Comenzó el ciclo de planificación ${CONFIG.anio}. Las ${numero(archivadas.total)} actividades del ` +
+      `${archivadas.anio} que había en este navegador se archivaron; puedes descargarlas desde «Más».`,
+      'info', { duracion: 12000 }
+    );
+  }
   if (migradas > 0) {
     avisar(`Se recuperaron ${numero(migradas)} actividades de la versión anterior.`, 'exito', { duracion: 7000 });
   }
@@ -885,10 +894,25 @@ function importar() {
 /* ------------------------------------------------------------------ */
 
 function mostrarMasAcciones() {
+  // Un botón por cada ciclo anterior archivado en este navegador. Es lectura:
+  // está disponible para cualquier perfil, incluido el Observador.
+  const botonesArchivo = almacen.archivos().map(({ anio, total }) => el('button', {
+    class: 'btn btn--secundario', attrs: { type: 'button' },
+    text: `Descargar actividades del ${anio} archivadas en este navegador (${numero(total)})`,
+    on: {
+      click: (e) => {
+        e.target.closest('.modal').querySelector('.modal__cerrar').click();
+        exportarArchivoCiclo(almacen.leerArchivo(anio), { anio, institucion: CONFIG.institucion });
+        avisar(`Respaldo del ${anio} descargado. Se puede volver a cargar con «Importar».`, 'exito');
+      }
+    }
+  }));
+
   abrirModal({
     titulo: 'Más acciones',
     ancho: '480px',
     contenido: el('div', { style: { display: 'grid', gap: '12px' } }, [
+      ...botonesArchivo,
       el('button', {
         class: 'btn btn--secundario', attrs: { type: 'button' }, text: 'Exportar a CSV',
         on: { click: (e) => { e.target.closest('.modal').querySelector('.modal__cerrar').click(); exportar('csv'); } }

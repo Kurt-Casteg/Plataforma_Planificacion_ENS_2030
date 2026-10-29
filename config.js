@@ -8,14 +8,14 @@ export const CONFIG = {
   institucion: 'SEREMI de Salud de Ñuble',
 
   /** Año del ciclo de planificación en curso. */
-  anio: 2026,
+  anio: 2027,
 
   /**
    * Versión de la plataforma. Aparece en el pie de página y sirve para
    * comprobar de un vistazo si el navegador está mostrando la última versión
    * publicada o una copia guardada en caché. Súbela con cada despliegue.
    */
-  version: '3.8.0',
+  version: '3.9.0',
 
   /**
    * Sincronización con la nube (Supabase).

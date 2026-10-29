@@ -321,6 +321,30 @@ export function exportarJSON(actividades, { plan, anio, institucion }) {
 }
 
 /**
+ * Respaldo de un ciclo archivado (ver `almacen.archivos()`).
+ *
+ * Mismo formato que el respaldo normal, con los dos planes juntos: cada
+ * actividad lleva su propio `plan`, así que «Importar» lo reconoce tal cual.
+ */
+export function exportarArchivoCiclo(actividades, { anio, institucion }) {
+  const respaldo = {
+    formato: 'seremi-planificacion',
+    version: 2,
+    generado: new Date().toISOString(),
+    institucion,
+    anio,
+    plan: null,
+    total: actividades.length,
+    actividades
+  };
+  descargar(
+    new Blob([JSON.stringify(respaldo, null, 2)], { type: 'application/json' }),
+    nombreArchivo(`respaldo-navegador-ciclo-${anio}`, 'json')
+  );
+  return actividades.length;
+}
+
+/**
  * Lee un archivo de respaldo y devuelve actividades normalizadas.
  * Acepta tanto el formato nuevo como los arreglos planos de la versión anterior.
  */

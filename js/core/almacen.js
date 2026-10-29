@@ -10,10 +10,27 @@
  * ningún otro módulo se entera.
  */
 
+import { CONFIG } from '../../config.js';
 import { normalizarActividad, nuevoId } from './modelo.js';
 import { perfil } from './perfil.js';
 
 const CLAVE = 'seremi.planificacion.v2';
+
+/**
+ * Prefijo de los archivos de ciclos anteriores: `seremi.planificacion.archivo.2026`.
+ * Ver `#archivarCicloAnterior()`.
+ */
+const PREFIJO_ARCHIVO = 'seremi.planificacion.archivo.';
+
+/**
+ * Año al que pertenece lo guardado sin marca de año.
+ *
+ * Hasta la versión 3.9 el navegador no anotaba de qué ciclo eran sus
+ * actividades. Esta plataforma solo existió para el ciclo 2026 antes de esa
+ * versión, así que todo lo que no trae marca es de 2026. Es un dato histórico
+ * fijo: NO se cambia al pasar de año.
+ */
+const ANIO_SIN_MARCA = 2026;
 /** Claves de las versiones anteriores, para migrar automáticamente. */
 const CLAVES_ANTIGUAS = [
   { clave: 'actividadesENS', plan: 'pns' },
@@ -36,16 +53,22 @@ const almacenLocal = {
       return false;
     }
   },
+  /**
+   * Devuelve las actividades guardadas y dos datos de control:
+   *  - `anio`: el ciclo al que pertenecen (ver ANIO_SIN_MARCA).
+   *  - `sincronizadas`: ids que este navegador sabe que existen en la nube.
+   */
   leer() {
+    const vacio = { actividades: [], anio: CONFIG.anio, sincronizadas: [] };
     try {
       const crudo = localStorage.getItem(CLAVE);
-      if (!crudo) return [];
+      if (!crudo) return vacio;
       const datos = JSON.parse(crudo);
       const lista = Array.isArray(datos?.actividades) ? datos.actividades : [];
       // Se normaliza SIEMPRE al leer: lo guardado pudo venir de otra versión,
       // de una edición manual o de un respaldo antiguo. Así el resto de la
       // aplicación nunca recibe un objeto incompleto.
-      return lista.map((a) => {
+      const actividades = lista.map((a) => {
         try {
           return normalizarActividad(a);
         } catch (e) {
@@ -53,13 +76,20 @@ const almacenLocal = {
           return null;
         }
       }).filter(Boolean);
+      return {
+        actividades,
+        anio: Number.isInteger(datos?.anio) ? datos.anio : ANIO_SIN_MARCA,
+        sincronizadas: Array.isArray(datos?.sincronizadas) ? datos.sincronizadas.map(String) : []
+      };
     } catch (e) {
       console.error('No se pudo leer el almacenamiento local:', e);
-      return [];
+      return vacio;
     }
   },
-  escribir(actividades) {
-    const carga = JSON.stringify({ version: 2, actualizado: new Date().toISOString(), actividades });
+  escribir(actividades, { anio = CONFIG.anio, sincronizadas = [] } = {}) {
+    const carga = JSON.stringify({
+      version: 2, actualizado: new Date().toISOString(), anio, sincronizadas, actividades
+    });
     try {
       localStorage.setItem(CLAVE, carga);
       return { ok: true };
@@ -96,7 +126,10 @@ function migrarSiCorresponde() {
     }
   }
   if (recuperadas.length) {
-    almacenLocal.escribir(recuperadas);
+    // Las claves antiguas son de la plataforma original, que fue del ciclo
+    // 2026: se marcan así para que, si el ciclo ya cambió, pasen al archivo y
+    // no se mezclen con el actual.
+    almacenLocal.escribir(recuperadas, { anio: ANIO_SIN_MARCA });
     // Se conservan las claves antiguas como respaldo; no se borran.
   }
   return { migradas: recuperadas.length };
@@ -111,21 +144,134 @@ class Almacen extends EventTarget {
   #adaptadorNube = null;
   #ultimoError = null;
 
-  /** Inicializa: migra datos antiguos y carga lo que exista. */
+  /**
+   * Ids que este navegador sabe que existen en la nube.
+   *
+   * Es lo que permite distinguir, al sincronizar, dos casos que se ven iguales
+   * —una actividad local que la nube no trae—:
+   *   - estaba en la nube y ya no está → alguien la eliminó: se quita aquí.
+   *   - nunca llegó a la nube (sin sesión, o subiendo) → se conserva.
+   * Hasta la versión 3.9 no existía, y por eso las eliminaciones no se
+   * propagaban: lo que Control de Gestión borraba seguía apareciendo en el
+   * navegador de la persona que lo había registrado.
+   */
+  #sincronizadas = new Set();
+
+  /** Momento en que la nube confirmó cada guardado (ver `#reconciliar`). */
+  #confirmadas = new Map();
+
+  /** Ids en proceso de eliminación: la nube puede devolverlos un instante más. */
+  #eliminando = new Set();
+
+  /**
+   * Inicializa: migra datos antiguos, archiva el ciclo anterior si cambió el
+   * año y carga lo que exista.
+   */
   async iniciar() {
     const { migradas } = migrarSiCorresponde();
-    this.#actividades = almacenLocal.leer();
+    const archivadas = this.#archivarCicloAnterior();
+    const { actividades, sincronizadas } = almacenLocal.leer();
+    this.#actividades = actividades;
+    this.#sincronizadas = new Set(sincronizadas);
     this.#emitir();
-    return { migradas, soportaAlmacenamiento: almacenLocal.disponible() };
+    return { migradas, archivadas, soportaAlmacenamiento: almacenLocal.disponible() };
+  }
+
+  /**
+   * Cambio de ciclo.
+   *
+   * Si lo guardado en este navegador es de otro año que `CONFIG.anio`, se
+   * aparta completo a `seremi.planificacion.archivo.<año>` y el ciclo nuevo
+   * empieza vacío. Así, cambiar `anio` en config.js deja limpios los
+   * navegadores de todos los equipos la próxima vez que abren la plataforma,
+   * sin pedirle a nadie que borre nada.
+   *
+   * Se ARCHIVA, no se borra: puede haber actividades que nunca subieron a la
+   * nube (registradas sin sesión) y esta sería su única copia. Se pueden
+   * descargar desde «Más» y volver a importar si hiciera falta.
+   *
+   * @returns {{anio: number, total: number} | null}
+   */
+  #archivarCicloAnterior() {
+    if (!almacenLocal.disponible()) return null;
+    let crudo;
+    let datos;
+    try {
+      crudo = localStorage.getItem(CLAVE);
+      if (!crudo) return null;
+      datos = JSON.parse(crudo);
+    } catch {
+      return null;
+    }
+    const anio = Number.isInteger(datos?.anio) ? datos.anio : ANIO_SIN_MARCA;
+    if (anio === CONFIG.anio) return null;
+
+    const lista = Array.isArray(datos?.actividades) ? datos.actividades : [];
+    const claveArchivo = `${PREFIJO_ARCHIVO}${anio}`;
+
+    if (lista.length) {
+      // Si ya existía un archivo de ese año (por ejemplo, alguien volvió a
+      // abrir una copia antigua), se suman sin duplicar.
+      let previas = [];
+      try { previas = JSON.parse(localStorage.getItem(claveArchivo) || '{}').actividades || []; } catch { /* nada */ }
+      const porId = new Map([...previas, ...lista].map((a) => [a.id, a]));
+      const archivo = JSON.stringify({
+        anio, archivadoEn: new Date().toISOString(), actividades: [...porId.values()]
+      });
+
+      // Primero se libera el espacio del ciclo anterior y después se escribe
+      // el archivo, que pesa lo mismo: así cabe aunque el navegador esté justo
+      // de espacio. Si aun así fallara, se restaura todo y no se archiva: un
+      // ciclo mezclado se puede limpiar después, una actividad perdida no.
+      try {
+        localStorage.removeItem(CLAVE);
+        localStorage.setItem(claveArchivo, archivo);
+      } catch (e) {
+        console.error('No se pudo archivar el ciclo anterior:', e);
+        try { localStorage.setItem(CLAVE, crudo); } catch { /* nada más que hacer */ }
+        return null;
+      }
+    }
+
+    // El ciclo nuevo queda marcado desde ya, aunque esté vacío. Sin esto, la
+    // migración de las claves de la plataforma original se volvería a ejecutar.
+    almacenLocal.escribir([], { anio: CONFIG.anio, sincronizadas: [] });
+    return lista.length ? { anio, total: lista.length } : null;
+  }
+
+  /** Ciclos anteriores archivados en este navegador: [{ anio, total, archivadoEn }]. */
+  archivos() {
+    const lista = [];
+    try {
+      for (let i = 0; i < localStorage.length; i += 1) {
+        const clave = localStorage.key(i);
+        if (!clave?.startsWith(PREFIJO_ARCHIVO)) continue;
+        const datos = JSON.parse(localStorage.getItem(clave) || '{}');
+        const total = Array.isArray(datos.actividades) ? datos.actividades.length : 0;
+        if (total) lista.push({ anio: Number(datos.anio), total, archivadoEn: datos.archivadoEn });
+      }
+    } catch { /* sin almacenamiento: no hay archivos */ }
+    return lista.sort((a, b) => b.anio - a.anio);
+  }
+
+  /** Actividades de un ciclo archivado, tal como quedaron guardadas. */
+  leerArchivo(anio) {
+    try {
+      const datos = JSON.parse(localStorage.getItem(`${PREFIJO_ARCHIVO}${anio}`) || '{}');
+      return Array.isArray(datos.actividades) ? datos.actividades : [];
+    } catch {
+      return [];
+    }
   }
 
   /** Conecta un adaptador de nube (Supabase). Opcional. */
   async conectarNube(adaptador) {
     this.#adaptadorNube = adaptador;
     if (!adaptador) return;
+    const inicio = Date.now();
     try {
       const remotas = await adaptador.listar();
-      this.#fusionar(remotas);
+      this.#reconciliar(remotas, inicio);
       this.#persistir();
       this.#emitir();
     } catch (e) {
@@ -134,17 +280,44 @@ class Almacen extends EventTarget {
     }
   }
 
-  /** Fusiona por id conservando la versión más reciente (last-write-wins). */
-  #fusionar(remotas) {
+  /**
+   * Deja el navegador igual a la nube, sin perder lo que todavía no ha subido.
+   *
+   *  1. Lo que la nube trae se fusiona por id, ganando la versión más reciente.
+   *  2. Lo que este navegador sabía que estaba en la nube y la nube ya no trae
+   *     se quita: alguien lo eliminó (o el perfil activo ya no puede verlo).
+   *  3. Lo que nunca llegó a la nube se conserva.
+   *
+   * `inicio` es el momento en que se pidió la lista. Un guardado que la nube
+   * confirmó DESPUÉS de ese momento pudo no alcanzar a salir en la lista; no
+   * por eso se ha eliminado, así que se respeta.
+   */
+  #reconciliar(remotas, inicio) {
+    const idsRemotos = new Set();
     const porId = new Map(this.#actividades.map((a) => [a.id, a]));
+
     for (const r of remotas) {
       const normal = normalizarActividad(r);
+      if (this.#eliminando.has(normal.id)) continue;
+      idsRemotos.add(normal.id);
       const local = porId.get(normal.id);
       if (!local || new Date(normal.actualizadaEn) >= new Date(local.actualizadaEn)) {
         porId.set(normal.id, normal);
       }
     }
+
+    for (const id of this.#sincronizadas) {
+      if (idsRemotos.has(id)) continue;
+      const confirmada = this.#confirmadas.get(id);
+      if (confirmada && confirmada >= inicio) continue;
+      porId.delete(id);
+    }
+
     this.#actividades = [...porId.values()];
+    this.#sincronizadas = new Set(
+      [...idsRemotos, ...[...this.#confirmadas].filter(([, t]) => t >= inicio).map(([id]) => id)]
+        .filter((id) => porId.has(id))
+    );
   }
 
   get todas() {
@@ -197,7 +370,11 @@ class Almacen extends EventTarget {
 
     const resultado = this.#persistir();
     this.#emitir();
-    this.#sincronizarEnSegundoPlano('guardar', normal);
+    this.#sincronizarEnSegundoPlano('guardar', normal, () => {
+      this.#sincronizadas.add(normal.id);
+      this.#confirmadas.set(normal.id, Date.now());
+      this.#persistir();
+    });
     return { actividad: normal, ...resultado };
   }
 
@@ -206,9 +383,12 @@ class Almacen extends EventTarget {
     const antes = this.#actividades.length;
     this.#actividades = this.#actividades.filter((a) => a.id !== id);
     if (this.#actividades.length === antes) return { ok: false };
+    this.#sincronizadas.delete(id);
+    this.#confirmadas.delete(id);
     const resultado = this.#persistir();
     this.#emitir();
-    this.#sincronizarEnSegundoPlano('eliminar', { id });
+    if (this.#adaptadorNube) this.#eliminando.add(id);
+    this.#sincronizarEnSegundoPlano('eliminar', { id }, null, () => this.#eliminando.delete(id));
     return resultado;
   }
 
@@ -232,6 +412,9 @@ class Almacen extends EventTarget {
   async importar(lista, { modo = 'agregar' } = {}) {
     this.#exigirEscritura('importar actividades');
     const entrantes = lista.map((a) => normalizarActividad(a));
+    // Lo importado es local hasta que se vuelva a guardar con sesión: si la
+    // nube no lo tiene, no debe interpretarse como «eliminado por otro».
+    for (const a of entrantes) { this.#sincronizadas.delete(a.id); this.#confirmadas.delete(a.id); }
     if (modo === 'reemplazar') {
       this.#actividades = entrantes;
     } else {
@@ -253,19 +436,27 @@ class Almacen extends EventTarget {
   }
 
   #persistir() {
-    const r = almacenLocal.escribir(this.#actividades);
+    const r = almacenLocal.escribir(this.#actividades, {
+      anio: CONFIG.anio,
+      sincronizadas: (() => {
+        const presentes = new Set(this.#actividades.map((a) => a.id));
+        return [...this.#sincronizadas].filter((id) => presentes.has(id));
+      })()
+    });
     if (!r.ok) this.#ultimoError = r.error;
     return r;
   }
 
-  #sincronizarEnSegundoPlano(accion, carga) {
-    if (!this.#adaptadorNube) return;
+  #sincronizarEnSegundoPlano(accion, carga, alConfirmar = null, alTerminar = null) {
+    if (!this.#adaptadorNube) { alTerminar?.(); return; }
     Promise.resolve()
       .then(() => this.#adaptadorNube[accion](carga))
+      .then(() => alConfirmar?.())
       .catch((e) => {
         console.warn('Sincronización pendiente (se reintentará):', e);
         this.dispatchEvent(new CustomEvent('sincronizacion:error', { detail: e }));
-      });
+      })
+      .finally(() => alTerminar?.());
   }
 
   #emitir() {

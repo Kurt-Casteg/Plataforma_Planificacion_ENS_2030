@@ -15,7 +15,7 @@ y en un par de minutos queda publicado.
 
 ---
 
-## Cambiar el año del ciclo de planificación
+## Comenzar un nuevo ciclo de planificación (cambiar el año)
 
 Abre `config.js` y cambia el número:
 
@@ -23,8 +23,44 @@ Abre `config.js` y cambia el número:
 anio: 2027,
 ```
 
-Eso actualiza títulos, nombres de archivos exportados y el año con el que se
-guardan las actividades en la nube.
+Con ese único cambio, desde la versión 3.9:
+
+- **La nube** muestra y guarda solo las actividades del año nuevo. Las del año
+  anterior **no se borran**: siguen en Supabase como historial, filtrables por
+  la columna `anio`.
+- **La numeración** de cada departamento empieza de nuevo en 1, porque los
+  correlativos se llevan por plan, departamento y año.
+- **Cada navegador** se limpia solo la próxima vez que alguien abre la
+  plataforma: lo que tenía del año anterior se aparta a un archivo dentro del
+  mismo navegador y la persona ve un aviso. No hay que pedirle a nadie que
+  borre nada.
+- **Nada se pierde.** Si alguien había registrado actividades sin sesión (que
+  nunca llegaron a la nube), las puede descargar desde «Más → Descargar
+  actividades del <año> archivadas en este navegador» y, si hiciera falta,
+  volver a cargarlas con «Importar».
+
+Lo que **no** cambia solo, y hay que revisar cada año:
+
+- `data/ens-2026.json` e `indicadores-re-2026.json` (la cadena de resultados y
+  sus indicadores), si MINSAL publicó lineamientos nuevos. Ver «Actualizar la
+  cadena de resultados ENS del año siguiente».
+- El enlace `lineamientos` en `config.js` y el texto «Lineamientos Temáticos
+  ENS 2026» en `js/plans/index.js`.
+
+> **Si alguna vez hiciera falta borrar de verdad un año en la nube**, se hace
+> desde el SQL Editor de Supabase, siempre después de respaldar:
+>
+> ```sql
+> -- Respaldo en el esquema privado: una tabla en `public` quedaría expuesta por la API.
+> create table privado.respaldo_actividades_2026 as select * from public.actividades where anio = 2026;
+>
+> begin;
+> delete from public.actividades  where anio = 2026;
+> delete from public.correlativos where anio = 2026;
+> commit;
+> ```
+>
+> Para empezar un ciclo nuevo no es necesario: basta cambiar el año.
 
 ---
 
