@@ -811,7 +811,9 @@ async function cambiarPerfilActivo(rol) {
     // Fuera de Control de Gestión no se puede estar en otro período: se vuelve
     // al vigente en la misma recarga.
     if (rol !== 'control_gestion') periodo.olvidar();
-    location.reload();
+    // Si el cambio de perfil ya disparó la vuelta al período vigente, esa
+    // recarga está en curso: pedir otra encima la cancelaría a medio camino.
+    if (!periodo.recargando) location.reload();
   } catch (e) {
     cerrar();
     if (sel) sel.value = perfil.rol;

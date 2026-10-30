@@ -44,6 +44,9 @@ function leerElegido() {
 
 const ELEGIDO = leerElegido();
 
+/** Ya se pidió una recarga: no se pide otra encima (se cancelarían entre sí). */
+let recargando = false;
+
 export const periodo = {
   /** Año con el que trabaja esta pestaña. */
   anio: ELEGIDO,
@@ -67,11 +70,18 @@ export const periodo = {
    * marca, de modo que la pestaña queda exactamente como cualquier otra.
    */
   cambiar(anio) {
+    if (recargando) return;
+    recargando = true;
     try {
       if (anio === CONFIG.anio || !DISPONIBLES.includes(anio)) sessionStorage.removeItem(CLAVE);
       else sessionStorage.setItem(CLAVE, String(anio));
     } catch { /* sin almacenamiento de sesión: se queda en el vigente */ }
     location.reload();
+  },
+
+  /** ¿Hay una recarga en curso pedida por este módulo? */
+  get recargando() {
+    return recargando;
   },
 
   /** Vuelve al vigente sin recargar (para quien vaya a recargar de todos modos). */

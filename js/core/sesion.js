@@ -82,59 +82,14 @@ export async function iniciarSesionEnLaNube({ indicador, catalogos }) {
 /* Ingreso                                                             */
 /* ------------------------------------------------------------------ */
 
+/**
+ * Entrada al ingreso desde el botón de la cabecera o desde el aviso ámbar.
+ * Abre la misma pantalla de ingreso que aparece al llegar: un solo camino,
+ * con los mismos dos pasos (correo y código), en vez de dos versiones que
+ * habría que mantener iguales.
+ */
 function pedirAcceso(nube) {
-  const dominios = CONFIG.nube.dominiosPermitidos || [];
-  const entrada = el('input', {
-    class: 'campo__control', id: 'correoAcceso',
-    attrs: {
-      type: 'email',
-      placeholder: dominios.length ? `nombre@${dominios[0]}` : 'nombre@institucion.cl',
-      autocomplete: 'email', required: true
-    }
-  });
-
-  const modal = abrirModal({
-    titulo: 'Iniciar sesión',
-    ancho: '460px',
-    contenido: [
-      el('p', { class: 'texto-cuerpo', text: 'Te enviaremos un enlace de acceso a tu correo institucional. No necesitas recordar contraseñas.' }),
-      el('div', { class: 'campo', style: { marginTop: '16px' } }, [
-        el('label', { class: 'campo__etiqueta', text: 'Correo institucional', attrs: { for: 'correoAcceso' } }),
-        entrada,
-        // Orientación, no una regla: quién puede entrar lo decide el servidor, y
-        // admite excepciones nominales que este texto no puede conocer.
-        dominios.length && el('p', {
-          class: 'campo__ayuda',
-          text: `${textoDominios()} `
-            + 'Si necesitas acceder con otro correo, primero debe autorizarlo el Departamento de Control de Gestión.'
-        })
-      ].filter(Boolean))
-    ],
-    acciones: [
-      { texto: 'Cancelar', clase: 'btn--secundario', alHacerClic: (m) => m.cerrar() },
-      {
-        texto: 'Enviar enlace', clase: 'btn--primario',
-        alHacerClic: async (m) => {
-          try {
-            await nube.enviarEnlace(entrada.value.trim());
-            m.cerrar();
-            avisar('Revisa tu correo: te enviamos el enlace de acceso.', 'exito', { duracion: 9000 });
-          } catch (e) {
-            avisar(e.message, 'error', { duracion: 8000 });
-          }
-        }
-      }
-    ]
-  });
-
-  // Enter envía, sin obligar a bajar hasta el botón.
-  entrada.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      modal.ventana.querySelector('.modal__pie .btn--primario')?.click();
-    }
-  });
-  entrada.focus();
+  mostrarPantallaIngreso(nube);
 }
 
 /* ------------------------------------------------------------------ */
@@ -240,7 +195,7 @@ function mostrarPantallaIngreso(nube) {
   const error = el('p', { class: 'campo__error', id: 'ingresoError', attrs: { hidden: true, role: 'alert' } });
   const botonEnviar = el('button', {
     class: 'btn btn--primario btn--grande ingreso__boton', attrs: { type: 'submit' },
-    text: 'Enviarme el enlace de acceso'
+    text: 'Enviarme un código de acceso'
   });
 
   const formulario = el('form', {
@@ -249,13 +204,11 @@ function mostrarPantallaIngreso(nube) {
   }, [
     el('label', { class: 'campo__etiqueta', text: 'Correo institucional', attrs: { for: 'ingresoCorreo' } }),
     entrada,
-    el('p', { class: 'campo__ayuda', id: 'ingresoAyuda', text: `${textoDominios()} Te llegará un correo con un enlace: no hay contraseñas que recordar.`.trim() }),
+    el('p', { class: 'campo__ayuda', id: 'ingresoAyuda', text: `${textoDominios()} Te llegará un código de 6 dígitos: no hay contraseñas que recordar.`.trim() }),
     error,
     botonEnviar
   ]);
 
-  // Segundo paso: confirmación. Se dibuja en el mismo lugar que el formulario.
-  const confirmacion = el('div', { class: 'ingreso__confirmacion', attrs: { hidden: true, role: 'status' } });
 
   const continuar = el('button', {
     class: 'btn btn--texto ingreso__continuar', attrs: { type: 'button' },
@@ -274,7 +227,6 @@ function mostrarPantallaIngreso(nube) {
     el('h1', { class: 'ingreso__titulo', id: idTitulo, text: 'Ingresa con tu correo institucional' }),
     el('p', { class: 'ingreso__texto', text: 'Así tus actividades quedan registradas a tu nombre y en la plataforma.' }),
     formulario,
-    confirmacion,
     el('div', { class: 'ingreso__pie' }, [
       continuar,
       el('p', { class: 'ingreso__nota', text: 'Sin sesión puedes usar la plataforma, pero lo que registres quedará solo en este navegador.' })
@@ -286,45 +238,154 @@ function mostrarPantallaIngreso(nube) {
     attrs: { role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': idTitulo }
   }, [tarjeta]);
 
+  // --- Paso 2: el código -------------------------------------------------
+  let correoEnviado = '';
+  let temporizador = null;
+
+  const entradaCodigo = el('input', {
+    class: 'campo__control ingreso__codigo', id: 'ingresoCodigo',
+    attrs: {
+      type: 'text', inputmode: 'numeric', autocomplete: 'one-time-code',
+      maxlength: 10, placeholder: '000000', 'aria-describedby': 'ingresoCodigoError'
+    },
+    on: {
+      // Solo dígitos: quien copia el código desde el correo suele arrastrar
+      // espacios o guiones.
+      input: (e) => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10); }
+    }
+  });
+  const errorCodigo = el('p', { class: 'campo__error', id: 'ingresoCodigoError', attrs: { hidden: true, role: 'alert' } });
+  const botonEntrar = el('button', {
+    class: 'btn btn--primario btn--grande ingreso__boton', attrs: { type: 'submit' }, text: 'Entrar'
+  });
+  const botonReenviar = el('button', {
+    class: 'btn btn--texto ingreso__reenviar', attrs: { type: 'button' },
+    text: 'Enviarme un código nuevo',
+    on: { click: () => reenviar() }
+  });
+  const destino = el('strong');
+
+  const formularioCodigo = el('form', {
+    class: 'ingreso__formulario ingreso__paso-codigo', attrs: { novalidate: true, hidden: true },
+    on: { submit: (e) => { e.preventDefault(); verificar(); } }
+  }, [
+    el('div', { class: 'ingreso__confirmacion', attrs: { role: 'status' } }, [
+      el('p', { class: 'ingreso__confirmacion-titulo', text: 'Revisa tu correo' }),
+      el('p', {}, ['Te enviamos un código de 6 dígitos a ', destino, '. Escríbelo aquí para entrar.'])
+    ]),
+    el('label', { class: 'campo__etiqueta', text: 'Código de acceso', attrs: { for: 'ingresoCodigo' } }),
+    entradaCodigo,
+    el('p', { class: 'campo__ayuda', text: 'El código sirve una sola vez y vence en 1 hora. Si no llega en unos minutos, revisa la carpeta de correo no deseado.' }),
+    errorCodigo,
+    botonEntrar,
+    el('div', { class: 'ingreso__otras-acciones' }, [
+      botonReenviar,
+      el('button', {
+        class: 'btn btn--texto', attrs: { type: 'button' }, text: 'Usar otro correo',
+        on: { click: () => volverAlCorreo() }
+      })
+    ])
+  ]);
+  formulario.after(formularioCodigo);
+
+  function mostrarError(nodo, campo, mensaje) {
+    nodo.textContent = mensaje;
+    nodo.hidden = false;
+    campo.setAttribute('aria-invalid', 'true');
+    campo.focus();
+  }
+  function limpiarError(nodo, campo) {
+    nodo.hidden = true;
+    campo.removeAttribute('aria-invalid');
+  }
+
+  /**
+   * Cuenta regresiva del botón «código nuevo». Supabase admite un código por
+   * persona cada 60 segundos: mostrar la espera evita que el botón parezca
+   * roto, y que alguien lo pulse diez veces.
+   */
+  function esperarParaReenviar(segundos = 60) {
+    clearInterval(temporizador);
+    let restante = segundos;
+    const pintar = () => {
+      botonReenviar.disabled = restante > 0;
+      botonReenviar.textContent = restante > 0
+        ? `Podrás pedir un código nuevo en ${restante} s`
+        : 'Enviarme un código nuevo';
+    };
+    pintar();
+    temporizador = setInterval(() => {
+      restante -= 1;
+      pintar();
+      if (restante <= 0) clearInterval(temporizador);
+    }, 1000);
+  }
+
+  // --- Paso 1: el correo -------------------------------------------------
   async function enviar() {
-    error.hidden = true;
-    entrada.removeAttribute('aria-invalid');
+    limpiarError(error, entrada);
     const correo = entrada.value.trim();
     botonEnviar.disabled = true;
     botonEnviar.textContent = 'Enviando…';
     try {
-      await nube.enviarEnlace(correo);
+      await nube.enviarCodigo(correo);
+      correoEnviado = correo;
+      destino.textContent = correo;
       formulario.hidden = true;
-      render(confirmacion,
-        el('p', { class: 'ingreso__confirmacion-titulo', text: 'Revisa tu correo' }),
-        el('p', {}, [
-          'Te enviamos un enlace de acceso a ',
-          el('strong', { text: correo }),
-          '. Ábrelo desde este mismo equipo y navegador para entrar.'
-        ]),
-        el('p', { class: 'campo__ayuda', text: 'Si no llega en unos minutos, revisa la carpeta de correo no deseado.' }),
-        el('button', {
-          class: 'btn btn--secundario', attrs: { type: 'button' }, text: 'Usar otro correo',
-          on: {
-            click: () => {
-              confirmacion.hidden = true;
-              formulario.hidden = false;
-              entrada.select();
-              entrada.focus();
-            }
-          }
-        })
-      );
-      confirmacion.hidden = false;
+      formularioCodigo.hidden = false;
+      entradaCodigo.value = '';
+      limpiarError(errorCodigo, entradaCodigo);
+      esperarParaReenviar(60);
+      entradaCodigo.focus();
     } catch (e) {
-      error.textContent = e.message;
-      error.hidden = false;
-      entrada.setAttribute('aria-invalid', 'true');
-      entrada.focus();
+      mostrarError(error, entrada, e.message);
     } finally {
       botonEnviar.disabled = false;
-      botonEnviar.textContent = 'Enviarme el enlace de acceso';
+      botonEnviar.textContent = 'Enviarme un código de acceso';
     }
+  }
+
+  async function reenviar() {
+    limpiarError(errorCodigo, entradaCodigo);
+    botonReenviar.disabled = true;
+    try {
+      await nube.enviarCodigo(correoEnviado);
+      entradaCodigo.value = '';
+      esperarParaReenviar(60);
+      avisar('Te enviamos un código nuevo. El anterior ya no sirve.', 'exito', { duracion: 6000 });
+      entradaCodigo.focus();
+    } catch (e) {
+      if (e.esperar) esperarParaReenviar(e.esperar);
+      else botonReenviar.disabled = false;
+      mostrarError(errorCodigo, entradaCodigo, e.message);
+    }
+  }
+
+  async function verificar() {
+    limpiarError(errorCodigo, entradaCodigo);
+    botonEntrar.disabled = true;
+    botonEntrar.textContent = 'Comprobando…';
+    try {
+      await nube.verificarCodigo(correoEnviado, entradaCodigo.value);
+      botonEntrar.textContent = 'Entrando…';
+      // Se recarga, igual que al cerrar sesión: la sesión ya quedó guardada y
+      // así perfil, permisos y actividades se cargan desde un estado limpio.
+      clearInterval(temporizador);
+      location.reload();
+    } catch (e) {
+      botonEntrar.disabled = false;
+      botonEntrar.textContent = 'Entrar';
+      mostrarError(errorCodigo, entradaCodigo, e.message);
+      entradaCodigo.select();
+    }
+  }
+
+  function volverAlCorreo() {
+    clearInterval(temporizador);
+    formularioCodigo.hidden = true;
+    formulario.hidden = false;
+    entrada.select();
+    entrada.focus();
   }
 
   function alTeclear(e) {
@@ -334,6 +395,7 @@ function mostrarPantallaIngreso(nube) {
   }
 
   function cerrar() {
+    clearInterval(temporizador);
     omitirIngreso();
     document.removeEventListener('keydown', alTeclear, true);
     pantalla.remove();

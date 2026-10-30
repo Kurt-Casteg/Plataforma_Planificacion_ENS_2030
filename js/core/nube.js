@@ -94,6 +94,60 @@ const aFila = (a, usuarioId) => ({
   actualizada_en: a.actualizadaEn
 });
 
+/**
+ * Convierte los errores de Supabase Auth en mensajes para quien está entrando.
+ *
+ * Se reconocen por el código o por palabras clave, no por el texto exacto,
+ * que cambia entre versiones de la API. Lo que no se reconoce se devuelve tal
+ * cual: mejor un mensaje en inglés que esconder un problema nuevo.
+ */
+function traducirErrorDeAcceso(error) {
+  const texto = `${error?.code || ''} ${error?.message || ''}`;
+  const esperar = texto.match(/after (\d+) seconds?/i);
+
+  // El trigger de la base aborta el alta de quien no está en la nómina, y
+  // Supabase lo informa como un fallo genérico al registrar.
+  if (/database error|saving new user|no est[áa] autorizado|unexpected_failure|insufficient/i.test(texto)) {
+    return new Error(
+      'Ese correo no está autorizado para acceder a la plataforma. Solo pueden ingresar las ' +
+      'personas registradas en la nómina de planificación: si debes registrar actividades, ' +
+      'pide al Departamento de Control de Gestión que te incorpore.'
+    );
+  }
+  // Límite por persona: un código cada 60 segundos.
+  if (esperar || /over_request_rate_limit|for security purposes/i.test(texto)) {
+    const s = esperar ? Number(esperar[1]) : 60;
+    const e = new Error(`Por seguridad, espera ${s} segundos antes de pedir otro código.`);
+    e.esperar = s;
+    return e;
+  }
+  // Límite de envíos de todo el proyecto por hora.
+  if (/over_email_send_rate_limit|email rate limit/i.test(texto)) {
+    return new Error(
+      'La plataforma alcanzó el máximo de correos que puede enviar por hora. Espera unos minutos e ' +
+      'inténtalo de nuevo; si persiste, avisa al Departamento de Control de Gestión.'
+    );
+  }
+  // Servicio de correo de prueba de Supabase: solo envía al equipo del proyecto.
+  if (/email_address_not_authorized|address not authorized/i.test(texto)) {
+    return new Error(
+      'El servicio de correo de la plataforma todavía no está habilitado para tu dirección. ' +
+      'Avisa al Departamento de Control de Gestión.'
+    );
+  }
+  // Código equivocado, vencido o reemplazado por uno más nuevo.
+  if (/otp_expired|token has expired|invalid|expired/i.test(texto)) {
+    return new Error(
+      'El código no es válido o ya venció. Revisa que sea el del último correo que te llegó, ' +
+      'o pide uno nuevo.'
+    );
+  }
+  if (/failed to fetch|network/i.test(texto)) {
+    return new Error('No hay conexión con el servidor. Revisa tu internet e inténtalo de nuevo.');
+  }
+  return new Error(error?.message || 'No se pudo completar el ingreso.');
+}
+
 export const nube = {
   /** ¿Está configurada la sincronización? */
   get configurada() {
@@ -107,20 +161,27 @@ export const nube = {
   },
 
   /**
-   * Envía un enlace de acceso al correo institucional (sin contraseñas).
+   * Envía un CÓDIGO de acceso de un solo uso al correo (sin contraseñas).
    *
-   * Quién puede registrarse lo decide el SERVIDOR, no este archivo. Hasta la
-   * versión 3.4 aquí había un filtro por dominio, y era una cortesía disfrazada
-   * de restricción: bastaba abrir la consola del navegador y llamar a la API
-   * directamente para saltárselo. Ahora la regla vive en un trigger de la base
-   * de datos (`privado.exigir_correo_autorizado`), que además admite
-   * excepciones nominales desde la nómina institucional —algo que este código
-   * no puede consultar, porque quien pide el enlace todavía no tiene sesión.
+   * Hasta la versión 3.10 se enviaba un enlace. Se cambió a código por dos
+   * problemas reales observados en los registros de Supabase:
+   *   - Los filtros de seguridad del correo institucional (Microsoft 365)
+   *     abren los enlaces para revisarlos antes de entregarlos, y como cada
+   *     enlace sirve una sola vez, llegaba ya gastado: «Email link is invalid
+   *     or has expired».
+   *   - El enlace tenía que abrirse en el mismo navegador donde se pidió.
+   * Un código no lo puede «usar» ningún filtro y se escribe donde uno está.
    *
-   * Por eso se envía la solicitud siempre y se traduce el rechazo del servidor
-   * a un mensaje que se entienda.
+   * Qué llega en el correo —enlace o código— lo decide la PLANTILLA del correo
+   * en Supabase (Authentication → Email Templates), no este archivo: ver
+   * docs/GUIA-CORREO-CODIGO.md.
+   *
+   * Quién puede registrarse lo decide el SERVIDOR: un trigger de la base
+   * (`privado.exigir_correo_autorizado`) solo deja crear la cuenta a quien está
+   * en la nómina. Por eso la solicitud se envía siempre y aquí solo se traduce
+   * el rechazo a un mensaje que se entienda.
    */
-  async enviarEnlace(correo) {
+  async enviarCodigo(correo) {
     const limpio = String(correo || '').trim();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(limpio)) {
       throw new Error('Escribe un correo electrónico válido.');
@@ -129,27 +190,36 @@ export const nube = {
     const sb = await obtenerCliente();
     const { error } = await sb.auth.signInWithOtp({
       email: limpio,
+      // Se mantiene por compatibilidad con plantillas que todavía traigan enlace.
       options: { emailRedirectTo: location.origin + location.pathname }
     });
     if (!error) return;
+    throw traducirErrorDeAcceso(error);
+  },
 
-    // El trigger aborta el alta antes de crear la cuenta, y Supabase lo informa
-    // como un fallo genérico al registrar. Se reconoce por eso, no por el texto
-    // exacto, que cambia entre versiones de la API.
-    const esRechazo = /database error|saving new user|not authorized|no est[áa] autorizado|unexpected_failure|insufficient/i
-      .test(error.message || '');
+  /** Nombre anterior, por si algún módulo antiguo lo sigue llamando. */
+  async enviarEnlace(correo) {
+    return this.enviarCodigo(correo);
+  },
 
-    if (esRechazo) {
-      // Desde la 3.10.1 solo entra quien está en la nómina, tenga o no correo
-      // institucional: el mensaje no puede sugerir que el dominio basta.
-      throw new Error(
-        'Ese correo no está autorizado para acceder a la plataforma. Solo pueden ingresar las ' +
-        'personas registradas en la nómina de planificación: si debes registrar actividades, ' +
-        'pide al Departamento de Control de Gestión que te incorpore.'
-      );
-    }
+  /**
+   * Comprueba el código recibido y abre la sesión.
+   * `type: 'email'` sirve tanto para quien entra por primera vez como para
+   * quien ya tenía cuenta.
+   */
+  async verificarCodigo(correo, codigo) {
+    const limpio = String(codigo || '').replace(/\D/g, '');
+    if (limpio.length < 6) throw new Error('Escribe el código completo que te llegó por correo.');
 
-    throw new Error(error.message);
+    const sb = await obtenerCliente();
+    const { data, error } = await sb.auth.verifyOtp({
+      email: String(correo || '').trim(),
+      token: limpio,
+      type: 'email'
+    });
+    if (error) throw traducirErrorDeAcceso(error);
+    if (!data?.session) throw new Error('No se pudo abrir la sesión. Pide un código nuevo e inténtalo otra vez.');
+    return data.session;
   },
 
   async cerrarSesion() {

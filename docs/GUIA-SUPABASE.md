@@ -166,8 +166,10 @@ la base de datos.
 
 1. Abre la plataforma. Arriba a la derecha, el botón dirá **«Iniciar sesión»**;
    púlsalo.
-2. Escribe tu correo institucional → **Enviar enlace**.
-3. Revisa tu correo y abre el enlace: vuelves a la plataforma ya identificado.
+2. Escribe tu correo institucional → **Enviarme un código de acceso**.
+3. Revisa tu correo, escribe el código de 6 dígitos y pulsa **Entrar**: quedas
+   identificado. (Antes hay que configurar el correo y las plantillas: ver
+   `docs/GUIA-CORREO-CODIGO.md`.)
    El botón pasa a mostrar tu nombre.
 4. En la sección **Identificación** deben aparecer solos tu nombre, tu correo y
    tu departamento, con la insignia «Desde tu sesión», y el código de actividad

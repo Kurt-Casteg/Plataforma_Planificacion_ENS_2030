@@ -589,9 +589,14 @@ Desde la versión 3.7, a quien llega sin sesión la plataforma se lo hace notar 
 tres formas, de la más insistente a la más discreta:
 
 1. **Pantalla de ingreso.** Lo primero que se ve es una tarjeta centrada con el
-   campo de correo y el botón «Enviarme el enlace de acceso». Al enviarlo, la
-   misma tarjeta confirma a qué correo se mandó. Abajo está siempre
-   **«Continuar sin sesión»**, que también se activa con Escape.
+   campo de correo y el botón «Enviarme un código de acceso». Al enviarlo, la
+   misma tarjeta pide el **código de 6 dígitos** que llegó por correo, con un
+   botón para pedir uno nuevo (cada 60 segundos) y otro para cambiar de correo.
+   Abajo está siempre **«Continuar sin sesión»**, que también se activa con
+   Escape. El botón de la cabecera y el de la franja ámbar abren esta misma
+   pantalla. Desde la versión 3.11 es un código y no un enlace: ver
+   `docs/GUIA-CORREO-CODIGO.md`, que explica también cómo se configura el envío
+   desde el Gmail de la unidad.
 2. **Franja ámbar sobre el formulario.** Si se continúa sin sesión, arriba del
    formulario queda una franja que dice la consecuencia —«lo que registres se
    guardará solo en este navegador y no llegará a Control de Gestión»— con su
@@ -640,7 +645,7 @@ antes de que la cuenta exista.
 > **Configuración actual (desde la 3.10.1): solo la nómina.** La tabla de
 > dominios está vacía, así que solo puede crear cuenta quien esté en
 > `usuarios_autorizados`, **aunque tenga correo @redsalud.gob.cl o @minsal.cl**.
-> Una persona fuera de la nómina que pida el enlace verá *«Ese correo no está
+> Una persona fuera de la nómina que pida el código verá *«Ese correo no está
 > autorizado para acceder a la plataforma…»* y no se le crea cuenta.
 >
 > Para aplicar esto en una base que todavía tenía los dominios cargados, ejecuta
@@ -713,7 +718,7 @@ fila vuelve a cerrar la puerta de inmediato.
 
 - **Solo afecta a cuentas nuevas.** Quien ya tiene cuenta creada sigue entrando
   aunque su correo deje de estar autorizado, porque al volver a iniciar sesión
-  Supabase no registra nada: solo envía el enlace. Para cortarle el acceso hay
+  Supabase no registra nada: solo envía el código. Para cortarle el acceso hay
   que eliminar su cuenta en **Authentication → Users**. Al eliminarla se borran
   también su perfil y **todas sus actividades**.
 - **Sacar a alguien de la nómina no le quita el acceso** por la misma razón:

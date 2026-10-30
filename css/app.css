@@ -1331,6 +1331,25 @@ body.con-ingreso .asistente { display: none; }
 }
 .ingreso__confirmacion-titulo { font-weight: 700; font-size: var(--t-base); color: var(--exito-ink); }
 
+/* Paso del código: la confirmación va dentro del formulario, sin su margen. */
+.ingreso__paso-codigo .ingreso__confirmacion { margin: 0 0 var(--e-3); }
+
+/* El código se lee y se copia mejor grande, centrado y espaciado. */
+.ingreso__codigo {
+  min-height: 56px;
+  font-size: 1.75rem; font-weight: 650;
+  letter-spacing: 0.35em; text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.ingreso__codigo::placeholder { color: var(--ink-3); opacity: 0.45; }
+
+.ingreso__otras-acciones {
+  display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--e-2);
+  margin-top: var(--e-2);
+}
+.ingreso__otras-acciones .btn { font-size: var(--t-sm); }
+.ingreso__reenviar:disabled { color: var(--ink-3); cursor: default; }
+
 .ingreso__pie {
   margin-top: var(--e-6); padding-top: var(--e-5);
   border-top: 1px solid var(--linea);
