@@ -254,7 +254,8 @@ create policy "control de gestión edita la nómina" on public.usuarios_autoriza
 --  Supabase se registraba igual, con cualquier correo.
 --
 --  Aquí queda del lado del servidor, que es el único lugar donde una regla de
---  acceso significa algo. Se puede entrar por dos caminos:
+--  acceso significa algo. Hay dos caminos posibles (hoy se usa solo el 2: la
+--  tabla de dominios está vacía, ver más abajo):
 --
 --    1. El dominio del correo está en `dominios_permitidos`  → entra la
 --       institución completa sin tener que enumerar a nadie.
@@ -276,12 +277,20 @@ create table if not exists public.dominios_permitidos (
 comment on table public.dominios_permitidos is
   'Dominios de correo que pueden registrarse sin estar en la nómina. Un registro con dominio = ''*'' desactiva la restricción por completo.';
 
--- Semilla: los dos dominios institucionales. `on conflict do nothing` deja
--- intactos los cambios que se hayan hecho a mano después.
-insert into public.dominios_permitidos (dominio, nota) values
-  ('redsalud.gob.cl', 'Correo institucional de la red asistencial'),
-  ('minsal.cl',       'Correo institucional del Ministerio de Salud')
-on conflict (dominio) do nothing;
+-- Sin semilla, a propósito. Desde la versión 3.10.1 la plataforma funciona
+-- SOLO CON LA NÓMINA: puede crear cuenta únicamente quien esté en
+-- `usuarios_autorizados`, aunque tenga correo institucional. Así nadie ajeno a
+-- la planificación carga actividades por su cuenta.
+--
+-- Antes este archivo insertaba redsalud.gob.cl y minsal.cl aquí. Se quitó para
+-- que volver a ejecutar el esquema no reabra el acceso por dominio sin que
+-- nadie lo note. Si algún día se quiere abrir un dominio completo:
+--
+--   insert into public.dominios_permitidos (dominio, nota)
+--   values ('redsalud.gob.cl', 'Correo institucional de la red asistencial');
+--
+-- Para cerrar el acceso en una base que ya tenía los dominios cargados, ver
+-- docs/acceso-solo-nomina.sql.
 
 -- Solo Control de Gestión ve y edita esta lista: es una llave de acceso, no un
 -- catálogo. El trigger que la consulta corre con privilegios elevados, así que

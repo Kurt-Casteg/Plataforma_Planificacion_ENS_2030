@@ -140,13 +140,12 @@ export const nube = {
       .test(error.message || '');
 
     if (esRechazo) {
-      const dominios = CONFIG.nube.dominiosPermitidos || [];
-      const sufijo = dominios.length
-        ? ` Si no es un correo institucional (${dominios.map((d) => `@${d}`).join(' o ')}),`
-        : ' Si es la primera vez que entras,';
+      // Desde la 3.10.1 solo entra quien está en la nómina, tenga o no correo
+      // institucional: el mensaje no puede sugerir que el dominio basta.
       throw new Error(
-        `Ese correo no está autorizado para acceder a la plataforma.${sufijo}` +
-        ' pide al Departamento de Control de Gestión que lo agregue a la nómina.'
+        'Ese correo no está autorizado para acceder a la plataforma. Solo pueden ingresar las ' +
+        'personas registradas en la nómina de planificación: si debes registrar actividades, ' +
+        'pide al Departamento de Control de Gestión que te incorpore.'
       );
     }
 

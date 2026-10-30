@@ -637,7 +637,18 @@ abriera la consola del navegador y llamara a la API de Supabase directamente se
 registraba igual, con el correo que quisiera. Ahora un *trigger* corta el alta
 antes de que la cuenta exista.
 
-Hay **dos caminos** para poder registrarse, y basta cumplir uno:
+> **Configuración actual (desde la 3.10.1): solo la nómina.** La tabla de
+> dominios está vacía, así que solo puede crear cuenta quien esté en
+> `usuarios_autorizados`, **aunque tenga correo @redsalud.gob.cl o @minsal.cl**.
+> Una persona fuera de la nómina que pida el enlace verá *«Ese correo no está
+> autorizado para acceder a la plataforma…»* y no se le crea cuenta.
+>
+> Para aplicar esto en una base que todavía tenía los dominios cargados, ejecuta
+> `docs/acceso-solo-nomina.sql` en Supabase → **SQL Editor**. Además de cerrar
+> los dominios, lista a quienes **ya** tenían cuenta sin estar en la nómina (esas
+> cuentas siguen entrando hasta que se agreguen a la nómina o se eliminen).
+
+La base admite **dos caminos** para registrarse, y basta cumplir uno:
 
 | Camino | Dónde se define | Para qué sirve |
 |---|---|---|
@@ -676,7 +687,11 @@ invierte el orden.
 
 ### Agregar o quitar un dominio completo
 
-Se hace desde Supabase → **SQL Editor**:
+Hoy no hay ninguno, a propósito. Si algún día se quisiera abrir un dominio
+entero —por ejemplo, para que entre cualquiera con correo institucional sin
+estar en la nómina—, se hace desde Supabase → **SQL Editor**. Ten presente que
+quien entre por esa vía queda con perfil Equipo y elige su departamento sin que
+nadie lo verifique:
 
 ```sql
 -- Agregar un dominio
@@ -699,7 +714,10 @@ fila vuelve a cerrar la puerta de inmediato.
 - **Solo afecta a cuentas nuevas.** Quien ya tiene cuenta creada sigue entrando
   aunque su correo deje de estar autorizado, porque al volver a iniciar sesión
   Supabase no registra nada: solo envía el enlace. Para cortarle el acceso hay
-  que eliminar su cuenta en **Authentication → Users**.
+  que eliminar su cuenta en **Authentication → Users**. Al eliminarla se borran
+  también su perfil y **todas sus actividades**.
+- **Sacar a alguien de la nómina no le quita el acceso** por la misma razón:
+  hay que eliminar además su cuenta.
 - **También aplica a las cuentas creadas a mano** desde el panel de Supabase. Si
   necesitas crear una, primero agrega el correo a la nómina; si no, la creación
   falla con «Database error saving new user».
