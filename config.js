@@ -25,7 +25,7 @@ export const CONFIG = {
    * comprobar de un vistazo si el navegador está mostrando la última versión
    * publicada o una copia guardada en caché. Súbela con cada despliegue.
    */
-  version: '3.11.0',
+  version: '3.12.0',
 
   /**
    * Sincronización con la nube (Supabase).
@@ -65,8 +65,11 @@ export const CONFIG = {
   /** Correo del equipo que da soporte a la plataforma. */
   soporte: 'kurt.castro@redsalud.gob.cl',
 
-  /** Enlaces de referencia mostrados en la cabecera de cada plan. */
+  /**
+   * Enlaces de referencia mostrados en la cabecera de cada plan.
+   * «{anio}» se reemplaza por el período con que se está trabajando.
+   */
   enlaces: {
-    lineamientos: 'https://simpo.minsal.cl/lineamientos_tematicos_publicados/2026'
+    lineamientos: 'https://simpo.minsal.cl/lineamientos_tematicos_publicados/{anio}'
   }
 };

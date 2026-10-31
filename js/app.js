@@ -451,7 +451,10 @@ async function guardarActividad(actividad, { editaba }) {
 }
 
 function dibujarPortada(plan) {
-  const enlace = plan.enlace ? CONFIG.enlaces[plan.enlace.url.split('.')[1]] : null;
+  // La dirección puede traer «{anio}»: se completa con el período de la pestaña.
+  const enlace = plan.enlace
+    ? CONFIG.enlaces[plan.enlace.url.split('.')[1]]?.replace('{anio}', String(periodo.anio))
+    : null;
   render($('#portada'), el('div', { class: 'portada' }, [
     el('div', {}, [
       el('h2', { class: 'portada__titulo', text: plan.nombre }),

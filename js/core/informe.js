@@ -146,17 +146,23 @@ function mensualizar(fichas) {
 function analizarCobertura(fichasPNS, ens) {
   if (!ens?.objetivosEstrategicos?.length) return null;
 
-  const contar = (campo) => {
+  // RE y RI se cuentan junto con su tema: un mismo código puede repetirse en
+  // dos temas (el RE 1.4.2 está en «Enfermedades Transmisibles en Eliminación» y
+  // en «Infecciones Respiratorias Agudas», con RI distintos), y sin el tema las
+  // actividades de uno se contarían también en el otro.
+  const contar = (campo, conTema = false) => {
     const m = new Map();
     for (const { actividad: a } of fichasPNS) {
-      if (a[campo]) m.set(a[campo], (m.get(a[campo]) || 0) + 1);
+      if (!a[campo]) continue;
+      const k = conTema ? `${a.tema}\u0000${a[campo]}` : a[campo];
+      m.set(k, (m.get(k) || 0) + 1);
     }
     return m;
   };
 
   const porOE = contar('objetivoEstrategico');
-  const porRE = contar('resultadoEsperado');
-  const porRI = contar('resultadoInmediato');
+  const porRE = contar('resultadoEsperado', true);
+  const porRI = contar('resultadoInmediato', true);
 
   const porTema = new Map();
   for (const { actividad: a } of fichasPNS) {
@@ -181,9 +187,9 @@ function analizarCobertura(fichasPNS, ens) {
           resultadosEsperados.push({
             oe: oe.codigo, tema: t.nombre, oi: oi.codigo,
             codigo: re.codigo, nombre: re.nombre,
-            actividades: porRE.get(re.codigo) || 0,
+            actividades: porRE.get(`${t.nombre}\u0000${re.codigo}`) || 0,
             resultadosInmediatos: re.resultadosInmediatos.length,
-            riCubiertos: re.resultadosInmediatos.filter((ri) => porRI.has(ri.codigo)).length
+            riCubiertos: re.resultadosInmediatos.filter((ri) => porRI.has(`${t.nombre}\u0000${ri.codigo}`)).length
           });
         }
       }
