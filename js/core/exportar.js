@@ -9,7 +9,7 @@
  * al exportar, para evitar la inyección de fórmulas en Excel (CSV injection).
  */
 
-import { MESES, IDS_MESES, SUBTITULOS, normalizarActividad, textoSGC } from './modelo.js';
+import { MESES, IDS_MESES, SUBTITULOS, normalizarActividad, textoSGC, NOMBRE_ESTADO } from './modelo.js';
 import { nombreArchivo } from './formato.js';
 import { etiquetaDe, buscarAsignacion } from './catalogos.js';
 
@@ -89,7 +89,10 @@ const COLUMNAS_DETALLE = [
  * Convierte las actividades en filas planas listas para una planilla.
  * @param {object} ctx { plan, catalogos, ens }
  */
-export function construirFilas(actividades, { plan, catalogos, ens }) {
+/** «2026-11-12T14:03:00Z» → «12-11-2026» (vacío si no hay fecha). */
+const fechaCorta = (iso) => (iso ? new Date(iso).toLocaleDateString('es-CL') : '');
+
+export function construirFilas(actividades, { plan, catalogos, ens, conEstado = false }) {
   const columnas = [
     ...COLUMNAS_BASE,
     ...(plan.id === 'pns' ? COLUMNAS_PNS : COLUMNAS_PGI),
@@ -111,7 +114,10 @@ export function construirFilas(actividades, { plan, catalogos, ens }) {
     'En Plan Anual de Compras',
     'N° de compras PAC',
     'Total PAC (M$)',
-    'Fecha de registro'
+    'Fecha de registro',
+    // Con el circuito de aprobación encendido, al final para no mover las
+    // columnas de siempre (hay planillas y fórmulas que dependen de su orden).
+    ...(conEstado ? ['Estado', 'Enviada a revisión', 'Decidida por', 'Fecha de decisión', 'Última observación'] : [])
   ];
 
   const filas = actividades.map((a) => {
@@ -143,7 +149,14 @@ export function construirFilas(actividades, { plan, catalogos, ens }) {
       a.pac.aplica ? 'Sí' : 'No',
       a.pac.compras.length,
       a.totales.pac,
-      new Date(a.creadaEn).toLocaleDateString('es-CL')
+      new Date(a.creadaEn).toLocaleDateString('es-CL'),
+      ...(conEstado ? [
+        NOMBRE_ESTADO[a.estado] || 'Borrador',
+        fechaCorta(a.revision?.enviadaEn),
+        seguro(['aprobada', 'observada'].includes(a.estado) ? (a.revision?.decididaPor || '') : ''),
+        ['aprobada', 'observada'].includes(a.estado) ? fechaCorta(a.revision?.decididaEn) : '',
+        seguro(a.estado === 'observada' ? (a.revision?.observacion || '') : '')
+      ] : [])
     ];
   });
 

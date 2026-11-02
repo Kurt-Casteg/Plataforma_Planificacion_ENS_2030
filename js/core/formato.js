@@ -14,7 +14,10 @@ export const monto = (n) => `M$ ${MILES.format(Number(n) || 0)}`;
 export const pesos = (n) => `$ ${MILES.format((Number(n) || 0) * 1000)}`;
 
 export const fecha = (iso) => {
-  const d = new Date(iso);
+  // «2027-03-01» sola se leería como medianoche UTC, que en Chile es el día
+  // anterior: las fechas sin hora se arman en hora local.
+  const solo = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ''));
+  const d = solo ? new Date(Number(solo[1]), Number(solo[2]) - 1, Number(solo[3])) : new Date(iso);
   return Number.isNaN(d.getTime()) ? '' : FECHA.format(d);
 };
 

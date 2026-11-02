@@ -55,6 +55,10 @@ que se publican en GitHub Pages y se abren en cualquier navegador moderno.
 │       ├── formulario.js     Construye el formulario a partir de la definición del plan.
 │       ├── tabla.js          Listado, búsqueda, filtros y detalle.
 │       ├── panel.js          Indicadores y gráficos.
+│       ├── analisis-pac.js   Análisis del Plan Anual de Compras (calendario, holgura, compras parecidas, marco).
+│       ├── aprobacion.js     Circuito de aprobación: estados, bandeja de la jefatura, avance.
+│       ├── ajustes.js        Interruptores de la plataforma leídos desde Supabase.
+│       ├── configuracion.js  «Más» → «Configuración de la plataforma» (Control de Gestión).
 │       ├── exportar.js       Excel, CSV, respaldo e importación.
 │       ├── informe.js        Informe consolidado: cálculo y libro de Excel.
 │       ├── informe-vista.js  Informe consolidado: vista imprimible (PDF).
@@ -119,6 +123,7 @@ publica la nueva versión automáticamente.
 | Cambiar colores o tipografía | `css/tokens.css` |
 | Activar la base de datos compartida | `config.js` → `nube` + `docs/GUIA-SUPABASE.md` |
 | Agregar o mover a una persona | `docs/nomina.sql` |
+| Encender o apagar la aprobación por jefatura o el análisis del PAC | «Más» → «Configuración de la plataforma» (ver `docs/GUIA-ADMINISTRACION.md`) |
 
 ---
 

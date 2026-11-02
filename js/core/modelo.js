@@ -146,6 +146,32 @@ export function camposPendientes(compra) {
  * Devuelve una actividad normalizada y con todos los totales recalculados.
  * Los totales NUNCA se confían al origen: siempre se derivan de los meses.
  */
+/** Estados del circuito de aprobación, en el orden en que avanza una actividad. */
+export const ESTADOS = ['borrador', 'revision', 'observada', 'aprobada'];
+
+/** Cómo se nombra cada estado en pantalla y en las planillas. */
+export const NOMBRE_ESTADO = {
+  borrador: 'Borrador', revision: 'En revisión', observada: 'Observada', aprobada: 'Aprobada'
+};
+
+/** Bitácora de revisión: solo campos conocidos, como texto. */
+function normalizarRevision(r) {
+  if (!r || typeof r !== 'object') return {};
+  const t = (v, max = 2000) => (v == null ? '' : String(v).slice(0, max));
+  const salida = {};
+  for (const k of ['enviadaEn', 'enviadaPor', 'decididaEn', 'decididaPor', 'observacion']) {
+    if (r[k]) salida[k] = t(r[k]);
+  }
+  if (Array.isArray(r.historial)) {
+    salida.historial = r.historial.slice(-50).map((h) => ({
+      estado: ESTADOS.includes(h?.estado) ? h.estado : 'borrador',
+      en: t(h?.en, 40), por: t(h?.por, 120),
+      ...(h?.observacion ? { observacion: t(h.observacion) } : {})
+    }));
+  }
+  return salida;
+}
+
 export function normalizarActividad(entrada = {}, { planId } = {}) {
   const cronograma = mapaMeses(entrada.cronograma ?? entrada, { max: LIMITES.mesCantidad });
 
@@ -224,6 +250,15 @@ export function normalizarActividad(entrada = {}, { planId } = {}) {
     presupuesto,
     pac,
     totales,
+
+    // Circuito de aprobación. El estado lo cambia el equipo (borrador ↔
+    // revisión) o la jefatura (aprobada / observada); la bitácora de revisión
+    // la escribe solo el servidor y aquí se conserva tal cual llega.
+    estado: ESTADOS.includes(entrada.estado) ? entrada.estado : 'borrador',
+    // Cuenta dueña de la actividad (la fija el servidor). Vacío en lo que
+    // nunca subió: eso es de quien está usando este navegador.
+    propietario: texto(entrada.propietario, 60),
+    revision: normalizarRevision(entrada.revision),
 
     creadaEn: entrada.creadaEn || ahora,
     // Se conserva la marca de tiempo de origen: es la que decide qué versión

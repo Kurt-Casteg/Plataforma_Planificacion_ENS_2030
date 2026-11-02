@@ -77,6 +77,7 @@ async function obtenerCliente() {
 const desdeFila = (fila) => normalizarActividad({
   ...fila.datos,
   id: fila.id,
+  propietario: fila.propietario,
   plan: fila.plan,
   creadaEn: fila.creada_en,
   actualizadaEn: fila.actualizada_en
@@ -146,6 +147,26 @@ function traducirErrorDeAcceso(error) {
     return new Error('No hay conexión con el servidor. Revisa tu internet e inténtalo de nuevo.');
   }
   return new Error(error?.message || 'No se pudo completar el ingreso.');
+}
+
+/**
+ * Un rechazo deliberado del servidor (regla de negocio o permiso), distinto de
+ * un corte de red: no tiene sentido reintentarlo, y la copia local debe volver
+ * a lo que dice el servidor.
+ */
+function rechazo(mensaje) {
+  const e = new Error(mensaje);
+  e.rechazo = true;
+  return e;
+}
+
+/** Traduce un error de PostgREST: los avisos de las reglas ya vienen en español. */
+function errorDelServidor(error) {
+  const codigo = String(error?.code || '');
+  if (codigo === 'P0001' || codigo === '42501' || codigo === '22023' || /row-level security/i.test(error?.message || '')) {
+    return rechazo(/row-level security/i.test(error.message) ? SIN_PERMISO : error.message);
+  }
+  return new Error(error?.message || 'Error del servidor.');
 }
 
 export const nube = {
@@ -300,20 +321,24 @@ export const nube = {
     const sb = await obtenerCliente();
     const { data, error } = await sb
       .from('actividades')
-      .select('id, plan, datos, creada_en, actualizada_en')
+      .select('id, plan, propietario, datos, creada_en, actualizada_en')
       .eq('anio', periodo.anio);
     if (error) throw new Error(error.message);
     return (data || []).map(desdeFila);
   },
 
   /**
-   * Guarda una actividad.
+   * Guarda una actividad y devuelve la versión que quedó en el servidor.
    *
    * Se pide de vuelta la fila escrita a propósito. Row Level Security no lanza
    * error cuando una actualización no alcanza ninguna fila: simplemente no
    * modifica nada. Sin esta comprobación, alguien en modo Observador —o con una
    * pestaña abierta desde antes de cambiar de perfil— vería «guardada» sobre
    * una escritura que nunca ocurrió.
+   *
+   * Y se pide la fila completa, no solo el id: el servidor completa datos que
+   * el navegador no decide —el estado y la bitácora de revisión, la fecha real
+   * de actualización— y la copia local tiene que reflejarlos.
    */
   async guardar(actividad) {
     const sb = await obtenerCliente();
@@ -322,16 +347,55 @@ export const nube = {
     const { data, error } = await sb
       .from('actividades')
       .upsert(aFila(actividad, user.id), { onConflict: 'id' })
-      .select('id');
-    if (error) throw new Error(error.message);
-    if (!data || !data.length) throw new Error(SIN_PERMISO);
+      .select('id, plan, propietario, datos, creada_en, actualizada_en');
+    if (error) throw errorDelServidor(error);
+    if (!data || !data.length) throw rechazo(SIN_PERMISO);
+    return desdeFila(data[0]);
   },
 
   async eliminar({ id }) {
     const sb = await obtenerCliente();
     const { data, error } = await sb.from('actividades').delete().eq('id', id).select('id');
+    if (error) throw errorDelServidor(error);
+    if (!data || !data.length) throw rechazo(SIN_PERMISO);
+  },
+
+  /**
+   * Aprueba, observa o reabre actividades (jefatura y Control de Gestión).
+   * Es la única vía para hacerlo: el servidor rechaza que una actividad cambie
+   * a «aprobada» u «observada» por cualquier otro camino.
+   *
+   * @param {string[]} ids
+   * @param {'aprobar'|'observar'|'reabrir'} decision
+   * @param {string} [observacion]  Obligatoria al observar.
+   * @returns {Promise<object[]>} Las actividades tal como quedaron.
+   */
+  async decidir(ids, decision, observacion = null) {
+    const sb = await obtenerCliente();
+    const { data, error } = await sb.rpc('decidir_actividades', {
+      p_ids: ids, p_decision: decision, p_observacion: observacion
+    });
+    if (error) throw errorDelServidor(error);
+    return (data || []).map(desdeFila);
+  },
+
+  /** Ajustes de la plataforma: [{ clave, valor }]. */
+  async configuracion() {
+    const sb = await obtenerCliente();
+    const { data, error } = await sb.from('configuracion').select('clave, valor');
     if (error) throw new Error(error.message);
-    if (!data || !data.length) throw new Error(SIN_PERMISO);
+    return data || [];
+  },
+
+  /** Guarda un ajuste. Solo Control de Gestión: el servidor rechaza a los demás. */
+  async guardarConfiguracion(clave, valor) {
+    const sb = await obtenerCliente();
+    const { data, error } = await sb
+      .from('configuracion')
+      .upsert({ clave, valor }, { onConflict: 'clave' })
+      .select('clave');
+    if (error) throw errorDelServidor(error);
+    if (!data || !data.length) throw rechazo('El servidor no aceptó el cambio: solo Control de Gestión puede modificar la configuración.');
   },
 
   /**

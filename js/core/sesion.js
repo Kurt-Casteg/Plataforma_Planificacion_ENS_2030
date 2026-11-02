@@ -13,6 +13,7 @@ import { abrirModal, avisar, confirmar, mostrarCargando } from './ui.js';
 import { almacen } from './almacen.js';
 import { perfil } from './perfil.js';
 import { periodo } from './periodo.js';
+import { ajustes } from './ajustes.js';
 import { etiquetaDe } from './catalogos.js';
 
 export async function iniciarSesionEnLaNube({ indicador, catalogos }) {
@@ -66,6 +67,10 @@ export async function iniciarSesionEnLaNube({ indicador, catalogos }) {
   const datos = await perfil.cargar(nube, sesion);
 
   marcar('nube', datos.nombre || sesion.user.email, 'Ver tu sesión o cerrarla');
+
+  // Circuito de aprobación y análisis del PAC: se leen antes que las
+  // actividades porque cambian columnas, botones y bloques del listado.
+  await ajustes.cargar(nube);
 
   await almacen.conectarNube(nube);
 

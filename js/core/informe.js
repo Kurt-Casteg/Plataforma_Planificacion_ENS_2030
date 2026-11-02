@@ -329,7 +329,7 @@ function analizarPac(fichas, { clasificador, catalogos }) {
  */
 export function reunirInforme({
   actividades, planes, catalogos, ens = null, clasificador = { items: [] },
-  institucion = '', anio = new Date().getFullYear()
+  institucion = '', anio = new Date().getFullYear(), alcance = ''
 }) {
   const porId = new Map(planes.map((p) => [p.id, p]));
 
@@ -360,6 +360,9 @@ export function reunirInforme({
     generado: new Date(),
     institucion,
     anio,
+    // «Solo actividades aprobadas…» cuando el circuito de aprobación rige y se
+    // pidió el informe para el traspaso; vacío si incluye todo.
+    alcance,
     catalogos,
     ens,
     clasificador,
@@ -439,6 +442,7 @@ export async function exportarInformeExcel(informe) {
     [`Informe consolidado de planificación ${anio}`],
     [institucion],
     [`Generado el ${fechaTexto}`],
+    ...(informe.alcance ? [[informe.alcance]] : []),
     [],
     ['Resumen general'],
     ['Actividades registradas', totales.actividades],

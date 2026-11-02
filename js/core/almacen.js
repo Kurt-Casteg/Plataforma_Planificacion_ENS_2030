@@ -278,13 +278,13 @@ class Almacen extends EventTarget {
   }
 
   /** Conecta un adaptador de nube (Supabase). Opcional. */
-  async conectarNube(adaptador) {
+  async conectarNube(adaptador, { forzar = false } = {}) {
     this.#adaptadorNube = adaptador;
     if (!adaptador) return;
     const inicio = Date.now();
     try {
       const remotas = await adaptador.listar();
-      this.#reconciliar(remotas, inicio);
+      this.#reconciliar(remotas, inicio, { forzar });
       this.#persistir();
       this.#emitir();
     } catch (e) {
@@ -305,7 +305,7 @@ class Almacen extends EventTarget {
    * confirmó DESPUÉS de ese momento pudo no alcanzar a salir en la lista; no
    * por eso se ha eliminado, así que se respeta.
    */
-  #reconciliar(remotas, inicio) {
+  #reconciliar(remotas, inicio, { forzar = false } = {}) {
     const idsRemotos = new Set();
     const porId = new Map(this.#actividades.map((a) => [a.id, a]));
 
@@ -314,7 +314,9 @@ class Almacen extends EventTarget {
       if (this.#eliminando.has(normal.id)) continue;
       idsRemotos.add(normal.id);
       const local = porId.get(normal.id);
-      if (!local || new Date(normal.actualizadaEn) >= new Date(local.actualizadaEn)) {
+      // `forzar`: tras un rechazo del servidor manda su versión, aunque la
+      // local sea más reciente (es justamente el cambio que no se aceptó).
+      if (!local || forzar || new Date(normal.actualizadaEn) >= new Date(local.actualizadaEn)) {
         porId.set(normal.id, normal);
       }
     }
@@ -383,9 +385,12 @@ class Almacen extends EventTarget {
 
     const resultado = this.#persistir();
     this.#emitir();
-    this.#sincronizarEnSegundoPlano('guardar', normal, () => {
+    this.#sincronizarEnSegundoPlano('guardar', normal, (remota) => {
       this.#sincronizadas.add(normal.id);
       this.#confirmadas.set(normal.id, Date.now());
+      // El servidor completa lo que el navegador no decide (estado, bitácora
+      // de revisión): la copia local adopta esa versión.
+      if (remota) this.#reemplazar(remota, { emitir: true });
       this.#persistir();
     });
     return { actividad: normal, ...resultado };
@@ -415,7 +420,10 @@ class Almacen extends EventTarget {
       id: nuevoId(),
       codigoActividad: '',
       nombreActividad: `${original.nombreActividad} (copia)`,
-      creadaEn: undefined
+      creadaEn: undefined,
+      // La copia es una actividad nueva: parte como borrador, sin historial.
+      estado: 'borrador',
+      revision: {}
     });
     await this.guardar(copia);
     return copia;
@@ -424,7 +432,9 @@ class Almacen extends EventTarget {
   /** Reemplaza o agrega un lote de actividades (importación). */
   async importar(lista, { modo = 'agregar' } = {}) {
     this.#exigirEscritura('importar actividades');
-    const entrantes = lista.map((a) => normalizarActividad(a));
+    // Lo importado entra como borrador: un respaldo puede traer «aprobada»,
+    // pero esa decisión es de la jefatura y la registra el servidor.
+    const entrantes = lista.map((a) => normalizarActividad({ ...a, estado: 'borrador', revision: {} }));
     // Lo importado es local hasta que se vuelva a guardar con sesión: si la
     // nube no lo tiene, no debe interpretarse como «eliminado por otro».
     for (const a of entrantes) { this.#sincronizadas.delete(a.id); this.#confirmadas.delete(a.id); }
@@ -460,12 +470,44 @@ class Almacen extends EventTarget {
     return r;
   }
 
+  /**
+   * Incorpora actividades que devolvió el servidor (por ejemplo, tras una
+   * aprobación de la jefatura): reemplazan a la copia local y quedan anotadas
+   * como sincronizadas.
+   */
+  aplicarRemotas(lista) {
+    for (const r of lista) {
+      this.#reemplazar(r);
+      this.#sincronizadas.add(r.id);
+      this.#confirmadas.set(r.id, Date.now());
+    }
+    this.#persistir();
+    this.#emitir();
+  }
+
+  #reemplazar(remota, { emitir = false } = {}) {
+    const normal = normalizarActividad(remota);
+    const i = this.#actividades.findIndex((a) => a.id === normal.id);
+    if (i >= 0) this.#actividades[i] = normal;
+    else this.#actividades.push(normal);
+    if (emitir) this.#emitir();
+  }
+
   #sincronizarEnSegundoPlano(accion, carga, alConfirmar = null, alTerminar = null) {
     if (!this.#adaptadorNube) { alTerminar?.(); return; }
     Promise.resolve()
       .then(() => this.#adaptadorNube[accion](carga))
-      .then(() => alConfirmar?.())
+      .then((resultado) => alConfirmar?.(resultado))
       .catch((e) => {
+        if (e?.rechazo) {
+          // El servidor dijo que no por una regla (actividad aprobada, permiso):
+          // reintentar no sirve. Se avisa y la copia local vuelve a lo que dice
+          // el servidor, para no mostrar un cambio que no existe.
+          console.warn('El servidor rechazó el cambio:', e.message);
+          this.dispatchEvent(new CustomEvent('sincronizacion:rechazo', { detail: e }));
+          this.conectarNube(this.#adaptadorNube, { forzar: true });
+          return;
+        }
         console.warn('Sincronización pendiente (se reintentará):', e);
         this.dispatchEvent(new CustomEvent('sincronizacion:error', { detail: e }));
       })

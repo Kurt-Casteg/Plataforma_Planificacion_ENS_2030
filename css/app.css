@@ -1749,3 +1749,244 @@ body.con-ingreso .asistente { display: none; }
 }
 
 @page { size: A4; margin: 14mm 12mm; }
+
+/* ==================================================================== */
+/* 3.14 · Circuito de aprobación por jefatura                            */
+/* ==================================================================== */
+
+/* Botones del circuito: aprobar (verde) y devolver con observación (ámbar). */
+.btn--exito { background: var(--exito-ink); color: #fff; }
+.btn--exito:hover:not(:disabled) { filter: brightness(0.92); }
+.btn--alerta { background: var(--alerta); color: #1b1300; }
+.btn--alerta:hover:not(:disabled) { filter: brightness(0.94); }
+.btn--chico { min-height: 32px; padding-inline: var(--e-3); font-size: var(--t-xs); }
+.btn--accion { color: var(--marca); }
+.btn--accion:hover:not(:disabled) { background: var(--marca-suave); }
+.btn--exito-texto { color: var(--exito-ink); }
+.btn--exito-texto:hover:not(:disabled) { background: var(--exito-suave); }
+
+/* Etiqueta de estado de una actividad. */
+.estado {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 2px 10px; border-radius: var(--r-full);
+  font-size: var(--t-xs); font-weight: 650; white-space: nowrap;
+  background: var(--superficie-3); color: var(--ink-2);
+}
+.estado::before {
+  content: ''; width: 7px; height: 7px; border-radius: 50%;
+  background: currentColor; opacity: 0.8;
+}
+.estado--revision  { background: var(--info-suave);   color: var(--info-ink); }
+.estado--observada { background: var(--alerta-suave); color: var(--alerta-ink); }
+.estado--aprobada  { background: var(--exito-suave);  color: var(--exito-ink); }
+.col--estado { min-width: 150px; }
+.col--estado .tabla__sub { white-space: normal; }
+
+/* Filtro por estado sobre el listado. */
+.filtro-estados { display: flex; flex-wrap: wrap; gap: var(--e-2); margin-bottom: var(--e-3); }
+.filtro-estados__opcion {
+  font: inherit; font-size: var(--t-xs); font-weight: 600; cursor: pointer;
+  padding: 6px 12px; border-radius: var(--r-full);
+  border: 1px solid var(--borde-fuerte); background: var(--superficie); color: var(--ink-2);
+}
+.filtro-estados__opcion:hover { background: var(--superficie-3); color: var(--ink); }
+.filtro-estados__opcion--activa,
+.filtro-estados__opcion--activa:hover { background: var(--marca); border-color: var(--marca); color: #fff; }
+.filtro-estados__opcion:focus-visible { outline: none; box-shadow: var(--anillo); }
+
+/* Observación de la jefatura: bajo la fila y en el detalle. */
+.tabla tbody tr.fila--observada td { border-bottom-color: transparent; }
+.tabla tbody tr.fila-observacion:hover { background: transparent; }
+.tabla tbody tr.fila-observacion td { padding-top: 0; }
+.observacion {
+  padding: var(--e-2) var(--e-3); border-radius: var(--r-sm);
+  background: var(--alerta-suave); color: var(--ink);
+  border-left: 3px solid var(--alerta); font-size: var(--t-sm);
+}
+.observacion__titulo { font-weight: 700; color: var(--alerta-ink); font-size: var(--t-xs); }
+.observacion__texto { margin-top: 2px; white-space: pre-wrap; }
+
+.detalle__revision { display: grid; gap: var(--e-3); }
+.detalle__revision-estado { display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-3); }
+.detalle__historial > summary { cursor: pointer; font-size: var(--t-sm); font-weight: 600; color: var(--marca); }
+.detalle__historial ol { margin: var(--e-2) 0 0; padding-left: var(--e-5); display: grid; gap: var(--e-1); font-size: var(--t-sm); }
+.detalle__historial-obs { display: block; color: var(--ink-2); font-style: italic; }
+
+/* Zona de revisión (bandeja de la jefatura, avance de Control de Gestión). */
+#zonaRevision:not([hidden]) { display: grid; gap: var(--e-6); margin-bottom: var(--e-6); }
+#zonaRevision > .panel + .panel { margin-top: 0; }
+.revision__plazo {
+  align-self: center; padding: 4px 12px; border-radius: var(--r-full);
+  background: var(--marca-suave); color: var(--marca-ink); font-size: var(--t-xs); font-weight: 650;
+}
+.revision__cuerpo { display: grid; gap: var(--e-5); }
+.revision__fichas { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--e-3); }
+.revision__ficha {
+  padding: var(--e-3) var(--e-4); border-radius: var(--r-md);
+  border: 1px solid var(--borde); background: var(--superficie-2);
+}
+.revision__ficha--destacada { border-color: var(--marca-borde); background: var(--marca-suave); }
+.revision__ficha-titulo { font-size: var(--t-xs); color: var(--ink-2); font-weight: 600; }
+.revision__ficha-valor { font-size: var(--t-xl); font-weight: 700; font-variant-numeric: tabular-nums; }
+.revision__ficha--destacada .revision__ficha-valor { color: var(--marca-ink); }
+.revision__vacio { color: var(--ink-2); }
+.revision__lote { display: flex; justify-content: flex-end; }
+
+.bandeja { border: 1px solid var(--borde); border-radius: var(--r-md); overflow: hidden; }
+.bandeja__fila {
+  display: grid; grid-template-columns: 36px minmax(0, 1fr) 110px auto;
+  align-items: center; gap: var(--e-3); padding: var(--e-3) var(--e-4);
+  border-bottom: 1px solid var(--linea); font-size: var(--t-sm);
+}
+.bandeja__fila:last-child { border-bottom: 0; }
+.bandeja__fila--cabecera {
+  background: var(--superficie-2); font-size: var(--t-xs); font-weight: 650;
+  color: var(--ink-2); text-transform: uppercase; letter-spacing: 0.03em;
+}
+.bandeja__actividad { min-width: 0; }
+.bandeja__fecha { color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.bandeja__acciones { display: flex; gap: var(--e-2); justify-content: flex-end; }
+.bandeja input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--marca); }
+@media (max-width: 640px) {
+  .bandeja__fila { grid-template-columns: 28px minmax(0, 1fr); }
+  .bandeja__fecha, .bandeja__acciones { grid-column: 2; justify-content: flex-start; }
+  .bandeja__fila--cabecera span:nth-child(n+3) { display: none; }
+}
+
+/* Avance de la aprobación por departamento. */
+.avance td { vertical-align: middle; }
+.avance__fila--sin td:first-child { color: var(--peligro-ink); font-weight: 600; }
+.avance__celda { display: flex; align-items: center; gap: var(--e-3); min-width: 180px; }
+.avance__barra {
+  display: flex; flex: 1; height: 10px; border-radius: var(--r-full);
+  overflow: hidden; background: var(--superficie-3);
+}
+.avance__tramo { display: block; height: 100%; }
+.avance__tramo--aprobada  { background: var(--exito); }
+.avance__tramo--revision  { background: var(--info); }
+.avance__tramo--observada { background: var(--alerta); }
+.avance__pct { font-variant-numeric: tabular-nums; font-weight: 650; min-width: 3.5em; text-align: right; }
+.avance__leyenda {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-2) var(--e-4);
+  font-size: var(--t-xs); color: var(--ink-2);
+}
+.avance__muestra {
+  display: inline-block; width: 12px; height: 12px; border-radius: 3px;
+  margin-right: -6px; vertical-align: middle;
+}
+.avance__muestra--vacia { background: var(--superficie-3); border: 1px solid var(--borde-fuerte); }
+
+/* ==================================================================== */
+/* 3.14 · Análisis del Plan Anual de Compras                             */
+/* ==================================================================== */
+
+#zonaPac:not([hidden]) { margin-top: var(--e-6); }
+.apac__cuerpo { display: grid; gap: var(--e-6); }
+.apac__bloque { display: grid; gap: var(--e-3); }
+.apac__bloque + .apac__bloque { padding-top: var(--e-6); border-top: 1px solid var(--linea); }
+.apac__encabezado { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--e-2) var(--e-4); }
+.apac__titulo { font-size: var(--t-base); font-weight: 700; }
+.apac__etiqueta {
+  padding: 3px 10px; border-radius: var(--r-full); font-size: var(--t-xs); font-weight: 650;
+  background: var(--marca-suave); color: var(--marca-ink);
+}
+.apac__etiqueta--alerta { background: var(--alerta-suave); color: var(--alerta-ink); }
+.apac__etiqueta--exito  { background: var(--exito-suave);  color: var(--exito-ink); }
+.apac__nota { font-size: var(--t-xs); color: var(--ink-2); line-height: 1.5; }
+.apac__datos > summary { cursor: pointer; font-size: var(--t-sm); font-weight: 600; color: var(--marca); }
+.apac__datos > :not(summary) { margin-top: var(--e-3); }
+
+/* Calendario: doce columnas con una sola rampa azul. */
+.apac-cal {
+  display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--e-2);
+  height: 200px; align-items: stretch;
+}
+.apac-cal__mes { display: grid; grid-template-rows: auto 1fr auto; gap: 4px; min-width: 0; }
+.apac-cal__valor {
+  font-size: var(--t-xs); color: var(--ink-2); text-align: center;
+  font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.apac-cal__pista {
+  display: flex; align-items: flex-end; border-radius: var(--r-sm) var(--r-sm) 0 0;
+  background: var(--superficie-2); border-bottom: 1px solid var(--grafico-eje);
+}
+.apac-cal__barra { display: block; width: 100%; background: var(--seq-300); border-radius: var(--r-sm) var(--r-sm) 0 0; transition: height var(--transicion); }
+.apac-cal__mes--peak .apac-cal__barra { background: var(--seq-500); }
+.apac-cal__mes--peak .apac-cal__valor { color: var(--ink); font-weight: 700; }
+.apac-cal__etiqueta { font-size: var(--t-xs); font-weight: 650; color: var(--ink-3); text-align: center; letter-spacing: 0.03em; }
+@media (max-width: 640px) {
+  .apac-cal { height: 160px; gap: 3px; }
+  .apac-cal__valor { font-size: 0.625rem; }
+  .apac-cal__etiqueta { font-size: 0.625rem; }
+}
+
+/* Listas de compras con poca holgura. */
+.apac-lista { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--e-2); }
+.apac-lista__item { display: flex; align-items: flex-start; gap: var(--e-3); font-size: var(--t-sm); line-height: 1.45; }
+.apac-lista__texto { min-width: 0; }
+.apac-lista__fechas { color: var(--ink-3); font-size: var(--t-xs); }
+.apac-chip {
+  flex-shrink: 0; min-width: 9.5em; text-align: center;
+  padding: 2px 10px; border-radius: var(--r-full); font-size: var(--t-xs); font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.apac-chip--alerta  { background: var(--alerta-suave);  color: var(--alerta-ink); }
+.apac-chip--peligro { background: var(--peligro-suave); color: var(--peligro-ink); }
+
+/* Compras parecidas en varios departamentos. */
+.apac-grupos { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--e-2); }
+.apac-grupo { border: 1px solid var(--borde); border-radius: var(--r-md); background: var(--superficie-2); }
+.apac-grupo > details > summary {
+  cursor: pointer; padding: var(--e-3) var(--e-4); display: grid; gap: 2px;
+  list-style: none;
+}
+.apac-grupo > details > summary::-webkit-details-marker { display: none; }
+.apac-grupo > details > summary:focus-visible { outline: none; box-shadow: var(--anillo); border-radius: var(--r-md); }
+.apac-grupo__titulo { font-weight: 650; font-size: var(--t-sm); }
+.apac-grupo__titulo::after { content: ' ▸'; color: var(--ink-3); }
+.apac-grupo > details[open] .apac-grupo__titulo::after { content: ' ▾'; }
+.apac-grupo__detalle { font-size: var(--t-xs); color: var(--ink-2); }
+.apac-grupo__miembros {
+  margin: 0; padding: 0 var(--e-4) var(--e-3) calc(var(--e-4) + var(--e-4));
+  display: grid; gap: var(--e-1); font-size: var(--t-sm);
+}
+
+/* Planificado frente al marco presupuestario. */
+.apac-marco { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--e-3); }
+.apac-marco__fila {
+  display: grid; grid-template-columns: minmax(140px, 220px) minmax(0, 1fr) auto;
+  align-items: center; gap: var(--e-4); font-size: var(--t-sm);
+}
+.apac-marco__pista { height: 12px; border-radius: var(--r-full); background: var(--superficie-3); overflow: hidden; }
+.apac-marco__barra { display: block; height: 100%; border-radius: var(--r-full); background: var(--exito); }
+.apac-marco__fila--alerta .apac-marco__barra { background: var(--alerta); }
+.apac-marco__fila--exceso .apac-marco__barra { background: var(--peligro); }
+.apac-marco__fila--exceso .apac-marco__cifra,
+.apac-marco__fila--exceso .apac-marco__depto { color: var(--peligro-ink); font-weight: 650; }
+.apac-marco__cifra { font-variant-numeric: tabular-nums; color: var(--ink-2); white-space: nowrap; }
+@media (max-width: 640px) {
+  .apac-marco__fila { grid-template-columns: 1fr; gap: var(--e-1); }
+}
+
+/* Configuración de la plataforma (Control de Gestión). */
+.config { display: grid; gap: var(--e-6); }
+.config__bloque { display: grid; gap: var(--e-3); }
+.config__bloque + .config__bloque { padding-top: var(--e-6); border-top: 1px solid var(--linea); }
+.config__titulo { font-size: var(--t-md); font-weight: 700; }
+.config__subtitulo { font-size: var(--t-sm); font-weight: 700; margin-top: var(--e-2); }
+.config__nota { font-size: var(--t-xs); color: var(--ink-2); line-height: 1.5; }
+.config__campo { max-width: 260px; }
+.config__tabla td { padding-block: var(--e-2); }
+.config__tabla .campo__control { min-width: 120px; }
+.config__marco { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--e-2) var(--e-4); }
+.config__marco-fila {
+  display: grid; grid-template-columns: minmax(0, 1fr) 120px; align-items: center; gap: var(--e-3);
+  font-size: var(--t-sm);
+}
+.config .interruptor { font-weight: 600; }
+.inf-portada__alcance { font-weight: 650; color: var(--marca-ink); margin-top: var(--e-2); }
+
+@media print {
+  #zonaRevision, .filtro-estados, .config { display: none !important; }
+  .apac-grupo__miembros { display: grid !important; }
+}

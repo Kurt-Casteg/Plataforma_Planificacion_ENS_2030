@@ -6,9 +6,11 @@
 import { el, render, vaciar, delegar, debounce, llenarSelect } from './dom.js';
 import { monto, numero, fecha, recortar } from './formato.js';
 import { etiquetaDe, aOpciones, buscarAsignacion } from './catalogos.js';
-import { MESES } from './modelo.js';
+import { MESES, ESTADOS, NOMBRE_ESTADO } from './modelo.js';
 import { abrirModal } from './ui.js';
 import { perfil } from './perfil.js';
+import { ajustes } from './ajustes.js';
+import { chipEstado, permisosSobre, lineaRevision } from './aprobacion.js';
 
 export class TablaActividades {
   constructor({ contenedor, plan, catalogos, ens, clasificador, acciones }) {
@@ -19,7 +21,7 @@ export class TablaActividades {
     this.clasificador = clasificador || { items: [] };
     this.acciones = acciones;         // { editar, duplicar, eliminar }
     this.actividades = [];
-    this.filtro = { texto: '', departamento: '', tipo: '' };
+    this.filtro = { texto: '', departamento: '', tipo: '', estado: '' };
     this.orden = { campo: 'codigoActividad', asc: true };
     this.#dibujar();
   }
@@ -48,10 +50,14 @@ export class TablaActividades {
       filtroTipo
     ]);
 
+    // Filtro por estado del circuito de aprobación: solo se ve con el circuito
+    // encendido (se rehace en cada pintada porque los totales cambian).
+    this.filtrosEstado = el('div', { class: 'filtro-estados', attrs: { role: 'group', 'aria-label': 'Filtrar por estado' } });
+
     this.resumen = el('p', { class: 'tabla__resumen', attrs: { role: 'status' } });
     this.cuerpo = el('div', { class: 'tabla__contenedor' });
 
-    render(this.contenedor, this.barra, this.resumen, this.cuerpo);
+    render(this.contenedor, this.barra, this.filtrosEstado, this.resumen, this.cuerpo);
 
     delegar(this.cuerpo, 'click', '[data-accion]', (e, boton) => {
       const { accion, id } = boton.dataset;
@@ -66,10 +72,12 @@ export class TablaActividades {
   }
 
   #filtradas() {
-    const { texto, departamento, tipo } = this.filtro;
+    const { texto, departamento, tipo, estado } = this.filtro;
+    const conEstado = ajustes.circuitoActivo;
     return this.actividades.filter((a) => {
       if (departamento && a.departamento !== departamento) return false;
       if (tipo && a.tipoActividad !== tipo) return false;
+      if (conEstado && estado && a.estado !== estado) return false;
       if (!texto) return true;
       const heno = [
         a.codigoActividad, a.nombreActividad, a.descripcionActividad, a.tema,
@@ -80,7 +88,25 @@ export class TablaActividades {
     });
   }
 
+  #pintarFiltrosEstado() {
+    const activo = ajustes.circuitoActivo;
+    this.filtrosEstado.hidden = !activo || !this.actividades.length;
+    if (!activo) { this.filtro.estado = ''; vaciar(this.filtrosEstado); return; }
+    const cuenta = (e) => this.actividades.filter((a) => a.estado === e).length;
+    const opcion = (valor, etiqueta, n) => el('button', {
+      class: `filtro-estados__opcion${this.filtro.estado === valor ? ' filtro-estados__opcion--activa' : ''}`,
+      attrs: { type: 'button', 'aria-pressed': String(this.filtro.estado === valor) },
+      text: `${etiqueta} · ${numero(n)}`,
+      on: { click: () => { this.filtro.estado = valor; this.pintar(); } }
+    });
+    render(this.filtrosEstado,
+      opcion('', 'Todas', this.actividades.length),
+      ...ESTADOS.map((e) => opcion(e, e === 'observada' ? 'Observadas' : e === 'aprobada' ? 'Aprobadas' : NOMBRE_ESTADO[e], cuenta(e)))
+    );
+  }
+
   pintar() {
+    this.#pintarFiltrosEstado();
     const filas = this.#filtradas();
     const totalPres = filas.reduce((s, a) => s + a.totales.presupuesto, 0);
     const totalEjec = filas.reduce((s, a) => s + a.totales.cronograma, 0);
@@ -115,6 +141,7 @@ export class TablaActividades {
     const columnas = [
       { id: 'codigoActividad', etiqueta: 'Código', clase: 'col--codigo' },
       { id: 'nombreActividad', etiqueta: 'Actividad' },
+      ...(ajustes.circuitoActivo ? [{ id: 'estado', etiqueta: 'Estado' }] : []),
       { id: 'departamento', etiqueta: 'Departamento' },
       ...(this.plan.id === 'pns'
         ? [{ id: 'tema', etiqueta: 'Tema' }]
@@ -132,7 +159,7 @@ export class TablaActividades {
           class: c.clase || '', text: c.etiqueta, attrs: { scope: 'col' }
         })))
       ]),
-      el('tbody', {}, filas.map((a) => this.#fila(a, columnas)))
+      el('tbody', {}, filas.flatMap((a) => this.#filasDe(a, columnas)))
     ]);
 
     render(this.cuerpo, tabla);
@@ -154,6 +181,13 @@ export class TablaActividades {
           ]);
         case 'departamento':
           return el('td', { text: etiquetaDe(this.catalogos.departamentos, a.departamento) || '—' });
+        case 'estado': {
+          const linea = lineaRevision(a);
+          return el('td', { class: 'col--estado' }, [
+            chipEstado(a.estado),
+            linea && el('span', { class: 'tabla__sub', text: linea })
+          ]);
+        }
         case 'tipoActividad':
           return el('td', {}, [a.tipoActividad
             ? el('span', { class: 'etiqueta', text: etiquetaDe(this.catalogos.tiposActividad, a.tipoActividad) })
@@ -175,12 +209,17 @@ export class TablaActividades {
           // hacerlo. No se deshabilitan: un botón apagado que nunca se va a
           // encender solo estorba.
           const p = perfil.permisos;
+          const puede = permisosSobre(a);
           return el('td', { class: 'col--acciones' }, [
             el('div', { class: 'acciones-fila' }, [
               this.#boton('detalle', a.id, 'Ver', 'Ver detalle de la actividad'),
-              p.puedeEditar   && this.#boton('editar', a.id, 'Editar', 'Editar la actividad'),
+              puede.enviar    && this.#boton('enviar', a.id, a.estado === 'observada' ? 'Reenviar' : 'Enviar', 'Enviar a revisión de la jefatura', 'btn--accion'),
+              puede.observar  && this.#boton('observar', a.id, 'Observar', 'Devolver al equipo con una observación'),
+              puede.aprobar   && this.#boton('aprobar', a.id, 'Aprobar', 'Aprobar la actividad', 'btn--exito-texto'),
+              puede.reabrir   && this.#boton('reabrir', a.id, 'Reabrir', 'Reabrir para que el equipo pueda modificarla'),
+              puede.editar    && this.#boton('editar', a.id, 'Editar', 'Editar la actividad'),
               p.puedeCrear    && this.#boton('duplicar', a.id, 'Duplicar', 'Crear una copia de la actividad'),
-              p.puedeEliminar && this.#boton('eliminar', a.id, 'Eliminar', 'Eliminar la actividad', 'btn--peligro-texto')
+              puede.eliminar  && this.#boton('eliminar', a.id, 'Eliminar', 'Eliminar la actividad', 'btn--peligro-texto')
             ].filter(Boolean))
           ]);
         }
@@ -189,6 +228,24 @@ export class TablaActividades {
       }
     };
     return el('tr', {}, columnas.map(celda));
+  }
+
+  /** La fila de la actividad y, si está observada, la observación debajo. */
+  #filasDe(a, columnas) {
+    const fila = this.#fila(a, columnas);
+    if (!ajustes.circuitoActivo || a.estado !== 'observada' || !a.revision?.observacion) return [fila];
+    fila.classList.add('fila--observada');
+    return [fila, el('tr', { class: 'fila-observacion' }, [
+      el('td', { attrs: { colspan: columnas.length } }, [
+        el('div', { class: 'observacion' }, [
+          el('p', {
+            class: 'observacion__titulo',
+            text: `Observación${a.revision.decididaPor ? ` de ${a.revision.decididaPor}` : ''}${a.revision.decididaEn ? ` · ${fecha(a.revision.decididaEn)}` : ''}`
+          }),
+          el('p', { class: 'observacion__texto', text: a.revision.observacion })
+        ])
+      ])
+    ])];
   }
 
   #boton(accion, id, texto, titulo, claseExtra = '') {
@@ -290,6 +347,8 @@ export class TablaActividades {
           dato('Responsable', a.responsable)
         ].filter(Boolean)),
 
+        this.#bloqueRevision(a),
+
         this.#cadenaResultados(a),
 
         el('dl', { class: 'detalle__grilla detalle__grilla--continua' }, [
@@ -351,12 +410,46 @@ export class TablaActividades {
           })
         ])
       ].filter(Boolean),
-      acciones: [
-        { texto: 'Cerrar', clase: 'btn--secundario', alHacerClic: (m) => m.cerrar() },
-        perfil.permisos.puedeEditar
-          ? { texto: 'Editar', clase: 'btn--primario', alHacerClic: (m) => { m.cerrar(); this.acciones.editar(id); } }
-          : null
-      ].filter(Boolean)
+      acciones: (() => {
+        const puede = permisosSobre(a);
+        const ir = (accion) => (m) => { m.cerrar(); this.acciones[accion]?.(id); };
+        return [
+          { texto: 'Cerrar', clase: 'btn--secundario', alHacerClic: (m) => m.cerrar() },
+          puede.reabrir ? { texto: 'Reabrir', clase: 'btn--secundario', alHacerClic: ir('reabrir') } : null,
+          puede.observar ? { texto: 'Observar', clase: 'btn--secundario', alHacerClic: ir('observar') } : null,
+          puede.editar ? { texto: 'Editar', clase: puede.aprobar || puede.enviar ? 'btn--secundario' : 'btn--primario', alHacerClic: ir('editar') } : null,
+          puede.enviar ? { texto: 'Enviar a revisión', clase: 'btn--primario', alHacerClic: ir('enviar') } : null,
+          puede.aprobar ? { texto: 'Aprobar', clase: 'btn--exito', alHacerClic: ir('aprobar') } : null
+        ].filter(Boolean);
+      })()
     });
+  }
+
+  /** Estado en el circuito de aprobación y su historial, al inicio del detalle. */
+  #bloqueRevision(a) {
+    if (!ajustes.circuitoActivo) return null;
+    const r = a.revision || {};
+    const historial = (r.historial || []).slice().reverse();
+    return el('section', { class: 'detalle__bloque detalle__revision' }, [
+      el('div', { class: 'detalle__revision-estado' }, [
+        chipEstado(a.estado),
+        el('span', { class: 'tabla__sub', text: lineaRevision(a) })
+      ]),
+      a.estado === 'observada' && r.observacion && el('div', { class: 'observacion' }, [
+        el('p', { class: 'observacion__titulo', text: `Observación${r.decididaPor ? ` de ${r.decididaPor}` : ''}` }),
+        el('p', { class: 'observacion__texto', text: r.observacion })
+      ]),
+      a.estado === 'aprobada' && !permisosSobre(a).editar && el('p', {
+        class: 'tabla__sub', text: 'Aprobada: queda bloqueada. Si hay que cambiarla, la jefatura puede reabrirla.'
+      }),
+      historial.length > 0 && el('details', { class: 'detalle__historial' }, [
+        el('summary', { text: `Historial de revisión (${historial.length})` }),
+        el('ol', {}, historial.map((h) => el('li', {}, [
+          el('strong', { text: NOMBRE_ESTADO[h.estado] || h.estado }),
+          ` · ${fecha(h.en)}${h.por ? ` · ${h.por}` : ''}`,
+          h.observacion ? el('span', { class: 'detalle__historial-obs', text: `«${h.observacion}»` }) : null
+        ].filter(Boolean))))
+      ])
+    ].filter(Boolean));
   }
 }

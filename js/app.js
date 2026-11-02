@@ -19,6 +19,10 @@ import { exportarExcel, exportarCSV, exportarJSON, exportarArchivoCiclo, leerRes
 import { numero, fechaHora } from './core/formato.js';
 import { perfil, nombrePerfil, PERFILES } from './core/perfil.js';
 import { periodo } from './core/periodo.js';
+import { ajustes } from './core/ajustes.js';
+import { ZonaRevision, pedirObservacion, NOMBRE_ESTADO } from './core/aprobacion.js';
+import { AnalisisPac } from './core/analisis-pac.js';
+import { abrirConfiguracion } from './core/configuracion.js';
 import { siguienteCodigo, previsualizarCodigo } from './core/codigos.js';
 import { Asistente, cargarContenidoAsistente } from './core/asistente.js';
 
@@ -32,7 +36,9 @@ const estado = {
   formulario: null,
   tabla: null,
   panel: null,
-  asistente: null
+  asistente: null,
+  revision: null,
+  pac: null
 };
 
 /* ------------------------------------------------------------------ */
@@ -69,9 +75,36 @@ alCargar(async () => {
   cerrarCarga();
 
   construirCascaron();
+
+  // Bloques que abarcan los dos planes: se crean una vez y no por pestaña.
+  estado.revision = new ZonaRevision({
+    contenedor: $('#zonaRevision'),
+    catalogos: estado.catalogos,
+    alDecidir: decidir,
+    alVer: verActividad,
+    nombrePlan: (id) => planPorId(id).nombreCorto
+  });
+  estado.pac = new AnalisisPac({
+    contenedor: $('#zonaPac'),
+    catalogos: estado.catalogos,
+    clasificador: estado.clasificador
+  });
+
   await activarPlan(planDesdeURL());
 
   almacen.addEventListener('cambio', () => refrescar());
+  // El servidor rechazó un cambio por una regla (por ejemplo, la actividad ya
+  // estaba aprobada): se dice por qué. El almacén ya volvió a su versión.
+  almacen.addEventListener('sincronizacion:rechazo', (e) => {
+    avisar(e.detail?.message || 'El servidor no aceptó el cambio.', 'error', { duracion: 10000 });
+  });
+  // Encender o apagar el circuito de aprobación o el análisis del PAC cambia
+  // botones, columnas y bloques: se rehace todo lo que depende de eso.
+  ajustes.addEventListener('cambio', () => {
+    estado.formulario?.aplicarModoAprobacion();
+    dibujarAccionesListado();
+    refrescar();
+  });
   addEventListener('hashchange', () => activarPlan(planDesdeURL()));
 
   montarAsistente();
@@ -257,6 +290,9 @@ function construirCascaron() {
       ])
     ]),
     el('div', { id: 'zonaFormulario' }),
+    // Revisión del departamento (jefatura), avance de la aprobación (Control
+    // de Gestión) o recordatorio (equipo). Solo con el circuito encendido.
+    el('div', { id: 'zonaRevision', attrs: { hidden: true } }),
     el('section', { class: 'panel', attrs: { 'aria-labelledby': 'tituloListado' } }, [
       el('div', { class: 'panel__cabecera' }, [
         el('div', {}, [
@@ -275,7 +311,9 @@ function construirCascaron() {
         ])
       ]),
       el('div', { class: 'panel__cuerpo', id: 'zonaPanel' })
-    ])
+    ]),
+    // Análisis del Plan Anual de Compras: los dos planes juntos.
+    el('div', { id: 'zonaPac', attrs: { hidden: true } })
   ]);
 
   const pie = el('footer', { class: 'pie' }, [
@@ -384,7 +422,11 @@ async function activarPlan(plan) {
         if (!ok) return;
         await almacen.eliminar(id);
         avisar('Actividad eliminada.', 'info');
-      }
+      },
+      enviar: (id) => enviarARevision(id),
+      aprobar: (id) => decidir([id], 'aprobar'),
+      observar: (id) => decidir([id], 'observar'),
+      reabrir: (id) => decidir([id], 'reabrir')
     }
   });
 
@@ -406,7 +448,7 @@ async function activarPlan(plan) {
  * que alguien empieza a escribir y guarda, otra persona de su departamento pudo
  * haber tomado el siguiente número.
  */
-async function guardarActividad(actividad, { editaba }) {
+async function guardarActividad(actividad, { editaba, enviar = true }) {
   // Quien no venía en la nómina eligió su departamento a mano: se guarda en su
   // perfil para no volver a preguntárselo y para que el servidor pueda numerar.
   // Solo al crear: editar la actividad de otra persona no debe cambiar el
@@ -440,6 +482,21 @@ async function guardarActividad(actividad, { editaba }) {
     }
   }
 
+  // Circuito de aprobación: el botón pulsado decide si va a revisión. Una
+  // actividad observada que se guarda sin enviar sigue observada, para que la
+  // observación de la jefatura no se pierda de vista. Lo aprobado (solo Control
+  // de Gestión llega a editarlo) conserva su estado.
+  let mensajeEstado = '';
+  if (ajustes.circuitoActivo && actividad.estado !== 'aprobada') {
+    if (enviar) {
+      actividad.estado = 'revision';
+      mensajeEstado = ' y enviada a revisión de la jefatura';
+    } else if (actividad.estado !== 'observada') {
+      actividad.estado = 'borrador';
+      mensajeEstado = ' como borrador';
+    }
+  }
+
   const r = await almacen.guardar(actividad);
   if (r.ok === false) {
     avisar(r.error, 'error', { duracion: 10000 });
@@ -447,10 +504,76 @@ async function guardarActividad(actividad, { editaba }) {
   }
   avisar(
     editaba
-      ? 'Actividad actualizada.'
-      : `Actividad guardada${actividad.codigoActividad ? ` con el código N° ${actividad.codigoActividad}` : ''}.`,
+      ? `Actividad actualizada${mensajeEstado}.`
+      : `Actividad guardada${actividad.codigoActividad ? ` con el código N° ${actividad.codigoActividad}` : ''}${mensajeEstado}.`,
     'exito'
   );
+}
+
+/* ------------------------------------------------------------------ */
+/* Circuito de aprobación                                              */
+/* ------------------------------------------------------------------ */
+
+/** El equipo envía una actividad ya guardada a revisión de su jefatura. */
+async function enviarARevision(id) {
+  const a = almacen.obtener(id);
+  if (!a) return;
+  const r = await almacen.guardar({ ...a, estado: 'revision' });
+  if (r.ok === false) { avisar(r.error, 'error', { duracion: 10000 }); return; }
+  avisar(`«${a.nombreActividad}» quedó enviada a revisión de la jefatura.`, 'exito');
+}
+
+/**
+ * Aprueba, observa o reabre (jefatura y Control de Gestión). Lo decide el
+ * servidor: si una no corresponde, no se aplica ninguna y se dice por qué.
+ */
+async function decidir(ids, decision) {
+  const actividades = ids.map((id) => almacen.obtener(id)).filter(Boolean);
+  if (!actividades.length || !perfil.nube) return;
+
+  let observacion = null;
+  if (decision === 'observar') {
+    observacion = await pedirObservacion(actividades);
+    if (!observacion) return;
+  } else if (decision === 'reabrir') {
+    const ok = await confirmar({
+      titulo: 'Reabrir actividad',
+      mensaje: `«${actividades[0].nombreActividad}» volverá a borrador: el equipo podrá modificarla y tendrá que enviarla de nuevo a revisión.`,
+      textoConfirmar: 'Reabrir'
+    });
+    if (!ok) return;
+  } else if (ids.length > 1) {
+    const ok = await confirmar({
+      titulo: `Aprobar ${ids.length} actividades`,
+      mensaje: 'Quedarán aprobadas y bloqueadas para el equipo. Si alguna necesita cambios, se puede reabrir después.',
+      textoConfirmar: 'Aprobar todas'
+    });
+    if (!ok) return;
+  }
+
+  const cerrar = mostrarCargando('Guardando la decisión…');
+  try {
+    const remotas = await perfil.nube.decidir(ids, decision, observacion);
+    almacen.aplicarRemotas(remotas);
+    const n = remotas.length;
+    const que = { aprobar: n > 1 ? 'aprobadas' : 'aprobada', observar: n > 1 ? 'devueltas con observación' : 'devuelta con observación', reabrir: 'reabierta' }[decision];
+    avisar(n > 1 ? `${numero(n)} actividades ${que}.` : `Actividad ${que}.`, 'exito');
+  } catch (e) {
+    avisar(e.message || 'No se pudo guardar la decisión.', 'error', { duracion: 10000 });
+  } finally {
+    cerrar();
+  }
+}
+
+/** Abre el detalle de una actividad de cualquiera de los dos planes. */
+async function verActividad(id) {
+  const a = almacen.obtener(id);
+  if (!a) return;
+  if (estado.plan?.id !== a.plan) {
+    history.replaceState(null, '', `#/${a.plan}`);
+    await activarPlan(planPorId(a.plan));
+  }
+  estado.tabla?.verDetalle(id);
 }
 
 function dibujarPortada(plan) {
@@ -565,11 +688,52 @@ function dibujarAccionesListado() {
  */
 const PERFILES_CON_INFORME = new Set(['control_gestion']);
 
+/**
+ * Con el circuito de aprobación encendido, el informe puede ser el borrador de
+ * trabajo (todo lo registrado) o la versión para el traspaso al Ministerio
+ * (solo lo aprobado). Se pregunta cada vez: confundirlos es caro.
+ */
+function elegirAlcanceInforme(todas) {
+  const aprobadas = todas.filter((a) => a.estado === 'aprobada').length;
+  return new Promise((resolve) => {
+    let elegido = null;
+    abrirModal({
+      titulo: 'Exportar informe consolidado',
+      ancho: '520px',
+      alCerrar: () => resolve(elegido),
+      contenido: [
+        el('p', { class: 'texto-cuerpo', text: `Hay ${numero(aprobadas)} de ${numero(todas.length)} actividades aprobadas por su jefatura. ¿Qué quieres incluir?` })
+      ],
+      acciones: [
+        { texto: 'Cancelar', clase: 'btn--secundario', alHacerClic: (m) => m.cerrar() },
+        { texto: 'Todas las actividades', clase: 'btn--secundario', alHacerClic: (m) => { elegido = 'todas'; m.cerrar(); } },
+        { texto: 'Solo aprobadas (para el traspaso)', clase: 'btn--primario', alHacerClic: (m) => { elegido = 'aprobadas'; m.cerrar(); } }
+      ]
+    });
+  });
+}
+
 async function exportarInforme() {
-  const actividades = almacen.todas;
+  let actividades = almacen.todas;
   if (!actividades.length) {
     avisar('Todavía no hay actividades registradas para informar.', 'alerta');
     return;
+  }
+
+  let alcance = '';
+  if (ajustes.circuitoActivo) {
+    const opcion = await elegirAlcanceInforme(actividades);
+    if (!opcion) return;
+    if (opcion === 'aprobadas') {
+      actividades = actividades.filter((a) => a.estado === 'aprobada');
+      if (!actividades.length) {
+        avisar('Todavía no hay actividades aprobadas. Puedes exportar el informe con todas las actividades.', 'alerta', { duracion: 7000 });
+        return;
+      }
+      alcance = 'Solo actividades aprobadas por la jefatura de su departamento.';
+    } else {
+      alcance = 'Incluye todas las actividades registradas, aprobadas o no.';
+    }
   }
 
   const cerrar = mostrarCargando('Reuniendo el informe…');
@@ -589,7 +753,8 @@ async function exportarInforme() {
       ens: estado.ensIndex,
       clasificador: estado.clasificador,
       institucion: CONFIG.institucion,
-      anio: periodo.anio
+      anio: periodo.anio,
+      alcance
     });
 
     const descargarExcel = async () => {
@@ -858,6 +1023,8 @@ function aplicarPermisos() {
 }
 
 function refrescar() {
+  estado.revision?.actualizar(almacen.todas);
+  estado.pac?.actualizar(almacen.todas);
   if (!estado.plan) return;
   const actividades = almacen.porPlan(estado.plan.id);
   estado.tabla?.actualizar(actividades);
@@ -882,7 +1049,8 @@ function contexto() {
     ens: estado.ensIndex,
     clasificador: estado.clasificador,
     institucion: CONFIG.institucion,
-    anio: periodo.anio
+    anio: periodo.anio,
+    conEstado: ajustes.circuitoActivo
   };
 }
 
@@ -1013,6 +1181,16 @@ function mostrarMasAcciones() {
     titulo: 'Más acciones',
     ancho: '480px',
     contenido: el('div', { style: { display: 'grid', gap: '12px' } }, [
+      // Interruptores del circuito de aprobación y del análisis del PAC.
+      perfil.esControlDeGestion && perfil.nube && el('button', {
+        class: 'btn btn--secundario', attrs: { type: 'button' }, text: 'Configuración de la plataforma',
+        on: {
+          click: (e) => {
+            e.target.closest('.modal').querySelector('.modal__cerrar').click();
+            abrirConfiguracion({ catalogos: estado.catalogos });
+          }
+        }
+      }),
       ...botonesArchivo,
       el('button', {
         class: 'btn btn--secundario', attrs: { type: 'button' }, text: 'Exportar a CSV',
@@ -1081,7 +1259,9 @@ function mostrarAyuda() {
       paso(4, 'Si vas a comprar, completa el PAC',
         'Dentro del Subtítulo 22, activa el interruptor del Plan Anual de Compras y agrega una tarjeta por cada producto o servicio a contratar. Puedes agregar varias. La plataforma compara la suma con el presupuesto del subtítulo y te avisa si no cuadran.'),
       paso(5, 'Revisa y ajusta', 'En "Actividades registradas" puedes buscar, ver el detalle, editar, duplicar o eliminar. El panel de análisis se actualiza solo.'),
-      paso(6, 'Exporta y respalda', 'Usa "Exportar a Excel" para la entrega oficial. Usa "Respaldar (JSON)" para guardar una copia que puedas volver a importar aquí o enviar a Control de Gestión para consolidar.'),
+      ajustes.circuitoActivo && paso(6, 'Envía a revisión de tu jefatura',
+        '«Guardar y enviar a revisión» deja la actividad lista para que tu jefatura la apruebe u observe. Si aún no está lista, usa «Guardar como borrador». Si te la observan, verás el comentario bajo la fila: corrige y vuelve a enviar. Lo aprobado queda bloqueado.'),
+      paso(ajustes.circuitoActivo ? 7 : 6, 'Exporta y respalda', 'Usa "Exportar a Excel" para la entrega oficial. Usa "Respaldar (JSON)" para guardar una copia que puedas volver a importar aquí o enviar a Control de Gestión para consolidar.'),
       el('div', { class: 'nota nota--info' }, [
         el('p', {}, [
           el('strong', { text: 'Importante: ' }),

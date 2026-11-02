@@ -53,6 +53,7 @@ class Perfil extends EventTarget {
     return Boolean(this.#datos?.correo);
   }
 
+  get id() { return this.#datos?.id ?? ''; }
   get correo() { return this.#datos?.correo ?? ''; }
   get nombre() { return this.#datos?.nombre ?? ''; }
   get departamento() { return this.#datos?.departamento ?? ''; }

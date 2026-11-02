@@ -16,6 +16,7 @@ import { aOpciones, indexarENS, opcionesClasificador } from './catalogos.js';
 import { monto, numero, fechaEnPalabras } from './formato.js';
 import { avisar } from './ui.js';
 import { perfil } from './perfil.js';
+import { ajustes } from './ajustes.js';
 
 export class Formulario {
   /**
@@ -61,7 +62,9 @@ export class Formulario {
       class: 'formulario',
       id: 'formularioActividad',
       attrs: { novalidate: true, autocomplete: 'off' },
-      on: { submit: (e) => { e.preventDefault(); this.enviar(); } }
+      // Con el circuito de aprobación hay dos botones de guardar: el que se
+      // pulsó dice si la actividad va a revisión o queda como borrador.
+      on: { submit: (e) => { e.preventDefault(); this.enviar(e.submitter?.dataset?.intencion || 'enviar'); } }
     });
 
     this.plan.secciones.forEach((seccion, i) => {
@@ -74,8 +77,13 @@ export class Formulario {
       this.avisoEdicion,
       el('div', { class: 'formulario__acciones' }, [
         el('button', {
-          class: 'btn btn--primario btn--grande', attrs: { type: 'submit' }, id: 'btnGuardar'
+          class: 'btn btn--primario btn--grande', attrs: { type: 'submit' }, id: 'btnGuardar',
+          dataset: { intencion: 'enviar' }
         }, ['Guardar actividad']),
+        el('button', {
+          class: 'btn btn--secundario btn--grande', attrs: { type: 'submit', hidden: true }, id: 'btnBorrador',
+          dataset: { intencion: 'borrador' }, text: 'Guardar como borrador'
+        }),
         el('button', {
           class: 'btn btn--secundario', attrs: { type: 'button' },
           text: 'Limpiar formulario',
@@ -87,6 +95,25 @@ export class Formulario {
     render(this.contenedor, form);
     this.form = form;
     this.#actualizarTotales();
+    this.aplicarModoAprobacion();
+  }
+
+  /**
+   * Ajusta los botones al circuito de aprobación. Encendido: «Guardar y
+   * enviar a revisión» y «Guardar como borrador». Apagado: el botón de siempre.
+   * Una actividad ya aprobada (solo Control de Gestión puede editarla) conserva
+   * su estado: se ofrece solo «Actualizar actividad».
+   */
+  aplicarModoAprobacion() {
+    const principal = this.form?.querySelector('#btnGuardar');
+    const borrador = this.form?.querySelector('#btnBorrador');
+    if (!principal || !borrador) return;
+    const editando = Boolean(this.editando);
+    const circuito = ajustes.circuitoActivo && this.estadoCargado !== 'aprobada';
+    borrador.hidden = !circuito;
+    principal.textContent = circuito
+      ? (editando ? 'Actualizar y enviar a revisión' : 'Guardar y enviar a revisión')
+      : (editando ? 'Actualizar actividad' : 'Guardar actividad');
   }
 
   #seccion(seccion, numero) {
@@ -935,6 +962,10 @@ export class Formulario {
       id: this.editando || undefined,
       plan: this.plan.id,
       creadaEn: this.creadaEn || undefined,
+      // Lo que el formulario no muestra pero la actividad ya tenía: se conserva.
+      estado: this.estadoCargado || 'borrador',
+      revision: this.revisionCargada || {},
+      propietario: this.propietarioCargado || '',
       sinPresupuesto: this.campos.get('sinPresupuesto')?.checked || false,
       cronograma: Object.fromEntries(IDS_MESES.map((m) => [m, v(`cron-${m}`)])),
       pac: {
@@ -960,6 +991,9 @@ export class Formulario {
     this.limpiar();
     this.editando = actividad.id;
     this.creadaEn = actividad.creadaEn;
+    this.estadoCargado = actividad.estado;
+    this.revisionCargada = actividad.revision;
+    this.propietarioCargado = actividad.propietario;
 
     // La cadena ENS debe llenarse en orden para que cada nivel tenga opciones.
     if (this.ens) {
@@ -1047,6 +1081,9 @@ export class Formulario {
     this.pacAbiertoSolo = false;
     this.editando = null;
     this.creadaEn = null;
+    this.estadoCargado = null;
+    this.revisionCargada = null;
+    this.propietarioCargado = null;
     this.#alternarPresupuesto();
     this.#actualizarTotales();
     this.#modoEdicion(false);
@@ -1058,8 +1095,7 @@ export class Formulario {
   }
 
   #modoEdicion(activo, actividad) {
-    const btn = this.form?.querySelector('#btnGuardar');
-    if (btn) btn.textContent = activo ? 'Actualizar actividad' : 'Guardar actividad';
+    this.aplicarModoAprobacion();
     this.form?.classList.toggle('formulario--editando', activo);
     if (!this.avisoEdicion) return;
     vaciar(this.avisoEdicion);
@@ -1139,7 +1175,8 @@ export class Formulario {
     return grupo;
   }
 
-  async enviar() {
+  /** @param {'enviar'|'borrador'} intencion  Qué botón se pulsó. */
+  async enviar(intencion = 'enviar') {
     const actividad = this.leer();
     const { valido, errores } = validarActividad(actividad, this.plan);
 
@@ -1173,7 +1210,7 @@ export class Formulario {
     }
 
     const editaba = Boolean(this.editando);
-    await this.alGuardar(actividad, { editaba });
+    await this.alGuardar(actividad, { editaba, enviar: intencion !== 'borrador' });
     this.limpiar();
     return actividad;
   }

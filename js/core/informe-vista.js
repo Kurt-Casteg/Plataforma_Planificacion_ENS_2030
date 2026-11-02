@@ -93,6 +93,7 @@ function portada(informe) {
     el('h1', { class: 'inf-portada__titulo', text: `Informe consolidado de planificación ${informe.anio}` }),
     el('p', { class: 'inf-portada__sub', text: informe.porPlan.map((b) => b.plan.nombre).join(' · ') }),
     el('p', { class: 'inf-portada__fecha', text: `Generado el ${fechaHora(informe.generado)}` }),
+    informe.alcance && el('p', { class: 'inf-portada__alcance', text: informe.alcance }),
     el('div', { class: 'inf-kpis' }, [
       fichaKpi('Actividades', numero(t.actividades), `${numero(informe.porDepartamento.length)} departamentos`),
       fichaKpi('Ejecuciones programadas', numero(t.ejecuciones), 'en los doce meses'),

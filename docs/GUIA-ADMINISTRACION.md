@@ -530,6 +530,9 @@ habilita el ingreso con contraseña. Es un interruptor del panel, no SQL.
 | `control_gestion` | toda la institución | toda la institución; consolida; mantiene la nómina |
 | `observador` | toda la institución | **nada** |
 
+Con el circuito de aprobación encendido, `equipo` y `jefatura` no pueden editar
+ni eliminar lo ya aprobado (ver «Circuito de aprobación por jefatura»).
+
 Solo `control_gestion` ve el botón **«Exportar informe»**, el informe consolidado
 de ambos planes y del PAC (ver más abajo).
 
@@ -538,6 +541,93 @@ y JSON, e imprime. No ve el formulario de registro ni los botones de editar,
 duplicar o eliminar, y tampoco puede importar ni vaciar un plan. Está pensado
 para cargos directivos y para Finanzas: gente que necesita el panorama completo
 sin riesgo de alterar el trabajo de los equipos.
+
+
+---
+
+## Circuito de aprobación por jefatura (versión 3.14)
+
+Con el circuito encendido, cada actividad tiene un **estado**:
+
+| Estado | Qué significa | Quién lo cambia |
+|---|---|---|
+| Borrador | El equipo la está preparando. | El equipo, al guardar con «Guardar como borrador». |
+| En revisión | El equipo la envió a su jefatura. | El equipo, con «Guardar y enviar a revisión» o «Enviar» en el listado. |
+| Observada | La jefatura la devolvió con un comentario. | La jefatura (o Control de Gestión), con «Observar». |
+| Aprobada | Lista para el traspaso. Queda **bloqueada**. | La jefatura (o Control de Gestión), con «Aprobar». |
+
+- La **jefatura** ve arriba del listado la bandeja «Revisión del departamento»,
+  con las actividades por revisar de los dos planes. Puede aprobar varias a la
+  vez marcando las casillas.
+- **Control de Gestión** ve «Avance de la aprobación» por departamento y puede
+  aprobar, observar o **reabrir** cualquier actividad. Reabrir devuelve una
+  aprobada a borrador para que el equipo la corrija.
+- Cada decisión queda en el **historial de revisión** de la actividad (pestaña
+  «Ver»): quién, cuándo y con qué observación.
+- «Exportar informe» pregunta si se quiere **todo** o **solo lo aprobado**
+  (para el traspaso al Ministerio). La portada del informe dice cuál se eligió.
+- Las reglas las aplica la base de datos, no el navegador: nadie puede
+  aprobarse a sí mismo ni editar lo aprobado, aunque manipule la página.
+
+### Encenderlo, apagarlo y fijar un plazo
+
+**«Más» → «Configuración de la plataforma»** (solo Control de Gestión). El
+interruptor «Exigir la aprobación de la jefatura» enciende o apaga el circuito,
+y el campo de plazo muestra una fecha a equipos y jefaturas (no bloquea nada).
+
+**Apagarlo no borra nada.** Los estados y el historial quedan guardados en cada
+actividad y vuelven a regir si se enciende otra vez. Mientras está apagado, la
+plataforma se comporta como en la versión 3.13: sin columna «Estado», sin
+bandeja y con todo editable según el perfil.
+
+Si alguna vez la interfaz no estuviera disponible, lo mismo se hace en
+Supabase → SQL Editor:
+
+```sql
+-- Apagar
+update public.configuracion set valor = jsonb_set(valor, '{activa}', 'false') where clave = 'aprobacion';
+-- Encender
+update public.configuracion set valor = jsonb_set(valor, '{activa}', 'true')  where clave = 'aprobacion';
+```
+
+### Instalación (una sola vez)
+
+Supabase → SQL Editor → pegar `docs/aprobacion.sql` → Run. Crea la tabla
+`configuracion`, las reglas del estado y la función `decidir_actividades`. Se
+puede ejecutar más de una vez sin problema. Queda **encendido**; si se prefiere
+partir apagado, ejecutar después el «Apagar» de arriba.
+
+---
+
+## Análisis del Plan Anual de Compras (versión 3.14)
+
+Bajo el Panel de análisis aparece «Análisis del Plan Anual de Compras», que
+junta las compras de los dos planes. Tiene cuatro bloques:
+
+1. **Calendario de compras**: monto por mes según la fecha estimada de compra.
+   Muestra el mes con más compras, para coordinar la carga de Adquisiciones.
+2. **Compras con poca holgura**: compras cuyo plazo entre la fecha de compra y
+   la de ejecución es menor al mínimo que defina Adquisiciones según el monto.
+   *Solo aparece si se cargaron los plazos.*
+3. **Compras parecidas en varios departamentos**: mismo clasificador y producto
+   parecido en dos o más departamentos. Candidatas a una sola compra (y a
+   prevenir el fraccionamiento). Solo la ven Control de Gestión y Observador.
+4. **Planificado frente al marco presupuestario del subtítulo 22**, por
+   departamento: verde bajo 90 %, ámbar entre 90 y 100 %, rojo sobre el marco.
+   *Solo aparece si se cargó el marco.* La jefatura ve solo el de su
+   departamento; los equipos no lo ven.
+
+Todo se configura en **«Más» → «Configuración de la plataforma»**:
+
+- **Interruptor «Mostrar el análisis del Plan Anual de Compras»**: lo oculta
+  completo, por ejemplo mientras no haya información de presupuesto.
+- **Plazos mínimos de Adquisiciones**: tramos «Monto hasta (M$)» y «Días
+  mínimos». El último tramo puede quedar «Sin tope». Ejemplo: hasta M$ 500,
+  15 días; sin tope, 30 días. Sin tramos, el bloque de holgura no aparece.
+- **Marco presupuestario del subtítulo 22** del período en uso, en miles de
+  pesos por departamento. Los departamentos sin monto no se comparan; si
+  ninguno tiene monto, el bloque no aparece. El marco se guarda por año, así
+  que cargar el de 2028 no borra el de 2027.
 
 ---
 
