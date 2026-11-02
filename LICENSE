@@ -1,7 +1,10 @@
 Plataforma de Planificación
 SEREMI de Salud de Ñuble · Departamento de Control de Gestión y Calidad Institucional
 
-Uso institucional interno.
+Diseño y desarrollo: Kurt Castro Ortega
+Unidad de Gestión de Datos y Control Interno
+
+© 2026 SEREMI de Salud de Ñuble. Uso institucional interno.
 
 Librerías de terceros incluidas en vendor/:
   - Chart.js  — licencia MIT       (ver vendor/LICENSE-chartjs.txt)

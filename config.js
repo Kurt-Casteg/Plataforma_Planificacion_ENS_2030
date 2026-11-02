@@ -25,7 +25,7 @@ export const CONFIG = {
    * comprobar de un vistazo si el navegador está mostrando la última versión
    * publicada o una copia guardada en caché. Súbela con cada despliegue.
    */
-  version: '3.11.0',
+  version: '3.13.0',
 
   /**
    * Sincronización con la nube (Supabase).
@@ -58,15 +58,30 @@ export const CONFIG = {
    * de la institución se agrega solo al final: no hace falta repetirlo aquí.
    */
   desarrollo: [
-    'Creado por la Unidad de Gestión de Datos y Control Interno',
+    'Unidad de Gestión de Datos y Control Interno',
     'Departamento de Control de Gestión y Calidad Institucional'
   ],
+
+  /**
+   * Autoría. El nombre aparece en el pie de página («Diseño y desarrollo») y en
+   * Ayuda → «Acerca de la plataforma». La plataforma es de la institución
+   * (`institucion`); esto reconoce a quien la diseñó y desarrolló.
+   * `desde` es el año en que se creó: el rango de años del aviso de derechos
+   * se completa solo.
+   */
+  autoria: {
+    autor: 'Kurt Castro Ortega',
+    desde: 2026
+  },
 
   /** Correo del equipo que da soporte a la plataforma. */
   soporte: 'kurt.castro@redsalud.gob.cl',
 
-  /** Enlaces de referencia mostrados en la cabecera de cada plan. */
+  /**
+   * Enlaces de referencia mostrados en la cabecera de cada plan.
+   * «{anio}» se reemplaza por el período con que se está trabajando.
+   */
   enlaces: {
-    lineamientos: 'https://simpo.minsal.cl/lineamientos_tematicos_publicados/2026'
+    lineamientos: 'https://simpo.minsal.cl/lineamientos_tematicos_publicados/{anio}'
   }
 };

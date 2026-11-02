@@ -9,6 +9,8 @@
  *   texto | correo | textoLargo | select | cadenaENS | cronograma | presupuesto
  */
 
+import { periodo } from '../core/periodo.js';
+
 const SECCION_IDENTIFICACION = {
   titulo: 'Identificación',
   descripcion: 'Se completa sola con los datos de tu sesión. Solo revisa que estén correctos.',
@@ -79,7 +81,7 @@ export const PLANES = [
     nombreCorto: 'PNS',
     icono: '◈',
     descripcion: 'Planificación alineada a la cadena de resultados de la Estrategia Nacional de Salud 2021-2030.',
-    enlace: { texto: 'Lineamientos Temáticos ENS 2026', url: 'enlaces.lineamientos' },
+    enlace: { texto: `Lineamientos Temáticos ENS ${periodo.anio}`, url: 'enlaces.lineamientos' },
     camposObligatorios: ['resultadoInmediato'],
     etiquetasError: {
       resultadoInmediato: 'Selecciona el Resultado Inmediato al que aporta la actividad.'

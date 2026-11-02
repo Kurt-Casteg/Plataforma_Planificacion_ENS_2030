@@ -115,7 +115,7 @@ export function construirFilas(actividades, { plan, catalogos, ens }) {
   ];
 
   const filas = actividades.map((a) => {
-    const ruta = ens && a.resultadoInmediato ? ens.rutaDeRI(a.resultadoInmediato) : null;
+    const ruta = ens && a.resultadoInmediato ? ens.rutaDeRI(a.resultadoInmediato, a.tema) : null;
     const derivados = {
       _oeNombre: ruta?.oe.nombre ?? '',
       _oiNombre: ruta?.oi.nombre ?? '',

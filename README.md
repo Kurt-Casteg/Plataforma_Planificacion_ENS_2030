@@ -41,7 +41,9 @@ que se publican en GitHub Pages y se abren en cualquier navegador moderno.
 ├── data/                   Los datos, separados del código.
 │   ├── catalogos.json        Departamentos, tipos, componentes, programas, subtítulos.
 │   ├── clasificador-presupuestario.json  Clasificador del subtítulo 22, para el PAC.
-│   ├── ens-2026.json         Cadena de resultados ENS (9 OE · 52 temas · 145 RE · 836 RI).
+│   ├── ens-2027.json         Cadena de resultados ENS 2027 (9 OE · 52 temas · 146 RE · 824 RI).
+│   ├── ens-2026.json         Cadena de resultados ENS 2026 (9 OE · 52 temas · 145 RE · 836 RI).
+│   ├── indicadores-re-2027.json  Indicadores oficiales por resultado esperado (ciclo 2027).
 │   └── indicadores-re-2026.json  215 indicadores oficiales por resultado esperado.
 │
 ├── js/
@@ -110,8 +112,8 @@ publica la nueva versión automáticamente.
 | Cambiar el año del ciclo de planificación | `config.js` → `anio` |
 | Agregar o renombrar un departamento | `data/catalogos.json` → `departamentos` |
 | Agregar un tipo de actividad | `data/catalogos.json` → `tiposActividad` |
-| Actualizar la cadena de resultados ENS | `data/ens-2026.json` |
-| Actualizar los indicadores oficiales | `data/indicadores-re-2026.json` |
+| Actualizar la cadena de resultados ENS | `data/ens-<año>.json` (ver la guía de administración) |
+| Actualizar los indicadores oficiales | `data/indicadores-re-<año>.json` |
 | Agregar un campo al formulario | `js/plans/index.js` |
 | Agregar un tercer plan | `js/plans/index.js` (un objeto más en `PLANES`) |
 | Cambiar colores o tipografía | `css/tokens.css` |
@@ -158,7 +160,12 @@ Chrome, Edge, Firefox y Safari en sus versiones de los últimos tres años
 
 ---
 
-## Créditos
+## Autoría y créditos
 
+**Diseño y desarrollo:** Kurt Castro Ortega
+Unidad de Gestión de Datos y Control Interno
 Departamento de Control de Gestión y Calidad Institucional
 SEREMI de Salud de Ñuble
+
+La plataforma es de titularidad de la SEREMI de Salud de Ñuble y de uso
+institucional interno.

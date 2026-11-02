@@ -287,6 +287,9 @@ function construirCascaron() {
         ]),
         el('div', {}, [
           el('p', { class: 'pie__titulo', text: 'Desarrollo' }),
+          CONFIG.autoria?.autor && el('p', { class: 'pie__texto pie__autor' }, [
+            'Diseño y desarrollo: ', el('strong', { text: CONFIG.autoria.autor })
+          ]),
           // Los créditos salen de config.js: son un texto que cambia con la
           // orgánica de la SEREMI y no debería obligar a tocar código.
           ...(CONFIG.desarrollo ?? []).map((linea) => el('p', { class: 'pie__texto', text: linea })),
@@ -451,7 +454,10 @@ async function guardarActividad(actividad, { editaba }) {
 }
 
 function dibujarPortada(plan) {
-  const enlace = plan.enlace ? CONFIG.enlaces[plan.enlace.url.split('.')[1]] : null;
+  // La dirección puede traer «{anio}»: se completa con el período de la pestaña.
+  const enlace = plan.enlace
+    ? CONFIG.enlaces[plan.enlace.url.split('.')[1]]?.replace('{anio}', String(periodo.anio))
+    : null;
   render($('#portada'), el('div', { class: 'portada' }, [
     el('div', {}, [
       el('h2', { class: 'portada__titulo', text: plan.nombre }),
@@ -1087,10 +1093,36 @@ function mostrarAyuda() {
       // El interruptor del asistente vive aquí porque Ayuda es donde alguien lo
       // va a buscar. Sin esto, ocultarlo era irreversible sin tocar la consola
       // del navegador.
-      filaAsistente()
+      filaAsistente(),
+      acercaDe()
     ],
     acciones: [{ texto: 'Entendido', clase: 'btn--primario', alHacerClic: (m) => m.cerrar() }]
   });
+}
+
+/**
+ * «Acerca de la plataforma», al pie del modal de Ayuda: versión, autoría y
+ * titularidad. La plataforma es de la institución y el aviso de derechos va a
+ * su nombre; la autoría reconoce a quien la diseñó y desarrolló.
+ */
+function acercaDe() {
+  const { autor, desde } = CONFIG.autoria ?? {};
+  const hoy = new Date().getFullYear();
+  const anios = desde && desde < hoy ? `${desde}–${hoy}` : String(desde || hoy);
+  const unidad = (CONFIG.desarrollo ?? []).join(', ');
+
+  return el('section', { class: 'ayuda__acerca', attrs: { 'aria-label': 'Acerca de la plataforma' } }, [
+    el('p', { class: 'ayuda__acerca-titulo', text: 'Acerca de la plataforma' }),
+    el('p', { class: 'ayuda__acerca-nombre', text: `Plataforma de Planificación · versión ${CONFIG.version}` }),
+    autor && el('p', {}, [
+      'Diseñada y desarrollada por ', el('strong', { text: autor }),
+      unidad ? `, ${unidad}.` : '.'
+    ]),
+    el('p', { text: `© ${anios} ${CONFIG.institucion}. Uso institucional interno.` }),
+    CONFIG.soporte && el('p', {}, [
+      'Soporte: ', el('a', { href: `mailto:${CONFIG.soporte}`, text: CONFIG.soporte })
+    ])
+  ]);
 }
 
 /** Interruptor de mostrar/ocultar el asistente, dentro del modal de Ayuda. */

@@ -41,11 +41,10 @@ Con ese único cambio, desde la versión 3.9:
 
 Lo que **no** cambia solo, y hay que revisar cada año:
 
-- `data/ens-2026.json` e `indicadores-re-2026.json` (la cadena de resultados y
-  sus indicadores), si MINSAL publicó lineamientos nuevos. Ver «Actualizar la
-  cadena de resultados ENS del año siguiente».
-- El enlace `lineamientos` en `config.js` y el texto «Lineamientos Temáticos
-  ENS 2026» en `js/plans/index.js`.
+- La cadena de resultados del año nuevo: `data/ens-<año>.json` e
+  `indicadores-re-<año>.json`, cuando MINSAL publique los lineamientos. Ver
+  «Actualizar la cadena de resultados ENS del año siguiente». El enlace a los
+  Lineamientos y su texto ya se ajustan solos al año.
 - `otrosPeriodos` en `config.js`: los años que Control de Gestión puede seguir
   abriendo con el selector «Período» (ver la sección siguiente). Lo habitual es
   dejar ahí el año que termina.
@@ -159,7 +158,13 @@ texto a la lista, respetando el formato existente:
 
 ## Actualizar la cadena de resultados ENS del año siguiente
 
-El archivo es `data/ens-2026.json`. Su estructura es un árbol:
+Cada año tiene **su propio archivo**: `data/ens-2026.json`, `data/ens-2027.json`,
+etc. La plataforma usa el del período con que se está trabajando, así que una
+actividad 2026 abierta desde el selector de período se sigue leyendo con los
+textos 2026, y una 2027 con los de 2027. Si un año no tiene archivo propio, se
+usa el más reciente anterior.
+
+La estructura es un árbol:
 
 ```
 objetivosEstrategicos[]
@@ -171,15 +176,43 @@ objetivosEstrategicos[]
 
 Cada nivel tiene `codigo` y `nombre` (los temas solo `nombre`).
 
-Cuando MINSAL publique los lineamientos del año siguiente:
+### Cómo se armó `ens-2027.json` (versión 3.12)
 
-1. Copia `ens-2026.json` a `ens-2027.json` y edítalo, o pide que se genere desde
-   la planilla oficial.
-2. En `js/core/catalogos.js`, cambia el nombre del archivo en `cargarENS`.
-3. Haz lo mismo con `indicadores-re-2026.json` si cambian los indicadores.
+Se generó desde la planilla oficial `Lineamientos_temáticos_2027.xls` (hoja
+«Informe Ambitos», filas con Periodo 2027 y Estado «activo»), con este criterio:
 
-> Conserva el archivo del año anterior. Las actividades ya registradas guardan
-> los códigos, y poder volver a consultarlos evita confusiones.
+- **Objetivos estratégicos, temas y objetivos de impacto**: los mismos de 2026,
+  con sus mismos códigos. Se tomó la redacción 2027 (por ejemplo, «migrantes» en
+  vez de «inmigrantes» en el 6.3, y «con enfoque de equidad» en el 8.3).
+- **Resultados esperados**: conservan su código 2026. El 2.10.2 (enfermedades
+  poco frecuentes) mantiene el código con su redacción nueva. El único nuevo,
+  «Fomentar la permanencia de especialistas en el sistema público», recibió el
+  siguiente número de su objetivo de impacto: **8.2.4**.
+- **Resultados inmediatos**: se numeran de nuevo desde 1 dentro de cada
+  resultado esperado, en el orden de la planilla de MINSAL. Es el mismo criterio
+  de 2026 (en 141 de 144 resultados esperados, el orden de la planilla 2026
+  coincide con la numeración oficial). Por eso **un mismo código no significa lo
+  mismo en 2026 y en 2027**: el 1.4.2.11 de 2026 ya no existe en 2027.
+- El RE **1.4.2** aparece en dos temas («Enfermedades Transmisibles en
+  Eliminación» e «Infecciones Respiratorias Agudas»), cada uno con sus propios
+  RI. Así venía en 2026 y así se mantiene.
+- Resultado: 9 OE · 52 temas · 52 OI · 146 RE · 824 RI, idénticos texto a texto
+  a la planilla oficial.
+
+Los indicadores (`indicadores-re-2027.json`) son los mismos de 2026: pertenecen
+a la ENS 2021-2030 y se asocian por código de resultado esperado, que se
+conservó. El RE nuevo 8.2.4 todavía no tiene indicadores; si MINSAL publica la
+«Base maestra de indicadores RE» actualizada, se reemplaza ese archivo.
+
+### Para el año siguiente
+
+1. Pide que se genere `ens-<año>.json` desde la planilla oficial con el mismo
+   criterio (o copia el del año anterior y edítalo).
+2. Copia o actualiza `indicadores-re-<año>.json`.
+3. En `js/core/catalogos.js`, agrega el año a `ANIOS_CON_ENS`.
+
+> No borres los archivos de años anteriores: las actividades de esos años
+> guardan los códigos y se leen con su propio catálogo.
 
 ---
 
@@ -777,10 +810,10 @@ Actividad → Descripción → Medio de Verificación → Cronograma → Presupu
 Anual de Compras**.
 
 La cadena de resultados se muestra **con el texto completo de cada nivel**, no
-solo con el código: la plataforma lo reconstruye desde `data/ens-2026.json` en el
-momento de abrir el detalle. Por eso, si se actualiza ese archivo, las
-actividades ya registradas pasan a mostrar los textos nuevos sin necesidad de
-volver a guardarlas.
+solo con el código: la plataforma lo reconstruye desde el catálogo del año
+(`data/ens-2027.json`, `data/ens-2026.json`…) en el momento de abrir el detalle.
+Por eso, si se corrige un texto en ese archivo, las actividades ya registradas
+pasan a mostrarlo sin necesidad de volver a guardarlas.
 
 - El **Tema** no lleva código porque en la ENS su nombre *es* su identificador.
 - Si un código no existe en el archivo del año (por ejemplo, una actividad
@@ -969,20 +1002,35 @@ nombre. Idealmente cuadrada y de al menos 128 × 128 píxeles.
 
 ---
 
-## Cambiar los créditos del pie de página
+## Cambiar los créditos y la autoría
 
-`config.js` → `desarrollo`. Es una lista de líneas, de lo más específico a lo
-más general:
+Todo está en `config.js`:
 
 ```js
 desarrollo: [
-  'Creado por la Unidad de Gestión de Datos y Control Interno',
+  'Unidad de Gestión de Datos y Control Interno',
   'Departamento de Control de Gestión y Calidad Institucional'
 ],
+
+autoria: {
+  autor: 'Kurt Castro Ortega',
+  desde: 2026
+},
 ```
 
-El nombre de la institución se agrega solo al final, así que no hay que
-repetirlo. Agrega o quita líneas según cambie la orgánica.
+- `desarrollo` son las líneas de la columna «Desarrollo» del pie de página, de
+  lo más específico a lo más general. El nombre de la institución se agrega
+  solo al final.
+- `autoria.autor` aparece como **«Diseño y desarrollo: Kurt Castro Ortega»**
+  sobre esas líneas, y en **Ayuda → Acerca de la plataforma**, junto con la
+  versión, el aviso «© 2026 SEREMI de Salud de Ñuble. Uso institucional
+  interno.» y el correo de soporte. El rango de años se completa solo a partir
+  de `desde` (en 2027 dirá «2026–2027»).
+- La misma autoría queda en el código: `<meta name="author">` en `index.html`,
+  y en `README.md` y `LICENSE`.
+
+La plataforma es de titularidad de la institución y el aviso de derechos va a
+su nombre; la autoría reconoce a quien la diseñó y desarrolló.
 
 ---
 
