@@ -735,9 +735,9 @@ alter table public.actividades enable row level security;
 drop policy if exists "ver mi perfil" on public.perfiles;
 create policy "ver mi perfil" on public.perfiles
   for select using (
-    id = auth.uid()
-    or privado.ve_todo()
-    or (privado.mi_rol() = 'jefatura' and departamento = privado.mi_departamento())
+    id = (select auth.uid())
+    or (select privado.ve_todo())
+    or ((select privado.mi_rol()) = 'jefatura' and departamento = (select privado.mi_departamento()))
   );
 
 -- Un observador SÍ puede actualizar su propia fila: es la vía por la que cambia
@@ -746,45 +746,48 @@ create policy "ver mi perfil" on public.perfiles
 -- que ya tenga asignado.
 drop policy if exists "editar mi perfil" on public.perfiles;
 create policy "editar mi perfil" on public.perfiles
-  for update using (id = auth.uid() or privado.mi_rol() = 'control_gestion')
-  with check  (id = auth.uid() or privado.mi_rol() = 'control_gestion');
+  for update using (id = (select auth.uid()) or (select privado.mi_rol()) = 'control_gestion')
+  with check  (id = (select auth.uid()) or (select privado.mi_rol()) = 'control_gestion');
 
 -- No hay política de INSERT ni de DELETE: los perfiles solo los crea el trigger
 -- de registro y se eliminan en cascada al borrar la cuenta.
 
 -- --- Actividades ------------------------------------------------------------
+--
+-- Cada llamada va envuelta en `(select ...)`: así Postgres la calcula una vez
+-- por consulta y no una vez por fila (versión 3.14.1; ver rendimiento-rls.sql).
 
 drop policy if exists "leer actividades" on public.actividades;
 create policy "leer actividades" on public.actividades
   for select using (
-    propietario = auth.uid()
-    or privado.ve_todo()
-    or (privado.mi_rol() = 'jefatura' and departamento = privado.mi_departamento())
+    propietario = (select auth.uid())
+    or (select privado.ve_todo())
+    or ((select privado.mi_rol()) = 'jefatura' and departamento = (select privado.mi_departamento()))
   );
 
 drop policy if exists "crear actividades" on public.actividades;
 create policy "crear actividades" on public.actividades
   for insert with check (
-    privado.puede_escribir()
-    and (propietario = auth.uid() or privado.mi_rol() = 'control_gestion')
+    (select privado.puede_escribir())
+    and (propietario = (select auth.uid()) or (select privado.mi_rol()) = 'control_gestion')
   );
 
 drop policy if exists "editar mis actividades" on public.actividades;
 create policy "editar mis actividades" on public.actividades
   for update using (
-    privado.puede_escribir()
-    and (propietario = auth.uid() or privado.mi_rol() = 'control_gestion')
+    (select privado.puede_escribir())
+    and (propietario = (select auth.uid()) or (select privado.mi_rol()) = 'control_gestion')
   )
   with check (
-    privado.puede_escribir()
-    and (propietario = auth.uid() or privado.mi_rol() = 'control_gestion')
+    (select privado.puede_escribir())
+    and (propietario = (select auth.uid()) or (select privado.mi_rol()) = 'control_gestion')
   );
 
 drop policy if exists "eliminar mis actividades" on public.actividades;
 create policy "eliminar mis actividades" on public.actividades
   for delete using (
-    privado.puede_escribir()
-    and (propietario = auth.uid() or privado.mi_rol() = 'control_gestion')
+    (select privado.puede_escribir())
+    and (propietario = (select auth.uid()) or (select privado.mi_rol()) = 'control_gestion')
   );
 
 

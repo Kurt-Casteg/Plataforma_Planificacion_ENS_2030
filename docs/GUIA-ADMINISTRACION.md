@@ -506,6 +506,24 @@ sesión iniciada, valida el plan y el año, rechaza a los perfiles de solo
 lectura, **toma el departamento del perfil y nunca de un parámetro**, y devuelve
 un número, jamás datos de nadie.
 
+`decidir_actividades` (versión 3.14) aparece con el mismo aviso, también a
+propósito: es la única vía para aprobar, observar o reabrir. Exige sesión,
+rechaza a quien no sea jefatura o Control de Gestión, toma el departamento del
+perfil y no de un parámetro, y no hace nada con el circuito apagado.
+
+### Rendimiento de las reglas de acceso (versión 3.14.1)
+
+Las reglas que deciden quién ve qué llaman a `auth.uid()` y a las funciones de
+`privado` envueltas en `(select ...)`. Así Postgres las calcula **una vez por
+consulta** y no una vez por cada actividad. En una prueba con 40 personas y 780
+actividades, cargar el listado de un equipo bajó de 38 ms a 1,4 ms, y la
+capacidad subió de unas 51 a unas 990 consultas por segundo.
+
+Si se agrega una regla nueva, conviene escribirla igual:
+`propietario = (select auth.uid())` y no `propietario = auth.uid()`. El
+Performance Advisor de Supabase avisa («Auth RLS Initialization Plan») cuando
+alguna queda sin envolver. El cambio está suelto en `docs/rendimiento-rls.sql`.
+
 ### `search_path` fijo en todas
 
 Todas las funciones declaran `set search_path = ''` y califican cada referencia.
