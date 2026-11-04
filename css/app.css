@@ -2388,3 +2388,15 @@ body.con-hoja .asistente { display: none; }
   .tabla tbody tr.fila--destello { animation: none; background: var(--marca-suave); }
 }
 @media print { .hoja { display: none !important; } }
+
+/* ===================================================================== */
+/* 3.18.1 · Separación entre el formulario y lo que viene debajo          */
+/* ===================================================================== */
+
+/* La barra «Guardar…» cerraba el formulario sin margen y la tarjeta
+   siguiente (avance de la aprobación, revisión o el listado) quedaba
+   pegada. Mismo espacio que entre las demás tarjetas. */
+#zonaFormulario:not(:empty) { margin-bottom: var(--e-6); }
+
+/* Gráficos compactos: cuántas categorías quedan fuera de la tarjeta. */
+.grafico__nota { margin-top: var(--e-3); font-size: var(--t-xs); color: var(--ink-3); }

@@ -76,6 +76,9 @@ export class Panel {
     // Lo necesario para ampliar un gráfico: su configuración y su tabla.
     this.configs = new Map();
     this.tablas = new Map();
+    // Algunos gráficos muestran en la tarjeta solo las categorías principales;
+    // al ampliarlos se ven todas, con su propia configuración.
+    this.configsAmpliados = new Map();
     this.ampliado = null;             // { enfoque, id, grafico }
     this.#dibujarEsqueleto();
 
@@ -277,28 +280,25 @@ export class Panel {
     this.lienzos.clear();
     this.configs.clear();
     this.tablas.clear();
+    this.configsAmpliados.clear();
     this.#destruirGraficos();
 
-    // Orden de lectura: primero quién y cuándo, después contra qué se planifica
-    // y, al final, con cuánto. El presupuesto cierra porque es la consecuencia
-    // de todo lo anterior.
+    // Todas las tarjetas son compactas (para el detalle está «Ampliar») y van
+    // en parejas que se leen juntas: quién planifica y contra qué; después,
+    // mes a mes, cuánto trabajo y cuánto dinero (mismo eje, se comparan de un
+    // vistazo). En el PNS, los temas cierran a todo el ancho: son los nombres
+    // más largos y es el quinto gráfico, sin pareja.
     const tarjetas = [
-      this.#tarjeta('departamento', 'Actividades por departamento', 'Volumen de actividades registradas por unidad', { alto: true }),
-      this.#tarjeta('cronograma', 'Ejecuciones por mes', 'Carga de trabajo programada a lo largo del año')
+      this.#tarjeta('departamento', 'Actividades por departamento', 'Volumen de actividades registradas por unidad'),
+      this.plan.id === 'pns'
+        ? this.#tarjeta('objetivo', 'Actividades por objetivo estratégico', 'Cobertura de la Estrategia Nacional de Salud')
+        : this.#tarjeta('tipo', 'Actividades por tipo', 'Naturaleza de las actividades planificadas'),
+      this.#tarjeta('cronograma', 'Ejecuciones por mes', 'Carga de trabajo programada a lo largo del año'),
+      this.#tarjeta('presupuestoMes', 'Presupuesto por mes', 'Distribución mensual según subtítulo, en miles de pesos')
     ];
-
     if (this.plan.id === 'pns') {
-      tarjetas.push(
-        this.#tarjeta('objetivo', 'Actividades por objetivo estratégico', 'Cobertura de la Estrategia Nacional de Salud', { ancho: true, alto: true }),
-        this.#tarjeta('tema', 'Actividades por tema', 'Cada tema lleva delante el objetivo estratégico del que depende', { ancho: true, alto: true })
-      );
-    } else {
-      tarjetas.push(this.#tarjeta('tipo', 'Actividades por tipo', 'Naturaleza de las actividades planificadas', { ancho: true }));
+      tarjetas.push(this.#tarjeta('tema', 'Actividades por tema', 'Cada tema lleva delante el objetivo estratégico del que depende', { ancho: true }));
     }
-
-    tarjetas.push(
-      this.#tarjeta('presupuestoMes', 'Presupuesto por mes', 'Distribución mensual según subtítulo, en miles de pesos', { ancho: true })
-    );
 
     this.zonaGraficos.append(...tarjetas);
 
@@ -504,26 +504,57 @@ export class Panel {
    * @param {boolean} [opciones.ancho] La tarjeta ocupa el ancho completo, así que
    *   el eje puede permitirse etiquetas más largas antes de recortarlas.
    */
-  #graficoBarrasHorizontales(id, filas, etiquetaSerie, { ancho = false } = {}) {
-    const maxCaracteres = ancho ? 46 : 30;
-    const anchoEje = ancho ? 320 : 210;
-    const max = Math.max(...filas.map((f) => f.total), 1);
-    const rampa = ['--seq-200', '--seq-300', '--seq-400', '--seq-500', '--seq-600'].map(token);
-    const color = (v) => rampa[Math.min(rampa.length - 1, Math.floor((v / max) * rampa.length * 0.999))];
-
-    // La altura sigue al número de categorías: sin huecos ni barras aplastadas.
+  #graficoBarrasHorizontales(id, filas, etiquetaSerie, { ancho = false, tope = 0, topeAmpliado = 0, nombreResto = 'categorías' } = {}) {
+    // En la tarjeta caben las principales y una nota dice cuántas quedan
+    // fuera; al ampliar se ven más (o todas) y la tabla de datos las trae todas.
+    // No se suma el resto en una barra «Otros»: sería casi siempre la más
+    // larga y estiraría la escala, aplastando justo las que se quieren comparar.
+    const enTarjeta = this.#conTope(filas, tope);
     const ref = this.lienzos.get(id);
+    // Al repintar con datos nuevos la tarjeta es la misma: fuera la nota anterior.
+    ref?.tarjeta.querySelector('.grafico__nota')?.remove();
+    this.configsAmpliados.delete(id);
+    if (enTarjeta.length < filas.length) {
+      const enAmpliado = this.#conTope(filas, topeAmpliado);
+      this.configsAmpliados.set(id, {
+        config: this.#configBarras(enAmpliado, etiquetaSerie, { maxCaracteres: 72, anchoEje: 440, completas: true }),
+        nota: enAmpliado.length < filas.length
+          ? `Se muestran los ${numero(enAmpliado.length)} ${nombreResto} con más actividades, de ${numero(filas.length)}. La tabla los trae todos.`
+          : ''
+      });
+      ref?.detalle.before(el('p', {
+        class: 'grafico__nota',
+        text: `Se muestran los ${numero(enTarjeta.length)} ${nombreResto} con más actividades. Los otros ${numero(filas.length - enTarjeta.length)} están en «Ampliar» y en la tabla de datos.`
+      }));
+    }
+
+    // La altura sigue al número de categorías, con un techo para que ninguna
+    // tarjeta crezca más que su pareja de fila.
     if (ref) {
-      const alto = Math.max(180, Math.min(560, filas.length * 38 + 48));
+      const alto = Math.max(200, Math.min(380, enTarjeta.length * 30 + 48));
       ref.lienzo.parentElement.style.height = `${alto}px`;
     }
 
+    this.#crear(id, this.#configBarras(enTarjeta, etiquetaSerie, { maxCaracteres: ancho ? 46 : 30, anchoEje: ancho ? 320 : 210 }));
+    this.#tablaDatos(id, ['Categoría', 'Actividades'], filas.map((f) => [f.etiqueta, numero(f.total)]));
+  }
+
+  /** Las `tope` primeras (vienen ordenadas de mayor a menor). Sin tope, todas. */
+  #conTope(filas, tope) {
+    return tope && filas.length > tope ? filas.slice(0, tope) : filas;
+  }
+
+  /** Configuración de un gráfico de barras horizontales (tarjeta o ampliado). */
+  #configBarras(filas, etiquetaSerie, { maxCaracteres, anchoEje, completas = false }) {
+    const max = Math.max(...filas.map((f) => f.total), 1);
+    const rampa = ['--seq-200', '--seq-300', '--seq-400', '--seq-500', '--seq-600'].map(token);
+    const color = (v) => rampa[Math.min(rampa.length - 1, Math.floor((v / max) * rampa.length * 0.999))];
     const base = this.#opcionesBase({ horizontal: true, formatoValor: numero, entero: true });
 
-    this.#crear(id, {
+    return {
       type: 'bar',
       data: {
-        labels: filas.map((f) => recortar(f.etiquetaCorta ?? f.etiqueta, maxCaracteres)),
+        labels: filas.map((f) => recortar((completas ? f.etiqueta : f.etiquetaCorta) ?? f.etiqueta, maxCaracteres)),
         datasets: [{
           label: etiquetaSerie,
           data: filas.map((f) => f.total),
@@ -539,6 +570,8 @@ export class Panel {
         layout: { padding: { right: 28, top: 4 } },
         scales: {
           ...base.scales,
+          // Con conteos altos, una marca por unidad no cabe a media columna.
+          x: { ...base.scales.x, ticks: { ...base.scales.x.ticks, stepSize: max > 8 ? undefined : 1, maxRotation: 0 } },
           y: { ...base.scales.y, ticks: { ...base.scales.y.ticks, crossAlign: 'far', font: { size: 11 } }, afterFit: (e) => { e.width = Math.min(e.width, anchoEje); } }
         },
         plugins: {
@@ -552,9 +585,7 @@ export class Panel {
           }
         }
       }
-    });
-
-    this.#tablaDatos(id, ['Categoría', 'Actividades'], filas.map((f) => [f.etiqueta, numero(f.total)]));
+    };
   }
 
   #graficoDepartamento() {
@@ -562,7 +593,7 @@ export class Panel {
   }
 
   #graficoTipo() {
-    this.#graficoBarrasHorizontales('tipo', this.#conteoPor('tipoActividad', 'tiposActividad'), 'Actividades', { ancho: true });
+    this.#graficoBarrasHorizontales('tipo', this.#conteoPor('tipoActividad', 'tiposActividad'), 'Actividades', { tope: 9, nombreResto: 'tipos' });
   }
 
   #graficoObjetivo() {
@@ -572,7 +603,7 @@ export class Panel {
       f.etiqueta = nombre ? `${f.clave}. ${nombre}` : f.clave;
       f.etiquetaCorta = nombre ? `OE ${f.clave} · ${nombre}` : `OE ${f.clave}`;
     }
-    this.#graficoBarrasHorizontales('objetivo', filas, 'Actividades', { ancho: true });
+    this.#graficoBarrasHorizontales('objetivo', filas, 'Actividades');
   }
 
   /**
@@ -612,21 +643,9 @@ export class Panel {
       })
       .sort((a, b) => b.total - a.total || a.clave.localeCompare(b.clave, 'es'));
 
-    // Con muchos temas las barras se aplastan: se grafican los 14 primeros y el
-    // resto se agrupa. La tabla de datos sigue mostrándolos todos.
-    const TOPE = 14;
-    const filas = todas.slice(0, TOPE);
-    const resto = todas.slice(TOPE);
-    if (resto.length) {
-      filas.push({
-        clave: '(otros)',
-        total: resto.reduce((s, f) => s + f.total, 0),
-        etiqueta: `Otros ${numero(resto.length)} temas`,
-        etiquetaCorta: `Otros ${numero(resto.length)} temas`
-      });
-    }
-
-    this.#graficoBarrasHorizontales('tema', filas, 'Actividades', { ancho: true });
+    // Con muchos temas las barras se aplastan: la tarjeta muestra los 8
+    // principales y el gráfico ampliado los 14. La tabla los trae todos.
+    this.#graficoBarrasHorizontales('tema', todas, 'Actividades', { ancho: true, tope: 8, topeAmpliado: 14, nombreResto: 'temas' });
     // La tabla reemplaza la del gráfico: muestra el detalle completo, sin tope.
     this.#tablaDatos('tema', ['Tema', 'Actividades'], todas.map((f) => [f.etiqueta, numero(f.total)]));
   }
@@ -679,14 +698,16 @@ export class Panel {
     if (!am) return;
     const ids = [...this.lienzos.keys()].filter((x) => this.configs.has(x));
     const ref = this.lienzos.get(am.id);
-    const config = clonar(this.configs.get(am.id));
+    const propia = this.configsAmpliados.get(am.id);
+    const config = clonar(propia?.config || this.configs.get(am.id));
     const tabla = this.tablas.get(am.id);
     if (!ref || !config) { am.enfoque.cerrar(); return; }
 
     const horizontal = config.options?.indexAxis === 'y';
     const etiquetas = config.data.labels || [];
-    // En grande caben los nombres completos que el gráfico chico recorta.
-    if (horizontal && tabla && tabla.filas.length === etiquetas.length) {
+    // En grande caben los nombres completos que el gráfico chico recorta
+    // (la configuración propia del ampliado ya los trae).
+    if (!propia && horizontal && tabla && tabla.filas.length === etiquetas.length) {
       config.data.labels = tabla.filas.map((f) => recortar(String(f[0]), 72));
       const y = config.options.scales?.y;
       if (y) y.afterFit = (e) => { e.width = Math.min(e.width, 440); };
@@ -726,7 +747,8 @@ export class Panel {
               ))))
             ])
           ]),
-          el('p', { class: 'ampliado__lectura', text: this.#lectura(am.id) })
+          el('p', { class: 'ampliado__lectura', text: this.#lectura(am.id) }),
+          propia?.nota && el('p', { class: 'ampliado__lectura', text: propia.nota })
         ].filter(Boolean))
       ]),
       pie: el('footer', { class: 'enfoque__pie' }, [
@@ -746,11 +768,13 @@ export class Panel {
     const series = config.data.datasets || [];
     const tabla = this.tablas.get(id);
     if (config.options?.indexAxis === 'y') {
+      // La tabla trae todas las categorías, también las que el gráfico deja fuera.
       const filas = tabla?.filas || [];
-      const total = (series[0]?.data || []).reduce((s, v) => s + (Number(v) || 0), 0);
+      const cifra = (f) => Number(String(f[1]).replace(/\./g, '')) || 0;
+      const total = filas.reduce((s, f) => s + cifra(f), 0);
       const primero = filas[0];
       if (!primero || !total) return '';
-      const n = Number(String(primero[1]).replace(/\./g, '')) || 0;
+      const n = cifra(primero);
       return `«${primero[0]}» concentra ${numero(n)} de ${numero(total)} actividades (${Math.round((n / total) * 100)} %).`;
     }
     const totales = MESES.map((_, i) => series.reduce((s, d) => s + (Number(d.data?.[i]) || 0), 0));
