@@ -14,6 +14,7 @@ import { el, render, vaciar } from './dom.js';
 import { MESES, IDS_MESES, SUBTITULOS } from './modelo.js';
 import { monto, numero, recortar } from './formato.js';
 import { etiquetaDe } from './catalogos.js';
+import { abrirEnfoque, navegacionEnfoque } from './enfoque.js';
 
 /**
  * Chart.js se sirve desde el propio sitio (carpeta vendor/): la plataforma
@@ -24,6 +25,19 @@ const CHART_JS = [
   new URL('../../vendor/chart.umd.js', import.meta.url).href,
   'https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js'
 ];
+
+/**
+ * Copia profunda de una configuración de Chart.js que conserva las funciones
+ * (formatos, tooltips). El gráfico ampliado no puede compartir los arreglos de
+ * datos con el chico: Chart.js los vigila y los dos se pisarían.
+ */
+function clonar(v) {
+  if (Array.isArray(v)) return v.map(clonar);
+  if (v && typeof v === 'object' && Object.getPrototypeOf(v) === Object.prototype) {
+    return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, clonar(x)]));
+  }
+  return v;
+}
 
 /** Lee un token CSS del tema activo (se recalcula al cambiar de tema). */
 const token = (nombre) => getComputedStyle(document.documentElement).getPropertyValue(nombre).trim();
@@ -59,6 +73,10 @@ export class Panel {
     this.datos = [];         // lo que se está graficando (tras el filtro)
     this.filtro = { departamento: '' };
     this.lienzos = new Map();
+    // Lo necesario para ampliar un gráfico: su configuración y su tabla.
+    this.configs = new Map();
+    this.tablas = new Map();
+    this.ampliado = null;             // { enfoque, id, grafico }
     this.#dibujarEsqueleto();
 
     // Redibuja los gráficos cuando cambia el tema (los colores vienen de tokens).
@@ -226,15 +244,28 @@ export class Panel {
     const detalle = el('details', { class: 'tabla-datos' }, [
       el('summary', { text: 'Ver los datos en tabla' })
     ]);
+    // «Ampliar» abre el gráfico en modo enfoque, con su tabla al lado.
+    const ampliar = el('button', {
+      class: 'grafico__ampliar',
+      attrs: { type: 'button', 'aria-label': `Ampliar el gráfico «${titulo}»`, title: 'Ampliar' },
+      // Ícono fijo del propio código (no lleva datos de nadie).
+      html: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg><span>Ampliar</span>',
+      on: { click: (e) => this.#ampliar(id, { origen: tarjeta, boton: e.currentTarget }) }
+    });
     const tarjeta = el('article', {
       class: `grafico${ancho ? ' grafico--ancho' : ''}${alto ? ' grafico--alto' : ''}`
     }, [
-      el('h3', { class: 'grafico__titulo', text: titulo }),
-      el('p', { class: 'grafico__subtitulo', text: subtitulo }),
+      el('div', { class: 'grafico__cabecera' }, [
+        el('div', { class: 'grafico__textos' }, [
+          el('h3', { class: 'grafico__titulo', text: titulo }),
+          el('p', { class: 'grafico__subtitulo', text: subtitulo })
+        ]),
+        ampliar
+      ]),
       el('div', { class: 'grafico__lienzo' }, [lienzo]),
       detalle
     ]);
-    this.lienzos.set(id, { lienzo, detalle, tarjeta });
+    this.lienzos.set(id, { lienzo, detalle, tarjeta, titulo, subtitulo });
     return tarjeta;
   }
 
@@ -244,6 +275,8 @@ export class Panel {
     // Reconstruye las tarjetas (el conjunto depende del plan).
     vaciar(this.zonaGraficos);
     this.lienzos.clear();
+    this.configs.clear();
+    this.tablas.clear();
     this.#destruirGraficos();
 
     // Orden de lectura: primero quién y cuándo, después contra qué se planifica
@@ -285,6 +318,12 @@ export class Panel {
     if (this.plan.id === 'pns') { this.#graficoObjetivo(Chart); this.#graficoTema(Chart); }
     else this.#graficoTipo(Chart);
     this.#graficoPresupuestoMes(Chart);
+
+    // Si hay un gráfico ampliado, se pone al día con los datos nuevos.
+    if (this.ampliado?.enfoque.abierto) {
+      if (this.configs.has(this.ampliado.id)) this.#pintarAmpliado(0);
+      else this.ampliado.enfoque.cerrar();
+    }
   }
 
   #configurarChart(Chart) {
@@ -347,12 +386,14 @@ export class Panel {
     if (!ref) return;
     const Chart = globalThis.Chart;
     this.graficos.get(id)?.destroy();
+    this.configs.set(id, clonar(config));
     this.graficos.set(id, new Chart(ref.lienzo.getContext('2d'), config));
   }
 
   #tablaDatos(id, encabezados, filas) {
     const ref = this.lienzos.get(id);
     if (!ref) return;
+    this.tablas.set(id, { encabezados, filas });
     // Deja el <summary> y reemplaza el resto.
     const resumen = ref.detalle.firstElementChild;
     vaciar(ref.detalle);
@@ -597,6 +638,134 @@ export class Panel {
 
   destruir() {
     this.#destruirGraficos();
+    this.ampliado?.enfoque.cerrar();
     this.observadorTema?.disconnect();
+  }
+
+  /* ---------------------------------------------------------------- */
+  /* Gráfico ampliado (modo enfoque)                                   */
+  /* ---------------------------------------------------------------- */
+
+  #ampliar(id, { origen } = {}) {
+    if (!this.configs.has(id) || !globalThis.Chart) return;
+    if (this.ampliado?.enfoque.abierto) this.ampliado.enfoque.cerrar();
+    const enfoque = abrirEnfoque({
+      etiqueta: 'Gráfico ampliado',
+      origen,
+      ancho: '1160px',
+      clase: 'enfoque--grafico',
+      alNavegar: (paso) => this.#moverAmpliado(paso),
+      alCerrar: () => {
+        if (this.ampliado?.enfoque !== enfoque) return;
+        this.ampliado.grafico?.destroy();
+        this.ampliado = null;
+      }
+    });
+    this.ampliado = { enfoque, id, grafico: null };
+    this.#pintarAmpliado(0);
+    enfoque.entrar();
+  }
+
+  #moverAmpliado(paso) {
+    const ids = [...this.lienzos.keys()].filter((x) => this.configs.has(x));
+    if (!this.ampliado || ids.length < 2) return;
+    const i = ids.indexOf(this.ampliado.id);
+    this.ampliado.id = ids[(i + paso + ids.length) % ids.length];
+    this.#pintarAmpliado(paso);
+  }
+
+  #pintarAmpliado(direccion) {
+    const am = this.ampliado;
+    if (!am) return;
+    const ids = [...this.lienzos.keys()].filter((x) => this.configs.has(x));
+    const ref = this.lienzos.get(am.id);
+    const config = clonar(this.configs.get(am.id));
+    const tabla = this.tablas.get(am.id);
+    if (!ref || !config) { am.enfoque.cerrar(); return; }
+
+    const horizontal = config.options?.indexAxis === 'y';
+    const etiquetas = config.data.labels || [];
+    // En grande caben los nombres completos que el gráfico chico recorta.
+    if (horizontal && tabla && tabla.filas.length === etiquetas.length) {
+      config.data.labels = tabla.filas.map((f) => recortar(String(f[0]), 72));
+      const y = config.options.scales?.y;
+      if (y) y.afterFit = (e) => { e.width = Math.min(e.width, 440); };
+    }
+    if (config.options) config.options.animation = { duration: matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 520 };
+
+    const alto = horizontal ? Math.max(320, Math.min(640, etiquetas.length * 40 + 60)) : 420;
+    const lienzo = el('canvas', { attrs: { role: 'img', 'aria-label': `${ref.titulo}. ${ref.subtitulo}. ${this.#lectura(am.id)}` } });
+    const idTitulo = `ampliado-${am.id}`;
+    const filtrado = this.filtro.departamento
+      ? ` · ${etiquetaDe(this.catalogos.departamentos, this.filtro.departamento)}`
+      : '';
+
+    am.grafico?.destroy();
+    am.enfoque.mostrar({
+      etiqueta: `Gráfico ampliado: ${ref.titulo}`,
+      direccion,
+      cabecera: el('header', { class: 'enfoque__cabecera' }, [
+        el('div', { class: 'foco__encabezado' }, [
+          el('h2', { class: 'foco__titulo', id: idTitulo, text: ref.titulo }),
+          el('p', { class: 'foco__meta', text: `${ref.subtitulo}${filtrado}` })
+        ]),
+        el('button', {
+          class: 'enfoque__cerrar', attrs: { type: 'button', 'aria-label': 'Cerrar el gráfico ampliado' }, text: '×',
+          on: { click: () => am.enfoque.cerrar() }
+        })
+      ]),
+      cuerpo: el('div', { class: 'ampliado' }, [
+        el('div', { class: 'ampliado__grafico', style: { height: `${alto}px` } }, [lienzo]),
+        el('aside', { class: 'ampliado__datos' }, [
+          el('h3', { class: 'ampliado__subtitulo', text: 'Tabla de datos' }),
+          tabla && el('div', { class: 'ampliado__tabla' }, [
+            el('table', {}, [
+              el('thead', {}, [el('tr', {}, tabla.encabezados.map((h) => el('th', { text: h, attrs: { scope: 'col' } })))]),
+              el('tbody', {}, tabla.filas.map((f) => el('tr', {}, f.map((c, i) =>
+                i === 0 ? el('th', { text: String(c), attrs: { scope: 'row' } }) : el('td', { text: String(c) })
+              ))))
+            ])
+          ]),
+          el('p', { class: 'ampliado__lectura', text: this.#lectura(am.id) })
+        ].filter(Boolean))
+      ]),
+      pie: el('footer', { class: 'enfoque__pie' }, [
+        navegacionEnfoque({ indice: ids.indexOf(am.id), total: ids.length, alMover: (p) => this.#moverAmpliado(p), nombre: 'Gráfico' }) || el('span'),
+        el('div', { class: 'enfoque__acciones' }, [
+          el('button', { class: 'btn btn--secundario', attrs: { type: 'button' }, text: 'Volver al panel', on: { click: () => am.enfoque.cerrar() } })
+        ])
+      ])
+    });
+    am.grafico = new globalThis.Chart(lienzo.getContext('2d'), config);
+  }
+
+  /** Una frase que dice lo principal del gráfico, para quien no lo ve. */
+  #lectura(id) {
+    const config = this.configs.get(id);
+    if (!config) return '';
+    const series = config.data.datasets || [];
+    const tabla = this.tablas.get(id);
+    if (config.options?.indexAxis === 'y') {
+      const filas = tabla?.filas || [];
+      const total = (series[0]?.data || []).reduce((s, v) => s + (Number(v) || 0), 0);
+      const primero = filas[0];
+      if (!primero || !total) return '';
+      const n = Number(String(primero[1]).replace(/\./g, '')) || 0;
+      return `«${primero[0]}» concentra ${numero(n)} de ${numero(total)} actividades (${Math.round((n / total) * 100)} %).`;
+    }
+    const totales = MESES.map((_, i) => series.reduce((s, d) => s + (Number(d.data?.[i]) || 0), 0));
+    const max = Math.max(...totales);
+    if (!max) return 'Todavía no hay montos ni ejecuciones registrados por mes.';
+    const iMax = totales.indexOf(max);
+    const conDatos = totales.map((v, i) => [v, i]).filter(([v]) => v > 0);
+    const [vMin, iMin] = conDatos.reduce((a, b) => (b[0] < a[0] ? b : a));
+    const formato = id === 'presupuestoMes' ? monto : numero;
+    let texto = `${MESES[iMax].largo} es el mes más alto (${formato(max)})`;
+    texto += conDatos.length > 1 && iMin !== iMax ? `; ${MESES[iMin].largo.toLowerCase()}, el más bajo con registros (${formato(vMin)}).` : '.';
+    if (series.length > 1) {
+      const mayor = series.reduce((a, d) => ((Number(d.data?.[iMax]) || 0) > (Number(a.data?.[iMax]) || 0) ? d : a));
+      texto += ` En ${MESES[iMax].largo.toLowerCase()} predomina el ${mayor.label.toLowerCase()}.`;
+    }
+    return texto;
   }
 }

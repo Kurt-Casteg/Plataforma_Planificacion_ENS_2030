@@ -7,7 +7,7 @@ import { el, render, vaciar, delegar, debounce, llenarSelect } from './dom.js';
 import { monto, numero, fecha, recortar } from './formato.js';
 import { etiquetaDe, aOpciones, buscarAsignacion } from './catalogos.js';
 import { MESES, ESTADOS, NOMBRE_ESTADO } from './modelo.js';
-import { abrirModal } from './ui.js';
+import { abrirEnfoque, navegacionEnfoque } from './enfoque.js';
 import { perfil } from './perfil.js';
 import { ajustes } from './ajustes.js';
 import { chipEstado, permisosSobre, lineaRevision } from './aprobacion.js';
@@ -61,7 +61,8 @@ export class TablaActividades {
 
     delegar(this.cuerpo, 'click', '[data-accion]', (e, boton) => {
       const { accion, id } = boton.dataset;
-      if (accion === 'detalle') this.#verDetalle(id);
+      // La ficha crece desde su fila: así se entiende de dónde salió.
+      if (accion === 'detalle') this.#verDetalle(id, { origen: boton.closest('tr') || boton });
       else this.acciones[accion]?.(id);
     });
   }
@@ -69,6 +70,7 @@ export class TablaActividades {
   actualizar(actividades) {
     this.actividades = actividades;
     this.pintar();
+    this.#refrescarFicha();
   }
 
   #filtradas() {
@@ -319,131 +321,231 @@ export class TablaActividades {
   }
 
   /**
-   * Abre el detalle de una actividad desde fuera del listado (lo usa el
-   * asistente para llevar a alguien hasta una actividad ya guardada).
+   * Abre la ficha de una actividad desde fuera del listado: la bandeja de la
+   * jefatura (con su lista de pendientes para recorrerla) o el asistente.
+   *
+   * @param {string} id
+   * @param {object} [o]
+   * @param {Element} [o.origen]   Desde dónde crece la ficha.
+   * @param {string[]} [o.lista]   Qué recorren «Anterior» y «Siguiente».
    */
-  verDetalle(id) { this.#verDetalle(id); }
+  verDetalle(id, opciones = {}) { this.#verDetalle(id, opciones); }
 
-  #verDetalle(id) {
-    const a = this.actividades.find((x) => x.id === id);
-    if (!a) return;
+  /* ---------------------------------------------------------------- */
+  /* Ficha en modo enfoque                                             */
+  /* ---------------------------------------------------------------- */
 
-    const dato = (etiqueta, valor, { completo = false } = {}) => valor
-      ? el('div', { class: completo ? 'detalle__dato detalle__dato--completo' : 'detalle__dato' }, [
-          el('dt', { text: etiqueta }),
-          el('dd', { text: String(valor) })
-        ])
-      : null;
+  #verDetalle(id, { origen = null, lista = null } = {}) {
+    const existe = (x) => this.actividades.some((a) => a.id === x);
+    if (!existe(id)) return;
+    // «Anterior» y «Siguiente» recorren lo que se está viendo: el listado con
+    // sus filtros, o la lista que mandó quien abrió la ficha.
+    let ids = (lista?.length ? lista : this.#filtradas().map((a) => a.id)).filter(existe);
+    if (!ids.includes(id)) ids = [id];
 
-    const mesesConDatos = MESES.filter((m) => a.cronograma[m.id] > 0);
+    if (this.ficha?.enfoque.abierto) this.ficha.enfoque.cerrar();
+    const enfoque = abrirEnfoque({
+      etiqueta: 'Ficha de la actividad',
+      origen,
+      ancho: '980px',
+      clase: 'foco',
+      alNavegar: (paso) => this.#moverFicha(paso),
+      alCerrar: () => { if (this.ficha?.enfoque === enfoque) this.ficha = null; }
+    });
+    this.ficha = { enfoque, ids, indice: ids.indexOf(id), version: '' };
+    this.#pintarFicha(0);
+    enfoque.entrar();
+  }
 
-    abrirModal({
-      titulo: a.nombreActividad || 'Actividad',
-      ancho: '820px',
-      contenido: [
-        el('dl', { class: 'detalle__grilla' }, [
-          dato('Código', a.codigoActividad),
-          dato('Departamento', etiquetaDe(this.catalogos.departamentos, a.departamento)),
-          dato('Responsable', a.responsable)
+  #moverFicha(paso) {
+    const f = this.ficha;
+    if (!f || f.ids.length < 2) return;
+    f.indice = (f.indice + paso + f.ids.length) % f.ids.length;
+    this.#pintarFicha(paso);
+  }
+
+  /** Con la ficha abierta, una actividad que cambió (aquí o en otro equipo) se redibuja. */
+  #refrescarFicha() {
+    const f = this.ficha;
+    if (!f?.enfoque.abierto) return;
+    f.ids = f.ids.filter((x) => this.actividades.some((a) => a.id === x));
+    if (!f.ids.length) { f.enfoque.cerrar(); return; }
+    f.indice = Math.min(f.indice, f.ids.length - 1);
+    const a = this.actividades.find((x) => x.id === f.ids[f.indice]);
+    if (`${a.actualizadaEn}|${a.estado}` !== f.version) this.#pintarFicha(0);
+  }
+
+  #pintarFicha(direccion) {
+    const f = this.ficha;
+    if (!f) return;
+    const a = this.actividades.find((x) => x.id === f.ids[f.indice]);
+    if (!a) { f.enfoque.cerrar(); return; }
+    f.version = `${a.actualizadaEn}|${a.estado}`;
+    const idTitulo = `ficha-titulo-${a.id}`;
+
+    const cabecera = el('header', { class: 'enfoque__cabecera' }, [
+      el('div', { class: 'foco__encabezado' }, [
+        el('div', { class: 'foco__etiquetas' }, [
+          ajustes.circuitoActivo ? chipEstado(a.estado) : null,
+          el('span', { class: 'foco__codigo', text: `${a.codigoActividad ? `N° ${a.codigoActividad} · ` : ''}${this.plan.nombre}` })
         ].filter(Boolean)),
+        el('h2', { class: 'foco__titulo', id: idTitulo, text: a.nombreActividad || 'Actividad sin nombre' }),
+        el('p', {
+          class: 'foco__meta',
+          text: [
+            etiquetaDe(this.catalogos.departamentos, a.departamento),
+            a.responsable,
+            a.tipoActividad && etiquetaDe(this.catalogos.tiposActividad, a.tipoActividad)
+          ].filter(Boolean).join(' · ')
+        })
+      ]),
+      el('button', {
+        class: 'enfoque__cerrar', attrs: { type: 'button', 'aria-label': 'Cerrar la ficha' }, text: '×',
+        on: { click: () => f.enfoque.cerrar() }
+      })
+    ]);
 
-        this.#bloqueRevision(a),
+    const observada = ajustes.circuitoActivo && a.estado === 'observada' && a.revision?.observacion;
 
-        this.#cadenaResultados(a),
-
-        el('dl', { class: 'detalle__grilla detalle__grilla--continua' }, [
-          dato('Tipo de Actividad', etiquetaDe(this.catalogos.tiposActividad, a.tipoActividad)),
-          dato('Componentes Transversales', etiquetaDe(this.catalogos.componentesTransversales, a.componentesTransversales)),
-          dato('Nombre de la Actividad', a.nombreActividad, { completo: true })
+    const cuerpo = [
+      observada && el('div', { class: 'observacion foco__observacion' }, [
+        el('p', { class: 'observacion__titulo', text: `Observación${a.revision.decididaPor ? ` de ${a.revision.decididaPor}` : ''}${a.revision.decididaEn ? ` · ${fecha(a.revision.decididaEn)}` : ''}` }),
+        el('p', { class: 'observacion__texto', text: a.revision.observacion })
+      ]),
+      el('div', { class: 'foco__columnas' }, [
+        el('div', { class: 'foco__columna' }, [
+          this.#cadenaResultados(a),
+          a.componentesTransversales && el('section', { class: 'detalle__bloque' }, [
+            el('h3', { text: 'Componente transversal' }),
+            el('p', { class: 'texto-cuerpo', text: etiquetaDe(this.catalogos.componentesTransversales, a.componentesTransversales) })
+          ]),
+          el('section', { class: 'detalle__bloque' }, [
+            el('h3', { text: 'Descripción' }),
+            el('p', { class: 'texto-cuerpo', text: a.descripcionActividad || 'Sin descripción.' })
+          ]),
+          el('section', { class: 'detalle__bloque' }, [
+            el('h3', { text: 'Medio de verificación' }),
+            el('p', { class: 'texto-cuerpo', text: a.medioVerificacion || 'Sin medio de verificación.' })
+          ])
         ].filter(Boolean)),
+        el('div', { class: 'foco__columna' }, [
+          this.#miniCronograma(a),
+          this.#bloquePresupuesto(a),
+          this.#bloqueCompras(a),
+          this.#bloqueRevision(a)
+        ].filter(Boolean))
+      ])
+    ].filter(Boolean);
 
-        a.descripcionActividad && el('section', { class: 'detalle__bloque' }, [
-          el('h3', { text: 'Descripción' }),
-          el('p', { class: 'texto-cuerpo', text: a.descripcionActividad })
-        ]),
-        a.medioVerificacion && el('section', { class: 'detalle__bloque' }, [
-          el('h3', { text: 'Medio de verificación' }),
-          el('p', { class: 'texto-cuerpo', text: a.medioVerificacion })
-        ]),
-
-        el('section', { class: 'detalle__bloque' }, [
-          el('h3', { text: `Cronograma · ${numero(a.totales.cronograma)} ejecuciones` }),
-          mesesConDatos.length
-            ? el('div', { class: 'chips' }, mesesConDatos.map((m) =>
-                el('span', { class: 'chip', text: `${m.corto}: ${numero(a.cronograma[m.id])}` })))
-            : el('p', { class: 'texto-cuerpo', text: 'Sin meses de ejecución registrados.' })
-        ]),
-
-        (a.sinPresupuesto || a.totales.presupuesto > 0) && el('section', { class: 'detalle__bloque' }, [
-          el('h3', { text: 'Presupuesto' }),
-          a.sinPresupuesto
-            ? el('p', { class: 'texto-cuerpo', text: 'Esta actividad no requiere presupuesto.' })
-            : el('div', {}, ['21', '22'].map((st) => {
-                const total = a.totales[`presupuesto${st}`];
-                if (!total) return null;
-                const b = a.presupuesto[st];
-                return el('div', { class: 'detalle__subtitulo' }, [
-                  el('p', { class: 'detalle__subtitulo-titulo', text: `Subtítulo ${st} · ${monto(total)}` }),
-                  (b.programatico || b.programa) && el('p', { class: 'tabla__sub', text: [b.programatico, b.programa].filter(Boolean).join(' · ') }),
-                  el('div', { class: 'chips' }, MESES.filter((m) => b.meses[m.id] > 0).map((m) =>
-                    el('span', { class: 'chip', text: `${m.corto}: ${monto(b.meses[m.id])}` })))
-                ].filter(Boolean));
-              }).filter(Boolean)),
-          !a.sinPresupuesto && el('p', { class: 'detalle__total', text: `Total: ${monto(a.totales.presupuesto)}` })
-        ].filter(Boolean)),
-
-        a.pac?.aplica && a.pac.compras.length && el('section', { class: 'detalle__bloque' }, [
-          el('h3', { text: `Plan Anual de Compras · ${a.pac.compras.length} compra${a.pac.compras.length > 1 ? 's' : ''} · ${monto(a.totales.pac)}` }),
-          ...a.pac.compras.map((c, i) => {
-            const ref = buscarAsignacion(this.clasificador, c.clasificador);
-            return el('div', { class: 'detalle__compra' }, [
-              el('p', { class: 'detalle__subtitulo-titulo', text: `${i + 1}. ${c.producto || 'Sin producto indicado'}` }),
-              ref && el('p', { class: 'tabla__sub', text: `${ref.item.nombre} · ${ref.asignacion.nombre}` }),
-              el('div', { class: 'chips' }, [
-                c.cantidad ? el('span', { class: 'chip', text: `Cantidad: ${numero(c.cantidad)}` }) : null,
-                c.fechaCompra ? el('span', { class: 'chip', text: `Compra: ${fecha(c.fechaCompra)}` }) : null,
-                c.fechaEjecucion ? el('span', { class: 'chip', text: `Ejecuta: ${fecha(c.fechaEjecucion)}` }) : null,
-                el('span', { class: 'chip', text: monto(c.monto) }),
-                c.criticaSGC ? el('span', { class: 'chip chip--sgc', text: 'Crítica para el SGC' }) : null
-              ].filter(Boolean))
-            ].filter(Boolean));
-          })
-        ])
-      ].filter(Boolean),
-      acciones: (() => {
-        const puede = permisosSobre(a);
-        const ir = (accion) => (m) => { m.cerrar(); this.acciones[accion]?.(id); };
-        return [
-          { texto: 'Cerrar', clase: 'btn--secundario', alHacerClic: (m) => m.cerrar() },
-          puede.reabrir ? { texto: 'Reabrir', clase: 'btn--secundario', alHacerClic: ir('reabrir') } : null,
-          puede.observar ? { texto: 'Observar', clase: 'btn--secundario', alHacerClic: ir('observar') } : null,
-          puede.editar ? { texto: 'Editar', clase: puede.aprobar || puede.enviar ? 'btn--secundario' : 'btn--primario', alHacerClic: ir('editar') } : null,
-          puede.enviar ? { texto: 'Enviar a revisión', clase: 'btn--primario', alHacerClic: ir('enviar') } : null,
-          puede.aprobar ? { texto: 'Aprobar', clase: 'btn--exito', alHacerClic: ir('aprobar') } : null
-        ].filter(Boolean);
-      })()
+    f.enfoque.mostrar({
+      etiqueta: `Ficha de la actividad «${a.nombreActividad || 'sin nombre'}»`,
+      direccion,
+      cabecera,
+      cuerpo,
+      pie: el('footer', { class: 'enfoque__pie' }, [
+        navegacionEnfoque({ indice: f.indice, total: f.ids.length, alMover: (p) => this.#moverFicha(p), nombre: 'Actividad' }) || el('span'),
+        el('div', { class: 'enfoque__acciones' }, this.#accionesFicha(a))
+      ])
     });
   }
 
-  /** Estado en el circuito de aprobación y su historial, al inicio del detalle. */
+  /** Doce barras: cuándo se ejecuta, de un vistazo. */
+  #miniCronograma(a) {
+    const valores = MESES.map((m) => Number(a.cronograma?.[m.id]) || 0);
+    const max = Math.max(...valores, 1);
+    return el('section', { class: 'detalle__bloque' }, [
+      el('div', { class: 'foco__bloque-cabecera' }, [
+        el('h3', { text: 'Cronograma' }),
+        el('span', { class: 'foco__lateral', text: `${numero(a.totales.cronograma)} ejecuci${a.totales.cronograma === 1 ? 'ón' : 'ones'}` })
+      ]),
+      el('div', {
+        class: 'mini-crono',
+        attrs: { role: 'img', 'aria-label': `Ejecuciones por mes: ${MESES.map((m, i) => `${m.largo} ${valores[i]}`).join(', ')}.` }
+      }, MESES.map((m, i) => el('span', { class: 'mini-crono__mes', attrs: { title: `${m.largo}: ${numero(valores[i])}` } }, [
+        el('span', { class: `mini-crono__barra${valores[i] ? '' : ' mini-crono__barra--vacia'}`, style: { height: `${Math.round((valores[i] / max) * 100)}%` } })
+      ]))),
+      el('div', { class: 'mini-crono__etiquetas', attrs: { 'aria-hidden': 'true' } }, MESES.map((m) => el('span', { text: m.corto.slice(0, 1) })))
+    ]);
+  }
+
+  #bloquePresupuesto(a) {
+    if (a.sinPresupuesto) {
+      return el('section', { class: 'detalle__bloque' }, [
+        el('h3', { text: 'Presupuesto' }),
+        el('p', { class: 'texto-cuerpo', text: 'Esta actividad no requiere presupuesto.' })
+      ]);
+    }
+    const ficha = (titulo, valor, clase = '') => el('div', { class: `foco__monto ${clase}`.trim() }, [
+      el('p', { class: 'foco__monto-titulo', text: titulo }),
+      el('p', { class: 'foco__monto-valor', text: monto(valor) })
+    ]);
+    const lineas = ['21', '22'].map((st) => {
+      const b = a.presupuesto?.[st];
+      if (!a.totales[`presupuesto${st}`] || !(b?.programatico || b?.programa)) return null;
+      return el('p', { class: 'tabla__sub', text: `ST${st}: ${[b.programatico, b.programa].filter(Boolean).join(' · ')}` });
+    }).filter(Boolean);
+    const meses = ['21', '22'].flatMap((st) => {
+      const b = a.presupuesto?.[st];
+      const conMonto = MESES.filter((m) => b?.meses?.[m.id] > 0);
+      return conMonto.length ? [el('div', { class: 'detalle__subtitulo' }, [
+        el('p', { class: 'detalle__subtitulo-titulo', text: `Subtítulo ${st}` }),
+        el('div', { class: 'chips' }, conMonto.map((m) => el('span', { class: 'chip', text: `${m.corto}: ${monto(b.meses[m.id])}` })))
+      ])] : [];
+    });
+    return el('section', { class: 'detalle__bloque' }, [
+      el('h3', { text: 'Presupuesto' }),
+      el('div', { class: 'foco__montos' }, [
+        ficha('Subtítulo 21', a.totales.presupuesto21),
+        ficha('Subtítulo 22', a.totales.presupuesto22),
+        ficha('Total', a.totales.presupuesto, 'foco__monto--total')
+      ]),
+      ...lineas,
+      meses.length ? el('details', { class: 'foco__desplegable' }, [el('summary', { text: 'Montos por mes' }), ...meses]) : null
+    ].filter(Boolean));
+  }
+
+  #bloqueCompras(a) {
+    if (!a.pac?.aplica || !a.pac.compras.length) return null;
+    const n = a.pac.compras.length;
+    return el('section', { class: 'detalle__bloque' }, [
+      el('div', { class: 'foco__bloque-cabecera' }, [
+        el('h3', { text: 'Plan Anual de Compras' }),
+        el('span', { class: 'foco__lateral', text: `${n} compra${n > 1 ? 's' : ''} · ${monto(a.totales.pac)}` })
+      ]),
+      el('ul', { class: 'foco__compras' }, a.pac.compras.map((c) => {
+        const ref = buscarAsignacion(this.clasificador, c.clasificador);
+        const detalle = [
+          ref && ref.asignacion.nombre,
+          c.cantidad && `Cantidad ${numero(c.cantidad)}`,
+          c.fechaCompra && `compra ${fecha(c.fechaCompra)}`,
+          c.fechaEjecucion && `ejecución ${fecha(c.fechaEjecucion)}`
+        ].filter(Boolean).join(' · ');
+        return el('li', { class: 'foco__compra' }, [
+          el('div', { class: 'foco__compra-texto' }, [
+            el('p', { class: 'foco__compra-producto', text: c.producto || 'Sin producto indicado' }),
+            detalle && el('p', { class: 'tabla__sub', text: detalle }),
+            c.criticaSGC && el('span', { class: 'chip chip--sgc', text: 'Crítica para el SGC' })
+          ].filter(Boolean)),
+          el('strong', { class: 'foco__compra-monto', text: monto(c.monto) })
+        ]);
+      }))
+    ]);
+  }
+
+  /** Estado en el circuito de aprobación y su historial. */
   #bloqueRevision(a) {
     if (!ajustes.circuitoActivo) return null;
     const r = a.revision || {};
     const historial = (r.historial || []).slice().reverse();
-    return el('section', { class: 'detalle__bloque detalle__revision' }, [
-      el('div', { class: 'detalle__revision-estado' }, [
-        chipEstado(a.estado),
-        el('span', { class: 'tabla__sub', text: lineaRevision(a) })
-      ]),
-      a.estado === 'observada' && r.observacion && el('div', { class: 'observacion' }, [
-        el('p', { class: 'observacion__titulo', text: `Observación${r.decididaPor ? ` de ${r.decididaPor}` : ''}` }),
-        el('p', { class: 'observacion__texto', text: r.observacion })
-      ]),
+    const linea = lineaRevision(a);
+    return el('section', { class: 'detalle__bloque foco__revision' }, [
+      el('h3', { text: 'Revisión' }),
+      el('p', { class: 'foco__revision-linea', text: linea || (a.estado === 'borrador' ? 'En borrador: todavía no se envía a revisión.' : NOMBRE_ESTADO[a.estado]) }),
       a.estado === 'aprobada' && !permisosSobre(a).editar && el('p', {
         class: 'tabla__sub', text: 'Aprobada: queda bloqueada. Si hay que cambiarla, la jefatura puede reabrirla.'
       }),
       historial.length > 0 && el('details', { class: 'detalle__historial' }, [
-        el('summary', { text: `Historial de revisión (${historial.length})` }),
+        el('summary', { text: `Historial (${historial.length})` }),
         el('ol', {}, historial.map((h) => el('li', {}, [
           el('strong', { text: NOMBRE_ESTADO[h.estado] || h.estado }),
           ` · ${fecha(h.en)}${h.por ? ` · ${h.por}` : ''}`,
@@ -451,5 +553,47 @@ export class TablaActividades {
         ].filter(Boolean))))
       ])
     ].filter(Boolean));
+  }
+
+  #accionesFicha(a) {
+    const puede = permisosSobre(a);
+    const f = this.ficha;
+    const boton = (texto, clase, alHacerClic) => el('button', {
+      class: `btn ${clase}`, attrs: { type: 'button' }, text: texto, on: { click: alHacerClic }
+    });
+    // Editar y duplicar llevan al formulario: la ficha se cierra primero.
+    const fuera = (accion) => () => { f.enfoque.cerrar(); this.acciones[accion]?.(a.id); };
+    const botones = [
+      puede.reabrir && boton('Reabrir', 'btn--secundario', () => this.#decidirEnFicha('reabrir', a.id)),
+      puede.editar && boton('Editar', 'btn--secundario', fuera('editar')),
+      puede.enviar && boton(a.estado === 'observada' ? 'Reenviar a revisión' : 'Enviar a revisión', 'btn--primario', () => this.#decidirEnFicha('enviar', a.id)),
+      puede.observar && boton('Observar', 'btn--observar', () => this.#decidirEnFicha('observar', a.id)),
+      puede.aprobar && boton('Aprobar', 'btn--exito', () => this.#decidirEnFicha('aprobar', a.id))
+    ].filter(Boolean);
+    return botones.length ? botones : [boton('Cerrar', 'btn--secundario', () => f.enfoque.cerrar())];
+  }
+
+  /**
+   * Aprobar, observar, reabrir o enviar sin salir de la ficha. Tras aprobar u
+   * observar, la ficha pasa sola a la siguiente actividad por revisar: la
+   * jefatura recorre su bandeja sin volver al listado entre una y otra.
+   */
+  async #decidirEnFicha(accion, id) {
+    const antes = this.actividades.find((x) => x.id === id)?.estado;
+    await this.acciones[accion]?.(id);
+    const f = this.ficha;
+    if (!f?.enfoque.abierto) return;
+    const ahora = this.actividades.find((x) => x.id === id)?.estado;
+    if (ahora === antes || (accion !== 'aprobar' && accion !== 'observar')) { this.#pintarFicha(0); return; }
+
+    const orden = [...f.ids.slice(f.indice + 1), ...f.ids.slice(0, f.indice)];
+    const siguiente = orden.find((x) => this.actividades.find((a) => a.id === x)?.estado === 'revision');
+    if (!siguiente) { this.#pintarFicha(0); return; }
+    // Una pausa breve: alcanza a verse el cambio de estado antes de avanzar.
+    setTimeout(() => {
+      if (this.ficha !== f || !f.enfoque.abierto) return;
+      f.indice = f.ids.indexOf(siguiente);
+      this.#pintarFicha(1);
+    }, 450);
   }
 }

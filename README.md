@@ -59,6 +59,7 @@ que se publican en GitHub Pages y se abren en cualquier navegador moderno.
 │       ├── aprobacion.js     Circuito de aprobación: estados, bandeja de la jefatura, avance.
 │       ├── ajustes.js        Interruptores de la plataforma leídos desde Supabase.
 │       ├── configuracion.js  «Más» → «Configuración de la plataforma» (Control de Gestión).
+│       ├── enfoque.js        Modo enfoque: ficha de actividad y gráficos ampliados al centro.
 │       ├── exportar.js       Excel, CSV, respaldo e importación.
 │       ├── informe.js        Informe consolidado: cálculo y libro de Excel.
 │       ├── informe-vista.js  Informe consolidado: vista imprimible (PDF).

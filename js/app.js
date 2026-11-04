@@ -566,14 +566,16 @@ async function decidir(ids, decision) {
 }
 
 /** Abre el detalle de una actividad de cualquiera de los dos planes. */
-async function verActividad(id) {
+async function verActividad(id, opciones = {}) {
   const a = almacen.obtener(id);
   if (!a) return;
   if (estado.plan?.id !== a.plan) {
     history.replaceState(null, '', `#/${a.plan}`);
     await activarPlan(planPorId(a.plan));
   }
-  estado.tabla?.verDetalle(id);
+  // `lista`: lo que recorren «Anterior» y «Siguiente» (desde la bandeja, sus
+  // pendientes). Solo cuentan los del plan abierto: la ficha vive en su listado.
+  estado.tabla?.verDetalle(id, opciones);
 }
 
 function dibujarPortada(plan) {
@@ -1258,7 +1260,7 @@ function mostrarAyuda() {
       paso(3, 'Registra cronograma y presupuesto', 'Indica cuántas veces ejecutarás la actividad cada mes. Los montos van en miles de pesos. Si no requiere presupuesto, activa el interruptor.'),
       paso(4, 'Si vas a comprar, completa el PAC',
         'Dentro del Subtítulo 22, activa el interruptor del Plan Anual de Compras y agrega una tarjeta por cada producto o servicio a contratar. Puedes agregar varias. La plataforma compara la suma con el presupuesto del subtítulo y te avisa si no cuadran.'),
-      paso(5, 'Revisa y ajusta', 'En "Actividades registradas" puedes buscar, ver el detalle, editar, duplicar o eliminar. El panel de análisis se actualiza solo.'),
+      paso(5, 'Revisa y ajusta', 'En "Actividades registradas" puedes buscar, editar, duplicar o eliminar. «Ver» abre la ficha al centro de la pantalla: con «Siguiente» o las flechas ← → recorres las demás sin cerrarla, y con Esc vuelves. En el panel de análisis, «Ampliar» agranda cualquier gráfico con su tabla de datos.'),
       ajustes.circuitoActivo && paso(6, 'Envía a revisión de tu jefatura',
         '«Guardar y enviar a revisión» deja la actividad lista para que tu jefatura la apruebe u observe. Si aún no está lista, usa «Guardar como borrador». Si te la observan, verás el comentario bajo la fila: corrige y vuelve a enviar. Lo aprobado queda bloqueado.'),
       paso(ajustes.circuitoActivo ? 7 : 6, 'Exporta y respalda', 'Usa "Exportar a Excel" para la entrega oficial. Usa "Respaldar (JSON)" para guardar una copia que puedas volver a importar aquí o enviar a Control de Gestión para consolidar.'),

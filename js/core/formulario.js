@@ -92,10 +92,127 @@ export class Formulario {
       ])
     );
 
-    render(this.contenedor, form);
+    // Índice lateral con el avance de cada sección. La sección en la que se
+    // está escribiendo se resalta y las demás se atenúan (modo enfoque).
+    this.indice = el('nav', { class: 'indice-form', attrs: { 'aria-label': 'Secciones del formulario' } });
+    render(this.contenedor, el('div', { class: 'formulario__marco' }, [this.indice, form]));
     this.form = form;
+    this.nodosSeccion = [...form.querySelectorAll(':scope > .seccion')];
+    this.#prepararEnfoque();
     this.#actualizarTotales();
     this.aplicarModoAprobacion();
+  }
+
+  /* ---------------------------------------------------------------- */
+  /* Índice de secciones y sección activa                              */
+  /* ---------------------------------------------------------------- */
+
+  #prepararEnfoque() {
+    const form = this.form;
+    this.seccionActiva = -1;
+
+    form.addEventListener('focusin', (e) => {
+      const nodo = e.target.closest?.('.seccion');
+      if (nodo) this.#activarSeccion(Number(nodo.dataset.seccion));
+    });
+    // Un clic en el texto de una sección (sin caer en un campo) también la activa.
+    form.addEventListener('pointerdown', (e) => {
+      const nodo = e.target.closest?.('.seccion');
+      if (nodo) this.#activarSeccion(Number(nodo.dataset.seccion));
+    });
+    // Al salir del formulario, todo vuelve a verse igual.
+    form.addEventListener('focusout', () => {
+      setTimeout(() => {
+        const activo = document.activeElement;
+        if (!form.contains(activo) && !this.indice.contains(activo)) this.#activarSeccion(-1);
+      }, 0);
+    });
+
+    const recalcular = debounce(() => this.#pintarIndice(), 160);
+    form.addEventListener('input', recalcular);
+    form.addEventListener('change', recalcular);
+    this.__recalcularIndice = recalcular;
+
+    // El índice queda pegado bajo la cabecera, que también es fija: se mide
+    // su alto para que no lo tape.
+    const medir = () => {
+      const alto = document.querySelector('.cabecera')?.offsetHeight || 0;
+      document.documentElement.style.setProperty('--alto-cabecera', `${alto}px`);
+    };
+    medir();
+    addEventListener('resize', debounce(medir, 120));
+  }
+
+  #activarSeccion(i) {
+    if (i === this.seccionActiva) return;
+    this.seccionActiva = i;
+    this.form.classList.toggle('formulario--enfocado', i >= 0);
+    this.nodosSeccion.forEach((n, j) => n.classList.toggle('seccion--activa', j === i));
+    this.#pintarIndice();
+  }
+
+  /** Completa, en curso o pendiente, según lo que valida la propia plataforma. */
+  #estadoSecciones() {
+    const { errores } = validarActividad(this.leer(), this.plan);
+    const claves = Object.keys(errores);
+    return this.plan.secciones.map((seccion, i) => {
+      const ids = new Set(seccion.campos.map((c) => c.id));
+      // La cadena ENS es un solo bloque en la definición, pero valida nivel por nivel.
+      if (ids.has('cadenaENS')) ['objetivoEstrategico', 'tema', 'objetivoImpacto', 'resultadoEsperado', 'resultadoInmediato'].forEach((x) => ids.add(x));
+      const propia = (k) => ids.has(k.split('.')[0]) ||
+        (ids.has('presupuesto') && /^(presupuesto|programatico|programa|pac)/.test(k));
+      const conError = claves.some(propia);
+      const nodo = this.nodosSeccion[i];
+      const conValor = [...(nodo?.querySelectorAll('input, select, textarea') ?? [])].some((c) =>
+        !c.readOnly && !c.disabled && c.type !== 'hidden' &&
+        (c.type === 'checkbox' || c.type === 'radio' ? c.checked : c.value !== '' && c.value !== '0'));
+      return conError ? (conValor ? 'curso' : 'pendiente') : 'completa';
+    });
+  }
+
+  #pintarIndice() {
+    if (!this.indice || !this.form) return;
+    const estados = this.#estadoSecciones();
+    const completas = estados.filter((e) => e === 'completa').length;
+    const total = estados.length;
+    const TEXTO = { completa: 'Completa', curso: 'En curso', pendiente: 'Pendiente' };
+
+    render(this.indice,
+      el('p', { class: 'indice-form__titulo', text: this.editando ? 'Editando actividad' : 'Nueva actividad' }),
+      el('p', { class: 'indice-form__avance', text: `${numero(completas)} de ${numero(total)} secciones completas` }),
+      el('div', { class: 'indice-form__barra', attrs: { 'aria-hidden': 'true' } }, [
+        el('span', { style: { width: `${Math.round((completas / total) * 100)}%` } })
+      ]),
+      el('ol', { class: 'indice-form__lista' }, this.plan.secciones.map((seccion, i) => {
+        const e = estados[i];
+        const actual = i === this.seccionActiva;
+        return el('li', {}, [
+          el('button', {
+            class: `indice-form__paso indice-form__paso--${e}${actual ? ' indice-form__paso--actual' : ''}`,
+            attrs: { type: 'button', 'aria-current': actual ? 'step' : false },
+            on: { click: () => this.#irASeccion(i) }
+          }, [
+            el('span', { class: 'indice-form__marca', attrs: { 'aria-hidden': 'true' }, text: e === 'completa' ? '✓' : String(i + 1) }),
+            el('span', { class: 'indice-form__texto' }, [
+              seccion.tituloCorto || seccion.titulo,
+              el('span', { class: 'indice-form__estado', text: TEXTO[e] })
+            ])
+          ])
+        ]);
+      }))
+    );
+  }
+
+  /** Lleva a una sección y deja el cursor en su primer campo editable. */
+  #irASeccion(i) {
+    const nodo = this.nodosSeccion[i];
+    if (!nodo) return;
+    const suave = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+    nodo.scrollIntoView({ behavior: suave ? 'smooth' : 'auto', block: 'start' });
+    const campo = [...nodo.querySelectorAll('input, select, textarea, button')]
+      .find((c) => !c.disabled && !c.readOnly && c.type !== 'hidden' && c.offsetParent !== null);
+    this.#activarSeccion(i);
+    campo?.focus({ preventScroll: true });
   }
 
   /**
@@ -120,7 +237,7 @@ export class Formulario {
     const cuerpo = el('div', { class: 'seccion__cuerpo' });
     for (const campo of seccion.campos) cuerpo.append(this.#campo(campo));
 
-    return el('section', { class: 'seccion' }, [
+    return el('section', { class: 'seccion', id: `seccion-${this.plan.id}-${numero}`, dataset: { seccion: numero - 1 } }, [
       el('header', { class: 'seccion__cabecera' }, [
         el('span', { class: 'seccion__numero', text: numero, attrs: { 'aria-hidden': 'true' } }),
         el('div', {}, [
@@ -944,6 +1061,7 @@ export class Formulario {
     if (this.totalPresupuesto) this.totalPresupuesto.textContent = monto(general);
     this.#sincronizarPacObligatorio();
     this.#actualizarConciliacion();
+    this.__recalcularIndice?.();
   }
 
   #vaciarCompras() {

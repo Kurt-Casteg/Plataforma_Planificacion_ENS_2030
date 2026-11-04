@@ -137,7 +137,7 @@ export class ZonaRevision {
    * @param {HTMLElement} o.contenedor
    * @param {object} o.catalogos
    * @param {Function} o.alDecidir  (ids, decision) → Promise
-   * @param {Function} o.alVer      (id) → abre el detalle
+   * @param {Function} o.alVer      (id, { origen, lista }) → abre la ficha en modo enfoque
    * @param {Function} o.nombrePlan (id) → nombre corto del plan
    */
   constructor({ contenedor, catalogos, alDecidir, alVer, nombrePlan }) {
@@ -244,7 +244,7 @@ export class ZonaRevision {
         el('span', { class: 'bandeja__actividad', attrs: { role: 'cell' } }, [
           el('button', {
             class: 'enlace-tabla', attrs: { type: 'button' }, text: a.nombreActividad || 'Actividad sin nombre',
-            on: { click: () => this.alVer(a.id) }
+            on: { click: (e) => this.alVer(a.id, { origen: e.currentTarget.closest('.bandeja__fila') || e.currentTarget, lista: porRevisar.map((x) => x.id) }) }
           }),
           el('span', {
             class: 'tabla__sub',
