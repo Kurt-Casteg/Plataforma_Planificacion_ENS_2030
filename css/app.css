@@ -2400,3 +2400,11 @@ body.con-hoja .asistente { display: none; }
 
 /* Gráficos compactos: cuántas categorías quedan fuera de la tarjeta. */
 .grafico__nota { margin-top: var(--e-3); font-size: var(--t-xs); color: var(--ink-3); }
+
+/* Acciones de cada fila: con el circuito de aprobación una fila puede llevar
+   cinco botones (Ver, Enviar, Editar, Duplicar, Eliminar) y en una sola línea
+   empujaban la tabla más allá del ancho de la página: «Eliminar» quedaba
+   escondido tras el desplazamiento horizontal. Ahora pasan a una segunda línea. */
+.col--acciones { white-space: normal; }
+.acciones-fila { flex-wrap: wrap; width: 12.5rem; row-gap: 2px; }
+@media print { .acciones-fila { width: auto; } }

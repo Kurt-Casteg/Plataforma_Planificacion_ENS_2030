@@ -456,7 +456,11 @@ async function guardarActividad(actividad, { editaba, enviar = true }) {
     await perfil.fijarDepartamento(actividad.departamento);
   }
 
-  if (!editaba && !actividad.codigoActividad) {
+  // También al editar una actividad que nunca tuvo número, como una copia hecha
+  // con «Duplicar» (nace sin código). El servidor numera según el departamento
+  // de quien guarda, así que solo se pide si la actividad es de ese departamento.
+  const sinNumeroPropia = editaba && (!perfil.identificado || actividad.departamento === perfil.departamento);
+  if (!actividad.codigoActividad && (!editaba || sinNumeroPropia)) {
     try {
       const r = await siguienteCodigo({
         plan: actividad.plan,
