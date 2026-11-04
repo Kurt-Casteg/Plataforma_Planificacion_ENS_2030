@@ -661,6 +661,8 @@ export class Asistente {
     const nodo = document.getElementById(id);
     if (!nodo) return;
     this.cerrar();
+    // Con el formulario en acordeón, la capa que contiene el campo se abre primero.
+    nodo.dispatchEvent(new CustomEvent('revelar', { bubbles: true }));
     nodo.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
     nodo.focus({ preventScroll: true });
     const grupo = nodo.closest('.campo');

@@ -7,13 +7,14 @@
  * `js/plans/index.js` y nada más.
  */
 
+import { CONFIG } from '../../config.js';
 import { el, render, vaciar, llenarSelect, llenarSelectAgrupado, debounce } from './dom.js';
 import {
   MESES, IDS_MESES, SUBTITULOS, aNumero,
   normalizarActividad, validarActividad, revisarActividad, camposPendientes, nuevoId
 } from './modelo.js';
-import { aOpciones, indexarENS, opcionesClasificador } from './catalogos.js';
-import { monto, numero, fechaEnPalabras } from './formato.js';
+import { aOpciones, indexarENS, opcionesClasificador, etiquetaDe } from './catalogos.js';
+import { monto, numero, fechaEnPalabras, recortar } from './formato.js';
 import { avisar } from './ui.js';
 import { perfil } from './perfil.js';
 import { ajustes } from './ajustes.js';
@@ -43,8 +44,9 @@ export class Formulario {
     this.editando = null;      // id de la actividad en edición
     this.#dibujar();
     this.aplicarPerfil();
+    this.#capaInicial();
     // Si la sesión se resuelve después de dibujar el formulario, se rellena solo.
-    this.__alCambiarPerfil = () => this.aplicarPerfil();
+    this.__alCambiarPerfil = () => { this.aplicarPerfil(); this.#capaInicial(); };
     perfil.addEventListener('cambio', this.__alCambiarPerfil);
   }
 
@@ -67,15 +69,18 @@ export class Formulario {
       on: { submit: (e) => { e.preventDefault(); this.enviar(e.submitter?.dataset?.intencion || 'enviar'); } }
     });
 
+    // Acordeón (3.16) o clásico (3.15): lo decide config.js.
+    this.acordeon = CONFIG.formulario !== 'clasico';
+    if (this.acordeon) form.classList.add('formulario--acordeon');
+
+    this.avisoEdicion = el('div', { class: 'aviso-edicion', attrs: { hidden: true, role: 'status' } });
+    if (this.acordeon) form.append(this.avisoEdicion);
+
     this.plan.secciones.forEach((seccion, i) => {
       form.append(this.#seccion(seccion, i + 1));
     });
 
-    this.avisoEdicion = el('div', { class: 'aviso-edicion', attrs: { hidden: true, role: 'status' } });
-
-    form.append(
-      this.avisoEdicion,
-      el('div', { class: 'formulario__acciones' }, [
+    const acciones = el('div', { class: 'formulario__acciones' }, [
         el('button', {
           class: 'btn btn--primario btn--grande', attrs: { type: 'submit' }, id: 'btnGuardar',
           dataset: { intencion: 'enviar' }
@@ -89,18 +94,37 @@ export class Formulario {
           text: 'Limpiar formulario',
           on: { click: () => this.limpiar({ avisar: true }) }
         })
-      ])
-    );
+      ]);
 
-    // Índice lateral con el avance de cada sección. La sección en la que se
-    // está escribiendo se resalta y las demás se atenúan (modo enfoque).
-    this.indice = el('nav', { class: 'indice-form', attrs: { 'aria-label': 'Secciones del formulario' } });
-    render(this.contenedor, el('div', { class: 'formulario__marco' }, [this.indice, form]));
+    if (this.acordeon) {
+      // Sexta capa: el resumen de las cinco y los botones de guardar.
+      this.listaRevision = el('ol', { class: 'revision-capas' });
+      form.append(this.#capa({
+        numero: this.plan.secciones.length + 1,
+        titulo: 'Revisar y guardar',
+        descripcion: 'Revisa el resumen antes de guardar.',
+        clase: 'capa--revision',
+        contenido: [this.listaRevision, acciones]
+      }));
+      // En lugar del índice lateral, una barra de avance sobre las capas.
+      this.indice = null;
+      this.progreso = el('div', { class: 'acordeon__progreso', attrs: { role: 'status' } });
+      render(this.contenedor, el('div', { class: 'formulario__marco formulario__marco--acordeon' }, [this.progreso, form]));
+    } else {
+      form.append(this.avisoEdicion, acciones);
+      // Índice lateral con el avance de cada sección. La sección en la que se
+      // está escribiendo se resalta y las demás se atenúan (modo enfoque).
+      this.indice = el('nav', { class: 'indice-form', attrs: { 'aria-label': 'Secciones del formulario' } });
+      render(this.contenedor, el('div', { class: 'formulario__marco' }, [this.indice, form]));
+    }
     this.form = form;
     this.nodosSeccion = [...form.querySelectorAll(':scope > .seccion')];
+    this.capasMarcadas = new Set();
+    this.capaActiva = -1;
     this.#prepararEnfoque();
     this.#actualizarTotales();
     this.aplicarModoAprobacion();
+    if (this.acordeon) this.#abrirCapa(this.#primeraPendiente(), { desplazar: false, animar: false });
   }
 
   /* ---------------------------------------------------------------- */
@@ -110,6 +134,30 @@ export class Formulario {
   #prepararEnfoque() {
     const form = this.form;
     this.seccionActiva = -1;
+
+    const recalcular = debounce(() => this.#pintarIndice(), 160);
+    form.addEventListener('input', recalcular);
+    form.addEventListener('change', recalcular);
+    this.__recalcularIndice = recalcular;
+
+    // El índice y las capas quedan bajo la cabecera, que también es fija: se
+    // mide su alto para que no los tape.
+    const medir = () => {
+      const alto = document.querySelector('.cabecera')?.offsetHeight || 0;
+      document.documentElement.style.setProperty('--alto-cabecera', `${alto}px`);
+    };
+    medir();
+    addEventListener('resize', debounce(medir, 120));
+
+    if (this.acordeon) {
+      // Quien quiera llevar a un campo (el asistente, un error) avisa con
+      // «revelar»: la capa que lo contiene se abre al instante.
+      form.addEventListener('revelar', (e) => {
+        const capa = e.target.closest?.('.capa');
+        if (capa) this.#abrirCapa(Number(capa.dataset.seccion), { desplazar: false, animar: false });
+      });
+      return;
+    }
 
     form.addEventListener('focusin', (e) => {
       const nodo = e.target.closest?.('.seccion');
@@ -127,20 +175,6 @@ export class Formulario {
         if (!form.contains(activo) && !this.indice.contains(activo)) this.#activarSeccion(-1);
       }, 0);
     });
-
-    const recalcular = debounce(() => this.#pintarIndice(), 160);
-    form.addEventListener('input', recalcular);
-    form.addEventListener('change', recalcular);
-    this.__recalcularIndice = recalcular;
-
-    // El índice queda pegado bajo la cabecera, que también es fija: se mide
-    // su alto para que no lo tape.
-    const medir = () => {
-      const alto = document.querySelector('.cabecera')?.offsetHeight || 0;
-      document.documentElement.style.setProperty('--alto-cabecera', `${alto}px`);
-    };
-    medir();
-    addEventListener('resize', debounce(medir, 120));
   }
 
   #activarSeccion(i) {
@@ -166,13 +200,16 @@ export class Formulario {
       const conValor = [...(nodo?.querySelectorAll('input, select, textarea') ?? [])].some((c) =>
         !c.readOnly && !c.disabled && c.type !== 'hidden' &&
         (c.type === 'checkbox' || c.type === 'radio' ? c.checked : c.value !== '' && c.value !== '0'));
-      return conError ? (conValor ? 'curso' : 'pendiente') : 'completa';
+      const estado = conError ? (conValor ? 'curso' : 'pendiente') : 'completa';
+      return Object.assign(new String(estado), { faltas: claves.filter(propia).length });
     });
   }
 
   #pintarIndice() {
-    if (!this.indice || !this.form) return;
-    const estados = this.#estadoSecciones();
+    if (!this.form) return;
+    if (this.acordeon) { this.#pintarCapas(); return; }
+    if (!this.indice) return;
+    const estados = this.#estadoSecciones().map(String);
     const completas = estados.filter((e) => e === 'completa').length;
     const total = estados.length;
     const TEXTO = { completa: 'Completa', curso: 'En curso', pendiente: 'Pendiente' };
@@ -201,6 +238,225 @@ export class Formulario {
         ]);
       }))
     );
+  }
+
+  /* ---------------------------------------------------------------- */
+  /* Acordeón por capas (3.16)                                         */
+  /* ---------------------------------------------------------------- */
+
+  /**
+   * Una capa: cabecera que abre y cierra (con el resumen de lo llenado cuando
+   * está recogida) y un pliegue con los campos. El pliegue anima su alto con
+   * `grid-template-rows` (0fr ↔ 1fr), lo único que permite animar «hasta el
+   * alto del contenido» sin medirlo. Recogida, la capa queda `inert`: Tab no
+   * entra a campos que no se ven.
+   */
+  #capa({ numero, titulo, descripcion, contenido, clase = '', textoContinuar = '' }) {
+    const i = numero - 1;
+    const idPliegue = `capa-${this.plan.id}-${numero}`;
+    const linea = el('span', { class: 'capa__linea', text: descripcion || '' });
+    const estado = el('span', { class: 'capa__estado' });
+    const marca = el('span', { class: 'seccion__numero capa__marca', text: String(numero), attrs: { 'aria-hidden': 'true' } });
+    const boton = el('button', {
+      class: 'capa__cabecera', attrs: { type: 'button', 'aria-expanded': 'false', 'aria-controls': idPliegue },
+      on: { click: () => (this.capaActiva === i ? this.#abrirCapa(-1) : this.#abrirCapa(i)) }
+    }, [
+      marca,
+      el('span', { class: 'capa__textos' }, [
+        el('span', { class: 'seccion__titulo capa__titulo', text: titulo }),
+        linea
+      ]),
+      estado,
+      el('span', {
+        class: 'capa__flecha', attrs: { 'aria-hidden': 'true' },
+        html: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>'
+      })
+    ]);
+    const interior = el('div', { class: 'capa__interior' }, [
+      ...contenido,
+      textoContinuar && el('div', { class: 'capa__pie' }, [
+        el('button', {
+          class: 'btn btn--primario', attrs: { type: 'button' }, text: textoContinuar,
+          on: { click: () => this.#continuar(i) }
+        })
+      ])
+    ].filter(Boolean));
+    interior.inert = true;
+
+    const nodo = el('section', {
+      class: `seccion capa ${clase}`.trim(), id: `seccion-${this.plan.id}-${numero}`,
+      dataset: { seccion: i }, attrs: { 'aria-labelledby': `${idPliegue}-titulo` }
+    }, [
+      el('h2', { class: 'capa__h', id: `${idPliegue}-titulo` }, [boton]),
+      el('div', { class: 'capa__pliegue', id: idPliegue }, [interior])
+    ]);
+    nodo.__capa = { boton, linea, estado, marca, interior, descripcion: descripcion || '' };
+    return nodo;
+  }
+
+  /** Abre una capa (y recoge las demás). -1 las recoge todas. */
+  #abrirCapa(i, { desplazar = true, animar = true } = {}) {
+    if (!this.acordeon || !this.form) return;
+    this.capaActiva = i;
+    this.form.classList.toggle('formulario--sin-animar', !animar);
+    for (const nodo of this.nodosSeccion) {
+      const j = Number(nodo.dataset.seccion);
+      const abierta = j === i;
+      nodo.classList.toggle('capa--abierta', abierta);
+      nodo.__capa.boton.setAttribute('aria-expanded', String(abierta));
+      nodo.__capa.interior.inert = !abierta;
+    }
+    if (!animar) requestAnimationFrame(() => this.form?.classList.remove('formulario--sin-animar'));
+    this.#pintarCapas();
+    const nodo = this.nodosSeccion[i];
+    if (!nodo || !desplazar) return;
+
+    // La capa que se abre queda arriba, bajo la cabecera de la página. Las
+    // que se recogen encima cambian de alto mientras tanto, así que al
+    // terminar se corrige el destino si quedó corto.
+    const suave = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const ir = () => nodo.scrollIntoView({ behavior: suave ? 'smooth' : 'auto', block: 'start' });
+    setTimeout(ir, 40);
+    const pliegue = nodo.querySelector('.capa__pliegue');
+    const alTerminar = (e) => {
+      if (e.target !== pliegue) return;
+      pliegue.removeEventListener('transitionend', alTerminar);
+      const arriba = nodo.getBoundingClientRect().top;
+      const destino = (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--alto-cabecera')) || 0) + 16;
+      if (Math.abs(arriba - destino) > 12) ir();
+    };
+    pliegue.addEventListener('transitionend', alTerminar);
+  }
+
+  /**
+   * Con un formulario nuevo y sin tocar, la capa abierta es la primera con
+   * algo pendiente. Se recalcula cuando llega la sesión, que completa sola la
+   * identificación.
+   */
+  #capaInicial() {
+    if (!this.acordeon || this.editando || this.capasMarcadas.size) return;
+    const i = this.#primeraPendiente();
+    if (i !== this.capaActiva) this.#abrirCapa(i, { desplazar: false, animar: false });
+  }
+
+  /** «Continuar»: deja marcada la capa (completa o con faltas) y abre la siguiente. */
+  #continuar(i) {
+    this.capasMarcadas.add(i);
+    this.#abrirCapa(i + 1);
+  }
+
+  /** La primera capa con algo pendiente; si no hay, la de revisar y guardar. */
+  #primeraPendiente() {
+    const estados = this.#estadoSecciones();
+    const i = estados.findIndex((e) => String(e) !== 'completa');
+    return i >= 0 ? i : this.plan.secciones.length;
+  }
+
+  /** Resumen de una sección recogida: lo que alguien quiere ver sin abrirla. */
+  #resumenDe(seccion, a) {
+    const ids = new Set(seccion.campos.map((c) => c.id));
+    if (ids.has('cronograma')) {
+      const total = a.totales.cronograma;
+      if (!total) return 'Sin meses de ejecución';
+      const con = MESES.filter((m) => (a.cronograma?.[m.id] || 0) > 0);
+      const rango = con.length === 1 ? con[0].largo.toLowerCase() : `${con[0].largo.toLowerCase()} a ${con[con.length - 1].largo.toLowerCase()}`;
+      return `${numero(total)} ejecuci${total === 1 ? 'ón' : 'ones'} · ${rango}`;
+    }
+    if (ids.has('presupuesto')) {
+      if (a.sinPresupuesto) return 'No requiere presupuesto';
+      if (!a.totales.presupuesto) return 'Sin montos todavía';
+      const partes = [monto(a.totales.presupuesto)];
+      if (a.totales.presupuesto21) partes.push(`ST21 ${monto(a.totales.presupuesto21)}`);
+      if (a.totales.presupuesto22) partes.push(`ST22 ${monto(a.totales.presupuesto22)}`);
+      const n = a.pac?.aplica ? a.pac.compras.length : 0;
+      if (n) partes.push(`${n} compra${n > 1 ? 's' : ''} en el PAC`);
+      return partes.join(' · ');
+    }
+    if (ids.has('cadenaENS')) {
+      if (!a.resultadoInmediato) return 'Sin resultado inmediato todavía';
+      let texto = '';
+      const v = { oe: a.objetivoEstrategico, tema: a.tema, oi: a.objetivoImpacto, re: a.resultadoEsperado, ri: a.resultadoInmediato };
+      try { texto = this.ens?.nombreDe('resultadoInmediato', v) || ''; } catch { /* sin índice */ }
+      return recortar(`RI ${a.resultadoInmediato}${texto ? ` · ${texto}` : ''}`, 110);
+    }
+    if (ids.has('nombreActividad')) {
+      const nombre = a.nombreActividad || 'Sin nombre';
+      return `${recortar(nombre, 70)} · ${a.medioVerificacion ? `verificación: ${recortar(a.medioVerificacion, 40)}` : 'sin medio de verificación'}`;
+    }
+    if (ids.has('departamento')) {
+      return [
+        etiquetaDe(this.catalogos?.departamentos ?? [], a.departamento) || 'Sin departamento',
+        a.responsable,
+        a.codigoActividad ? `N° ${a.codigoActividad}` : 'código automático'
+      ].filter(Boolean).join(' · ');
+    }
+    // Otras secciones (por ejemplo, «Objetivos y producto» del PGI): los textos.
+    const textos = seccion.campos.map((c) => a[c.id]).filter((v) => typeof v === 'string' && v.trim());
+    return textos.length ? recortar(textos.join(' · '), 110) : 'Sin completar';
+  }
+
+  #pintarCapas() {
+    if (!this.acordeon || !this.form) return;
+    const a = this.leer();
+    const estados = this.#estadoSecciones();
+    const total = this.plan.secciones.length;
+    const TEXTO = { completa: 'Completa', curso: 'En curso', pendiente: 'Pendiente' };
+    let completas = 0;
+    const filas = [];
+
+    this.plan.secciones.forEach((seccion, i) => {
+      const nodo = this.nodosSeccion[i];
+      if (!nodo?.__capa) return;
+      const base = String(estados[i]);
+      const faltas = estados[i].faltas;
+      const e = base !== 'completa' && this.capasMarcadas.has(i) ? 'falta' : base;
+      if (base === 'completa') completas += 1;
+      const resumen = this.#resumenDe(seccion, a);
+      const { linea, estado, marca } = nodo.__capa;
+      const abierta = i === this.capaActiva;
+      linea.textContent = abierta ? nodo.__capa.descripcion : resumen;
+      estado.className = `capa__estado capa__estado--${e}`;
+      estado.textContent = e === 'falta' ? `Falta${faltas === 1 ? '' : 'n'} ${numero(faltas || 1)} dato${faltas === 1 ? '' : 's'}` : TEXTO[e];
+      marca.textContent = e === 'completa' ? '✓' : e === 'falta' ? '!' : String(i + 1);
+      nodo.dataset.estado = e;
+      filas.push(el('li', { class: `revision-capas__fila revision-capas__fila--${e}` }, [
+        el('span', { class: 'revision-capas__icono', attrs: { 'aria-hidden': 'true' }, text: e === 'completa' ? '✓' : '!' }),
+        el('span', { class: 'revision-capas__texto' }, [
+          el('span', { class: 'revision-capas__titulo', text: seccion.titulo }),
+          el('span', { class: 'revision-capas__linea', text: resumen })
+        ]),
+        el('button', {
+          class: 'btn btn--texto', attrs: { type: 'button', 'aria-label': `${e === 'completa' ? 'Revisar' : 'Completar'} ${seccion.titulo}` },
+          text: e === 'completa' ? 'Revisar' : 'Completar',
+          on: { click: () => this.#abrirCapa(i) }
+        })
+      ]));
+    });
+
+    // Sexta capa: resumen y estado general.
+    const rev = this.nodosSeccion[total];
+    if (rev?.__capa) {
+      const faltan = total - completas;
+      const abierta = this.capaActiva === total;
+      rev.__capa.linea.textContent = abierta ? rev.__capa.descripcion
+        : faltan ? `${numero(faltan)} ${faltan === 1 ? 'sección' : 'secciones'} por completar` : 'Todo listo para guardar';
+      rev.__capa.estado.className = `capa__estado capa__estado--${faltan ? 'antes' : 'completa'}`;
+      rev.__capa.estado.textContent = faltan ? 'Antes de guardar' : 'Lista';
+      rev.__capa.marca.textContent = '★';
+      render(this.listaRevision, ...filas);
+    }
+
+    if (this.progreso) {
+      render(this.progreso,
+        el('div', { class: 'acordeon__progreso-texto' }, [
+          el('span', { class: 'acordeon__progreso-titulo', text: this.editando ? 'Editando actividad' : 'Nueva actividad' }),
+          el('span', { text: `${numero(completas)} de ${numero(total)} secciones completas` })
+        ]),
+        el('div', { class: 'indice-form__barra', attrs: { 'aria-hidden': 'true' } }, [
+          el('span', { style: { width: `${Math.round((completas / total) * 100)}%` } })
+        ])
+      );
+    }
   }
 
   /** Lleva a una sección y deja el cursor en su primer campo editable. */
@@ -236,6 +492,15 @@ export class Formulario {
   #seccion(seccion, numero) {
     const cuerpo = el('div', { class: 'seccion__cuerpo' });
     for (const campo of seccion.campos) cuerpo.append(this.#campo(campo));
+
+    if (this.acordeon) {
+      const siguiente = this.plan.secciones[numero];
+      return this.#capa({
+        numero, titulo: seccion.titulo, descripcion: seccion.descripcion,
+        contenido: [cuerpo],
+        textoContinuar: `Continuar con «${siguiente ? siguiente.titulo : 'Revisar y guardar'}» ›`
+      });
+    }
 
     return el('section', { class: 'seccion', id: `seccion-${this.plan.id}-${numero}`, dataset: { seccion: numero - 1 } }, [
       el('header', { class: 'seccion__cabecera' }, [
@@ -1177,6 +1442,12 @@ export class Formulario {
     }
 
     this.#modoEdicion(true, actividad);
+    if (this.acordeon) {
+      // Una actividad guardada ya pasó por todas las capas: se abre la
+      // primera con algo pendiente, o la de revisar si está completa.
+      this.capasMarcadas = new Set(this.plan.secciones.map((_, i) => i));
+      this.#abrirCapa(this.#primeraPendiente(), { desplazar: false, animar: false });
+    }
     this.contenedor.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
@@ -1209,6 +1480,10 @@ export class Formulario {
     this.#limpiarError('presupuesto');
     // Los campos que vienen de la sesión no se "limpian": se vuelven a poner.
     this.aplicarPerfil();
+    if (this.acordeon) {
+      this.capasMarcadas = new Set();
+      this.#abrirCapa(this.#primeraPendiente(), { desplazar: false, animar: false });
+    }
     if (mostrarAviso) avisar('Formulario limpio.', 'info', { duracion: 2000 });
   }
 
@@ -1307,12 +1582,38 @@ export class Formulario {
     }
 
     if (!valido) {
+      // El primero según el orden de la pantalla, no el de la validación: así
+      // se recorre el formulario de arriba hacia abajo.
       let primero = null;
       for (const [id, mensaje] of Object.entries(errores)) {
         const nodo = this.#mostrarError(id, mensaje);
-        if (!primero && nodo) primero = this.campos.get(id) || nodo;
+        const destino = nodo ? (this.campos.get(id) || nodo) : null;
+        if (destino && (!primero || (destino.compareDocumentPosition(primero) & Node.DOCUMENT_POSITION_FOLLOWING))) primero = destino;
+      }
+      // Un nivel de la cadena ENS sigue deshabilitado hasta elegir el anterior:
+      // el cursor va al primer campo vacío que sí se puede llenar.
+      if (primero?.disabled) {
+        const seccion = primero.closest('.seccion');
+        primero = [...(seccion?.querySelectorAll('input, select, textarea') ?? [])]
+          .find((c) => !c.disabled && !c.readOnly && c.type !== 'hidden' && !c.value) || primero;
       }
       avisar(`Revisa ${Object.keys(errores).length} campo${Object.keys(errores).length > 1 ? 's' : ''} antes de guardar.`, 'alerta');
+      if (this.acordeon) {
+        // Todas las capas quedan marcadas: las que tienen faltas lo dicen en
+        // su cabecera. Se abre la primera, y al terminar de abrirse se lleva
+        // al campo.
+        this.plan.secciones.forEach((_, i) => this.capasMarcadas.add(i));
+        const capa = primero?.closest?.('.capa');
+        if (capa) {
+          this.#abrirCapa(Number(capa.dataset.seccion), { desplazar: false });
+          const suave = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+          setTimeout(() => {
+            primero.scrollIntoView({ behavior: suave ? 'smooth' : 'auto', block: 'center' });
+            primero.focus?.({ preventScroll: true });
+          }, suave ? 380 : 0);
+        } else this.#pintarCapas();
+        return null;
+      }
       primero?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       primero?.focus?.({ preventScroll: true });
       return null;

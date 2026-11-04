@@ -1256,7 +1256,7 @@ function mostrarAyuda() {
     ancho: '640px',
     contenido: [
       paso(1, 'Elige tu plan', 'Arriba puedes cambiar entre el Plan Nacional de Salud y el Plan de Gestión Institucional. Cada uno guarda sus actividades por separado.'),
-      paso(2, 'Completa el formulario', 'Los campos con asterisco son obligatorios. En el Plan Nacional de Salud, cada selección de la cadena de resultados filtra la siguiente y te muestra el indicador oficial asociado.'),
+      paso(2, 'Completa el formulario', (CONFIG.formulario !== 'clasico' ? 'Las secciones se abren de a una: «Continuar» te lleva a la siguiente y, recogidas, muestran un resumen de lo que llenaste. La última, «Revisar y guardar», tiene los botones para guardar. ' : '') + 'Los campos con asterisco son obligatorios. En el Plan Nacional de Salud, cada selección de la cadena de resultados filtra la siguiente y te muestra el indicador oficial asociado.'),
       paso(3, 'Registra cronograma y presupuesto', 'Indica cuántas veces ejecutarás la actividad cada mes. Los montos van en miles de pesos. Si no requiere presupuesto, activa el interruptor.'),
       paso(4, 'Si vas a comprar, completa el PAC',
         'Dentro del Subtítulo 22, activa el interruptor del Plan Anual de Compras y agrega una tarjeta por cada producto o servicio a contratar. Puedes agregar varias. La plataforma compara la suma con el presupuesto del subtítulo y te avisa si no cuadran.'),

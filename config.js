@@ -25,7 +25,18 @@ export const CONFIG = {
    * comprobar de un vistazo si el navegador está mostrando la última versión
    * publicada o una copia guardada en caché. Súbela con cada despliegue.
    */
-  version: '3.15.0',
+  version: '3.16.0',
+
+  /**
+   * Cómo se ve el formulario de registro:
+   *  - 'acordeon': las cinco secciones como capas que se abren de a una, con
+   *    un resumen de lo llenado en cada capa recogida y una última capa
+   *    «Revisar y guardar» (versión 3.16).
+   *  - 'clasico': todas las secciones abiertas, con el índice lateral
+   *    (versión 3.15).
+   * Es solo la apariencia: las actividades se guardan igual en ambos.
+   */
+  formulario: 'acordeon',
 
   /**
    * Sincronización con la nube (Supabase).
