@@ -568,6 +568,19 @@ la línea, commit y push como siempre.
 
 ---
 
+## Editar desde el listado: la hoja lateral (versión 3.18)
+
+«Editar» (en el listado o en la ficha de una actividad) abre la actividad en un
+panel que entra desde la derecha. El listado queda detrás, apenas oscurecido y
+en el mismo lugar. Al guardar, el panel se cierra y la fila editada destella un
+momento; con la × o Esc se cierra sin guardar (si hubo cambios, pregunta antes).
+
+El formulario es el mismo de siempre (lateral o clásico, según `config.js`):
+mientras dura la edición se muda al panel. Si alguien tenía una actividad nueva
+a medio llenar, queda guardada aparte y vuelve intacta al cerrar el panel.
+
+---
+
 ## Perfiles: qué puede hacer cada uno
 
 | Perfil | Ve | Modifica |

@@ -67,6 +67,22 @@ export class TablaActividades {
     });
   }
 
+  /** Hace destellar la fila de una actividad (por ejemplo, recién editada). */
+  destacar(id) {
+    // Se recuerda por un momento: si el listado se redibuja mientras tanto
+    // (llega la confirmación del servidor), la fila nueva sigue destellando.
+    this.destacado = { id, desde: Date.now() };
+    const fila = this.cuerpo?.querySelector(`[data-id="${CSS.escape(id)}"]`)?.closest('tr');
+    if (fila) this.#aplicarDestello(fila);
+  }
+
+  #aplicarDestello(fila) {
+    const pasado = Date.now() - (this.destacado?.desde || 0);
+    if (pasado > 2200) return;
+    fila.style.animationDelay = `-${pasado}ms`;
+    fila.classList.add('fila--destello');
+  }
+
   actualizar(actividades) {
     this.actividades = actividades;
     this.pintar();
@@ -229,7 +245,9 @@ export class TablaActividades {
           return el('td', { text: a[col.id] || '—' });
       }
     };
-    return el('tr', {}, columnas.map(celda));
+    const tr = el('tr', {}, columnas.map(celda));
+    if (this.destacado?.id === a.id) this.#aplicarDestello(tr);
+    return tr;
   }
 
   /** La fila de la actividad y, si está observada, la observación debajo. */

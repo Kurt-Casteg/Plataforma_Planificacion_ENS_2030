@@ -23,6 +23,7 @@ import { ajustes } from './core/ajustes.js';
 import { ZonaRevision, pedirObservacion, NOMBRE_ESTADO } from './core/aprobacion.js';
 import { AnalisisPac } from './core/analisis-pac.js';
 import { abrirConfiguracion } from './core/configuracion.js';
+import { abrirHoja } from './core/hoja.js';
 import { siguienteCodigo, previsualizarCodigo } from './core/codigos.js';
 import { Asistente, cargarContenidoAsistente } from './core/asistente.js';
 
@@ -393,7 +394,8 @@ async function activarPlan(plan) {
     indicadores: estado.indicadores,
     clasificador: estado.clasificador,
     previsualizarCodigo: () => previsualizarCodigo(almacen.porPlan(plan.id)),
-    alGuardar: guardarActividad
+    alGuardar: guardarActividad,
+    alTerminarEdicion: () => cerrarHoja()
   });
 
   estado.tabla = new TablaActividades({
@@ -403,10 +405,7 @@ async function activarPlan(plan) {
     ens: plan.id === 'pns' ? estado.ensIndex : null,
     clasificador: estado.clasificador,
     acciones: {
-      editar: (id) => {
-        const a = almacen.obtener(id);
-        if (a) estado.formulario.cargar(a);
-      },
+      editar: (id) => editarEnHoja(id),
       duplicar: async (id) => {
         const copia = await almacen.duplicar(id);
         if (copia) avisar('Se creó una copia de la actividad.', 'exito');
@@ -853,23 +852,88 @@ async function abrirActividad(id) {
     estado.tabla?.verDetalle(id);
     return;
   }
+  // La hoja lateral guarda aparte lo que haya a medio llenar en el
+  // formulario: abrirla ya no pone en riesgo ese trabajo.
+  await editarEnHoja(id);
+}
 
-  if (hayBorrador()) {
+/* ------------------------------------------------------------------ */
+/* Editar en una hoja lateral                                          */
+/* ------------------------------------------------------------------ */
+
+/**
+ * «Editar» abre la actividad en una hoja que entra desde la derecha. El
+ * listado queda detrás, donde estaba: al guardar o cancelar, la hoja se va y
+ * la fila editada destella un momento.
+ *
+ * El formulario es uno solo: mientras dura la edición se muda a la hoja y al
+ * terminar vuelve a su lugar. Si alguien tenía una actividad nueva a medio
+ * llenar, se guarda aparte y se le devuelve intacta al cerrar la hoja.
+ */
+let hoja = null;
+
+/** Huella de lo que hay en el formulario, para saber si hubo cambios. */
+function huella(a) {
+  const { actualizadaEn, creadaEn, ...resto } = a || {};
+  return JSON.stringify(resto);
+}
+
+async function editarEnHoja(id) {
+  const a = almacen.obtener(id);
+  const f = estado.formulario;
+  const zona = $('#zonaFormulario');
+  const marco = zona?.firstElementChild;
+  if (!a || !f || !marco || hoja) return;
+
+  const borrador = !f.editando && hayBorrador() ? f.leer() : null;
+  const api = abrirHoja({
+    etiqueta: 'Editar actividad',
+    titulo: a.nombreActividad || 'Actividad sin nombre',
+    subtitulo: [a.codigoActividad && `N° ${a.codigoActividad}`, planPorId(a.plan)?.nombre].filter(Boolean).join(' · '),
+    alPedirCerrar: pedirCerrarHoja
+  });
+  hoja = { api, borrador, id, marco, abriendo: true };
+
+  // El aviso ocupa el mismo alto que el formulario: nada de lo que está más
+  // abajo (el listado) cambia de lugar mientras la hoja está abierta.
+  const alto = marco.offsetHeight;
+  render(zona, el('div', { class: 'edicion-lateral', style: { minHeight: `${alto}px` } }, [el('div', { class: 'nota nota--info nota--edicion-lateral', attrs: { role: 'status' } }, [
+    el('p', {}, [
+      'Estás editando ', el('strong', { text: `«${a.nombreActividad || 'una actividad'}»` }), ' en el panel de la derecha.',
+      borrador ? ' Lo que tenías a medio llenar aquí te espera al terminar.' : ''
+    ])
+  ])]));
+  api.cuerpo.append(marco);
+  f.cargar(a, { desplazar: false });
+  hoja.foto = huella(f.leer());
+  hoja.abriendo = false;
+  api.entrar();
+}
+
+async function pedirCerrarHoja() {
+  if (!hoja || hoja.cerrando) return;
+  if (huella(estado.formulario.leer()) !== hoja.foto) {
     const ok = await confirmar({
-      titulo: 'Abrir otra actividad',
-      mensaje: `Se cargará «${a.nombreActividad || 'la actividad seleccionada'}» en el formulario y se perderá lo que tengas escrito sin guardar.`,
-      textoConfirmar: 'Abrir de todas formas',
+      titulo: 'Descartar cambios',
+      mensaje: 'Hiciste cambios en esta actividad que no se han guardado. ¿Cerrar sin guardarlos?',
+      textoConfirmar: 'Descartar cambios',
       peligro: true
     });
-    if (!ok) return;
+    if (!ok || !hoja) return;
   }
+  // Limpiar termina la edición, y eso cierra la hoja (alTerminarEdicion).
+  estado.formulario.limpiar();
+}
 
-  estado.formulario.cargar(a);
-  $('#zonaFormulario')?.scrollIntoView({
-    block: 'start',
-    behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
-  });
-  avisar(`Abriste «${a.nombreActividad || 'la actividad'}» para corregirla.`, 'info', { duracion: 5000 });
+function cerrarHoja() {
+  if (!hoja || hoja.abriendo || hoja.cerrando) return;
+  hoja.cerrando = true;
+  const { api, borrador, marco, id } = hoja;
+  hoja = null;
+  render($('#zonaFormulario'), marco);
+  api.cerrar();
+  if (borrador) estado.formulario.restaurarBorrador(borrador);
+  estado.tabla?.destacar(id);
 }
 
 /* ------------------------------------------------------------------ */
@@ -1260,7 +1324,7 @@ function mostrarAyuda() {
       paso(3, 'Registra cronograma y presupuesto', 'Indica cuántas veces ejecutarás la actividad cada mes. Los montos van en miles de pesos. Si no requiere presupuesto, activa el interruptor.'),
       paso(4, 'Si vas a comprar, completa el PAC',
         'Dentro del Subtítulo 22, activa el interruptor del Plan Anual de Compras y agrega una tarjeta por cada producto o servicio a contratar. Puedes agregar varias. La plataforma compara la suma con el presupuesto del subtítulo y te avisa si no cuadran.'),
-      paso(5, 'Revisa y ajusta', 'En "Actividades registradas" puedes buscar, editar, duplicar o eliminar. «Ver» abre la ficha al centro de la pantalla: con «Siguiente» o las flechas ← → recorres las demás sin cerrarla, y con Esc vuelves. En el panel de análisis, «Ampliar» agranda cualquier gráfico con su tabla de datos.'),
+      paso(5, 'Revisa y ajusta', 'En "Actividades registradas" puedes buscar, editar, duplicar o eliminar. «Editar» abre la actividad en un panel a la derecha: al guardar se cierra y el listado sigue donde estaba. «Ver» abre la ficha al centro de la pantalla: con «Siguiente» o las flechas ← → recorres las demás sin cerrarla, y con Esc vuelves. En el panel de análisis, «Ampliar» agranda cualquier gráfico con su tabla de datos.'),
       ajustes.circuitoActivo && paso(6, 'Envía a revisión de tu jefatura',
         '«Guardar y enviar a revisión» deja la actividad lista para que tu jefatura la apruebe u observe. Si aún no está lista, usa «Guardar como borrador». Si te la observan, verás el comentario bajo la fila: corrige y vuelve a enviar. Lo aprobado queda bloqueado.'),
       paso(ajustes.circuitoActivo ? 7 : 6, 'Exporta y respalda', 'Usa "Exportar a Excel" para la entrega oficial. Usa "Respaldar (JSON)" para guardar una copia que puedas volver a importar aquí o enviar a Control de Gestión para consolidar.'),

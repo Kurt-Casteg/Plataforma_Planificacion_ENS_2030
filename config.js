@@ -25,7 +25,7 @@ export const CONFIG = {
    * comprobar de un vistazo si el navegador está mostrando la última versión
    * publicada o una copia guardada en caché. Súbela con cada despliegue.
    */
-  version: '3.17.0',
+  version: '3.18.0',
 
   /**
    * Cómo se ve el formulario de registro:

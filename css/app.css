@@ -2319,3 +2319,72 @@ body.con-enfoque .asistente { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .formulario--lateral .panel-lat, .pasos-lat__marcador, .pasos-lat__barra > span, .pasos-lat__num { transition: none; }
 }
+
+/* ==================================================================== */
+/* 3.18 · Editar en una hoja lateral                                    */
+/* ==================================================================== */
+
+body.con-hoja { overflow: hidden; }
+body.con-hoja .asistente { display: none; }
+
+/* El listado queda detrás, apenas oscurecido: se sigue viendo dónde se estaba. */
+.hoja {
+  position: fixed; inset: 0; z-index: 185;
+  background: rgba(17, 18, 22, 0.28);
+}
+.hoja__panel {
+  position: absolute; top: 0; right: 0; bottom: 0;
+  width: min(1080px, 96vw);
+  display: flex; flex-direction: column;
+  background: var(--plano); color: var(--ink);
+  border-radius: var(--r-xl) 0 0 var(--r-xl);
+  box-shadow: -24px 0 64px rgba(16, 24, 40, 0.22);
+  outline: none;
+}
+.hoja__cabecera {
+  flex-shrink: 0; display: flex; gap: var(--e-4); align-items: flex-start;
+  padding: var(--e-5) var(--e-6) var(--e-4);
+  background: var(--superficie); border-bottom: 1px solid var(--borde);
+  border-radius: var(--r-xl) 0 0 0;
+}
+.hoja__textos { flex: 1; min-width: 0; }
+.hoja__etiqueta { font-size: var(--t-xs); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--marca-ink); }
+.hoja__titulo { margin-top: 2px; font-size: var(--t-lg); line-height: 1.3; }
+.hoja__subtitulo { margin-top: 2px; font-size: var(--t-sm); color: var(--ink-2); }
+
+/* Dentro de la hoja no hay cabecera de página encima: lo pegajoso se pega arriba de la hoja. */
+.hoja__cuerpo {
+  --alto-cabecera: 0px;
+  flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+  padding: var(--e-5) var(--e-6) var(--e-6);
+}
+.hoja .formulario--lateral { --alto-escenario: clamp(400px, calc(100dvh - 330px), 900px); }
+/* La cabecera de la hoja ya dice qué se edita y su × cancela: el aviso y
+   «Limpiar formulario» sobran ahí. */
+.hoja .aviso-edicion, .hoja .formulario__limpiar { display: none !important; }
+.hoja .formulario__marco { grid-template-columns: minmax(0, 1fr); }
+.hoja .formulario__marco .indice-form { position: static; padding: var(--e-3); }
+/* En la hoja, el índice del formulario clásico va en una fila, como en pantallas angostas. */
+.hoja .indice-form__lista { display: flex; gap: var(--e-2); overflow-x: auto; padding-bottom: 2px; }
+.hoja .indice-form__lista > li { flex: 0 0 auto; }
+.hoja .indice-form__paso { width: auto; padding-right: var(--e-3); }
+
+/* Mientras se edita en la hoja, el lugar del formulario lo dice. */
+.nota--edicion-lateral { margin-bottom: var(--e-2); }
+
+/* La fila recién editada destella al cerrar la hoja. */
+@keyframes destello-fila {
+  0%, 30% { background: var(--marca-suave); box-shadow: inset 3px 0 0 var(--marca); }
+  100% { background: transparent; box-shadow: inset 3px 0 0 transparent; }
+}
+.tabla tbody tr.fila--destello, .tabla tbody tr.fila--destello:hover { animation: destello-fila 2.2s ease-out both; }
+
+@media (max-width: 760px) {
+  .hoja__panel { width: 100vw; border-radius: 0; }
+  .hoja__cabecera { border-radius: 0; padding: var(--e-4); }
+  .hoja__cuerpo { padding: var(--e-4); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tabla tbody tr.fila--destello { animation: none; background: var(--marca-suave); }
+}
+@media print { .hoja { display: none !important; } }

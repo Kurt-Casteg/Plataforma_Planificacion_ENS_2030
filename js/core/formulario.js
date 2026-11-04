@@ -29,8 +29,11 @@ export class Formulario {
    * @param {object} [opciones.indicadores]
    * @param {Function} opciones.alGuardar
    */
-  constructor({ contenedor, plan, catalogos, ens, indicadores, clasificador, alGuardar, previsualizarCodigo }) {
+  constructor({ contenedor, plan, catalogos, ens, indicadores, clasificador, alGuardar, previsualizarCodigo, alTerminarEdicion }) {
     this.contenedor = contenedor;
+    // Se llama cuando termina una edición (guardada o cancelada): la hoja
+    // lateral de edición se cierra con esto.
+    this.alTerminarEdicion = alTerminarEdicion;
     this.plan = plan;
     this.catalogos = catalogos;
     this.ens = ens ? indexarENS(ens) : null;
@@ -87,7 +90,7 @@ export class Formulario {
           dataset: { intencion: 'borrador' }, text: 'Guardar como borrador'
         }),
         el('button', {
-          class: 'btn btn--secundario', attrs: { type: 'button' },
+          class: 'btn btn--secundario formulario__limpiar', attrs: { type: 'button' },
           text: 'Limpiar formulario',
           on: { click: () => this.limpiar({ avisar: true }) }
         })
@@ -1446,13 +1449,23 @@ export class Formulario {
   }
 
   /** Carga una actividad existente en el formulario (modo edición). */
-  cargar(actividad) {
+  /**
+   * Carga una actividad para editarla.
+   * @param {object} actividad
+   * @param {object} [o]
+   * @param {boolean} [o.desplazar]    Llevar la vista al formulario (no, si se edita en la hoja lateral).
+   * @param {boolean} [o.comoBorrador] Devolver lo que alguien tenía a medio llenar: queda como
+   *                                   actividad nueva, sin modo edición.
+   */
+  cargar(actividad, { desplazar = true, comoBorrador = false } = {}) {
     this.limpiar();
-    this.editando = actividad.id;
-    this.creadaEn = actividad.creadaEn;
-    this.estadoCargado = actividad.estado;
-    this.revisionCargada = actividad.revision;
-    this.propietarioCargado = actividad.propietario;
+    if (!comoBorrador) {
+      this.editando = actividad.id;
+      this.creadaEn = actividad.creadaEn;
+      this.estadoCargado = actividad.estado;
+      this.revisionCargada = actividad.revision;
+      this.propietarioCargado = actividad.propietario;
+    }
 
     // La cadena ENS debe llenarse en orden para que cada nivel tenga opciones.
     if (this.ens) {
@@ -1510,6 +1523,16 @@ export class Formulario {
 
     this.#actualizarTotales();
 
+    if (comoBorrador) {
+      // Un borrador sigue siendo nuevo: vuelve el código previsto y los datos de la sesión.
+      this.aplicarPerfil();
+      if (this.lateral) {
+        this.marcadas = new Set();
+        this.#irAPanel(this.#primeraPendiente(), { animar: false });
+      }
+      return;
+    }
+
     // En edición se muestra el código ya asignado, no el próximo de la serie.
     const controlCodigo = this.campos.get('codigoActividad');
     if (controlCodigo) {
@@ -1524,7 +1547,12 @@ export class Formulario {
       this.marcadas = new Set(this.plan.secciones.map((_, i) => i));
       this.#irAPanel(this.#primeraPendiente(), { animar: false });
     }
-    this.contenedor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (desplazar) this.contenedor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  /** Devuelve al formulario lo que alguien tenía a medio llenar (sin modo edición). */
+  restaurarBorrador(datos) {
+    this.cargar(datos, { desplazar: false, comoBorrador: true });
   }
 
   limpiar({ avisar: mostrarAviso = false } = {}) {
@@ -1564,6 +1592,9 @@ export class Formulario {
   }
 
   #modoEdicion(activo, actividad) {
+    const terminaba = this.__enEdicion && !activo;
+    this.__enEdicion = activo;
+    if (terminaba) queueMicrotask(() => this.alTerminarEdicion?.());
     this.aplicarModoAprobacion();
     this.form?.classList.toggle('formulario--editando', activo);
     if (!this.avisoEdicion) return;
