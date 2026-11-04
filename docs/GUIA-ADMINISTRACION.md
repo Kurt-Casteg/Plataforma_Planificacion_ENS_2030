@@ -204,6 +204,39 @@ a la ENS 2021-2030 y se asocian por código de resultado esperado, que se
 conservó. El RE nuevo 8.2.4 todavía no tiene indicadores; si MINSAL publica la
 «Base maestra de indicadores RE» actualizada, se reemplaza ese archivo.
 
+### Actualización del 4 de noviembre de 2026 (versión 3.18.3)
+
+MINSAL reenvió la planilla de Lineamientos Temáticos 2027 con cambios pedidos
+por DIGEDEP y Epidemiología (los mismos que ya están en SIMPO). Esta vez la
+planilla trae una sola hoja, «LT 2027», con las columnas Línea de Trabajo, Tema,
+Objetivo de Impacto, Resultado Esperado y Resultados Inmediatos. En las 21 filas
+nuevas las columnas «Tema» y «Objetivo de Impacto» vienen intercambiadas; al
+cargarla se corrigió ese orden. Con el mismo criterio de arriba:
+
+- **1.4.2 Reforzar la vigilancia epidemiológica y preparar la respuesta en salud
+  pública** (tema Enfermedades Transmisibles en Eliminación): pasa de 9 a 11
+  resultados inmediatos. Se reescriben el de epidemiología de campo (FETP) y el
+  de normativas y protocolos de respuesta, y se agregan dos: el despliegue de los
+  egresados FETP en los Equipos Multidisciplinarios de Respuesta Rápida, y el
+  abordaje de casos y brotes como emergencias sanitarias. Se renumeran 1.4.2.1 a
+  1.4.2.11 en el orden de la planilla. El 1.4.2 de Infecciones Respiratorias
+  Agudas no cambia.
+- **Trabajadores y Trabajadoras de Salud**: dos resultados esperados nuevos, con
+  cinco resultados inmediatos cada uno: **8.2.5** «Mejorar el acceso oportuno y
+  equitativo a la atención de especialidad…» y **8.2.6** «Fortalecer la dotación
+  mejorando suficiencia y disponibilidad efectiva del personal de salud…».
+- Salen dos resultados esperados que la planilla corregida ya no trae (tampoco
+  venían en la hoja «Hoja1» de la planilla anterior, solo en «Informe Ambitos»):
+  **7.1.4** «Aumentar la disponibilidad de áreas verdes suficientes» y **8.2.3**
+  «Fomentar el diseño, implementación y monitoreo de políticas en cuidados
+  infantiles…». Sus códigos no se reutilizan.
+- Resultado: 9 OE · 52 temas · 52 OI · 146 RE · 830 RI, idénticos texto a texto
+  a la planilla corregida.
+
+Al momento del cambio no había actividades 2027 registradas, así que ninguna
+quedó apuntando a un código que cambió. Los RE 8.2.5 y 8.2.6 aún no tienen
+indicadores en `indicadores-re-2027.json`.
+
 ### Para el año siguiente
 
 1. Pide que se genere `ens-<año>.json` desde la planilla oficial con el mismo

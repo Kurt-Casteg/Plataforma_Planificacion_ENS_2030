@@ -1,7 +1,7 @@
 {
     "id": "pns",
     "version": "2027",
-    "fuente": "Estrategia Nacional de Salud 2021-2030 · Lineamientos Temáticos 2027 (MINSAL)",
+    "fuente": "Estrategia Nacional de Salud 2021-2030 · Lineamientos Temáticos 2027 (MINSAL, versión corregida del 04-11-2026)",
     "objetivosEstrategicos": [
         {
             "codigo": "1",
@@ -78,26 +78,34 @@
                                         },
                                         {
                                             "codigo": "1.4.2.4",
-                                            "nombre": "Mantener y reforzar la preparación de epidemiólogos de campo, mediante el Programa de Entrenamiento de Epidemiologia de Campo (FETP) y los equipos de respuesta rápida (ERR) para mejorar las capacidades básicas exigidas por el Reglamento Sanitario Internacional con el fin de perfeccionar la alerta y respuesta nacional frente a emergencias en salud pública de importancia internacional"
+                                            "nombre": "Mantener y fortalecer la formación de epidemiólogos de campo mediante el Programa de Entrenamiento en Epidemiología de Campo (FETP), priorizando la descentralización de cohortes en las regiones, para contribuir a las capacidades básicas exigidas por el RSI y contar con una fuerza de trabajo entrenada para la detección, investigación y control oportuno de brotes y eventos de importancia en salud pública"
                                         },
                                         {
                                             "codigo": "1.4.2.5",
-                                            "nombre": "Contar con una planificación anual regional del Programa Emergentes para resguardar los recursos para la investigación de campo, según Res. Exenta N°. 1609 del 26/10/2018: Aprueba manual de procedimientos para el sub proceso “Otras enfermedades emergentes”, perteneciente al programa de enfermedades emergentes"
+                                            "nombre": "Fortalecer la capacidad de despliegue de los egresados FETP, en el marco de los Equipos Multidisciplinarios de Respuesta Rápida (EMRR), para apoyar a las SEREMI de Salud en la investigación de campo, la búsqueda activa, el seguimiento de contactos y las medidas de control ante casos o brotes de enfermedades transmisibles en eliminación/erradicación, conforme a procedimientos estandarizados de activación y despliegue"
                                         },
                                         {
                                             "codigo": "1.4.2.6",
-                                            "nombre": "Mantener las normativas, planes y protocolos de respuesta actualizados frente a brotes u otros eventos de importancia epidemiológica a nivel central"
+                                            "nombre": "Abordar los casos, autóctonos o importados, y los brotes de enfermedades transmisibles en eliminación/erradicación como emergencias sanitarias, mediante la evaluación oportuna del riesgo y, cuando corresponda, la activación de los Comités para la Gestión del Riesgo de Desastres (COGRID) y el Sistema de Comando de Incidentes (SCI), conforme a la Ley N.º 21.364, para asegurar una respuesta coordinada en los niveles nacional, regional y local"
                                         },
                                         {
                                             "codigo": "1.4.2.7",
-                                            "nombre": "Resguardar las acciones necesarias para fortalecer la figura del Delegado de Epidemiología en los establecimientos de salud públicos y privados, según D.S. Nº 7/2019"
+                                            "nombre": "Contar con una planificación anual regional del Programa Emergentes para resguardar los recursos para la investigación de campo, según Res. Exenta N°. 1609 del 26/10/2018: Aprueba manual de procedimientos para el sub proceso “Otras enfermedades emergentes”, perteneciente al programa de enfermedades emergentes"
                                         },
                                         {
                                             "codigo": "1.4.2.8",
-                                            "nombre": "Realizar la investigación epidemiológica exhaustiva de casos y brotes de enfermedades transmisibles en eliminación/erradicación en los niveles locales y regionales, promoviendo la aplicación de medidas de vigilancia, seguimiento de contactos y control requeridas según tipo de enfermedad dirigida a toda la población expuesta al riesgo"
+                                            "nombre": "Mantener las normativas, planes y protocolos de respuesta actualizados frente a brotes u otros eventos de importancia en salud pública priorizados a nivel central, con enfoque de gestión de emergencias"
                                         },
                                         {
                                             "codigo": "1.4.2.9",
+                                            "nombre": "Resguardar las acciones necesarias para fortalecer la figura del Delegado de Epidemiología en los establecimientos de salud públicos y privados, según D.S. Nº 7/2019"
+                                        },
+                                        {
+                                            "codigo": "1.4.2.10",
+                                            "nombre": "Realizar la investigación epidemiológica exhaustiva de casos y brotes de enfermedades transmisibles en eliminación/erradicación en los niveles locales y regionales, promoviendo la aplicación de medidas de vigilancia, seguimiento de contactos y control requeridas según tipo de enfermedad dirigida a toda la población expuesta al riesgo"
+                                        },
+                                        {
+                                            "codigo": "1.4.2.11",
                                             "nombre": "Fortalecer las acciones asociadas al cumplimiento de indicadores de calidad de la vigilancia para las enfermedades en eliminación/erradicación, según normativa vigente correspondiente"
                                         }
                                     ]
@@ -3375,16 +3383,6 @@
                                             "nombre": "Monitorear las actividades de vigilancia sanitaria de aguas que incluya condiciones de riesgo de las provisiones de agua para consumo humano a través de plataforma digital"
                                         }
                                     ]
-                                },
-                                {
-                                    "codigo": "7.1.4",
-                                    "nombre": "Aumentar la disponibilidad de áreas verdes suficientes",
-                                    "resultadosInmediatos": [
-                                        {
-                                            "codigo": "7.1.4.1",
-                                            "nombre": "Fortalecer el trabajo intersectorial para implementar acciones que promuevan la creación y mantención de áreas verdes"
-                                        }
-                                    ]
                                 }
                             ]
                         }
@@ -4434,32 +4432,6 @@
                                     ]
                                 },
                                 {
-                                    "codigo": "8.2.3",
-                                    "nombre": "Fomentar el diseño, implementación y monitoreo de políticas en cuidados infantiles de los/as funcionarios/as del Sistema Público de Salud",
-                                    "resultadosInmediatos": [
-                                        {
-                                            "codigo": "8.2.3.1",
-                                            "nombre": "Generar capacitaciones educativas de cuidados infantiles en coordinación con la Subsecretaría de Educación Parvularia y Superintendencia de Educación"
-                                        },
-                                        {
-                                            "codigo": "8.2.3.2",
-                                            "nombre": "Aplicar autoevaluaciones de certificaciones de las unidades educativas institucionales"
-                                        },
-                                        {
-                                            "codigo": "8.2.3.3",
-                                            "nombre": "Promover los cuidados infantiles y difundir los derechos y beneficios de las funcionarias y funcionarios, a través de la aplicación y actualización de las Orientaciones Técnicas de Cuidados Infantiles enviada a los 29 Servicios de Salud"
-                                        },
-                                        {
-                                            "codigo": "8.2.3.4",
-                                            "nombre": "Mantener registro actualizado de los cuidados infantiles de la Red Asistencial"
-                                        },
-                                        {
-                                            "codigo": "8.2.3.5",
-                                            "nombre": "Realizar las gestiones para asegurar el servicio de sala cuna de acuerdo con la normativa legal vigente"
-                                        }
-                                    ]
-                                },
-                                {
                                     "codigo": "8.2.4",
                                     "nombre": "Fomentar la permanencia de especialistas en el sistema público",
                                     "resultadosInmediatos": [
@@ -4478,6 +4450,58 @@
                                         {
                                             "codigo": "8.2.4.4",
                                             "nombre": "Monitorear la permanencia post‐PAO por Servicio y evaluar respecto de la meta del 80% al 2030"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "codigo": "8.2.5",
+                                    "nombre": "Mejorar el acceso oportuno y equitativo a la atención de especialidad mediante una distribución territorial de especialistas acorde a las necesidades de la población",
+                                    "resultadosInmediatos": [
+                                        {
+                                            "codigo": "8.2.5.1",
+                                            "nombre": "Plan de distribución de cargos y horas de especialistas elaborado, de acuerdo con las prioridades asistenciales y la factibilidad presupuestaria"
+                                        },
+                                        {
+                                            "codigo": "8.2.5.2",
+                                            "nombre": "Destinación de profesionales en formación y en período asistencial obligatorio articulada con las brechas priorizadas de la red"
+                                        },
+                                        {
+                                            "codigo": "8.2.5.3",
+                                            "nombre": "Estrategias de atracción, desarrollo y retención definidas para establecimientos de zonas aisladas y de difícil provisión"
+                                        },
+                                        {
+                                            "codigo": "8.2.5.4",
+                                            "nombre": "Mecanismos de complementariedad asistencial entre establecimientos establecidos para ampliar la disponibilidad de atención especializada"
+                                        },
+                                        {
+                                            "codigo": "8.2.5.5",
+                                            "nombre": "Sistema de seguimiento definido, con indicadores de cobertura de cargos, permanencia y disponibilidad de horas de especialistas"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "codigo": "8.2.6",
+                                    "nombre": "Fortalecer la dotación mejorando suficiencia y disponibilidad efectiva del personal de salud en establecimientos de la red pública, de acuerdo con las necesidades de atención en salud de la población",
+                                    "resultadosInmediatos": [
+                                        {
+                                            "codigo": "8.2.6.1",
+                                            "nombre": "Diagnóstico de brechas de dotación actualizado por Servicio de Salud, establecimiento y grupo ocupacional, considerando las necesidades de atención de la población y la cartera de servicios"
+                                        },
+                                        {
+                                            "codigo": "8.2.6.2",
+                                            "nombre": "Criterios de priorización definidos para el fortalecimiento de las dotaciones, con énfasis en equidad territorial, continuidad asistencial y capacidad de respuesta de la red"
+                                        },
+                                        {
+                                            "codigo": "8.2.6.3",
+                                            "nombre": "Plan de cierre progresivo de brechas de dotación elaborado, que articule la optimización de los recursos existentes, la provisión de cargos vacantes y los requerimientos de expansión, conforme a las necesidades asistenciales y la disponibilidad presupuestaria"
+                                        },
+                                        {
+                                            "codigo": "8.2.6.4",
+                                            "nombre": "Estrategias de atracción, retención y desarrollo de las personas definidas para los establecimientos y territorios con mayores dificultades de provisión de personal"
+                                        },
+                                        {
+                                            "codigo": "8.2.6.5",
+                                            "nombre": "Mecanismos de seguimiento implementados para monitorear la disponibilidad efectiva de personal, la cobertura de cargos y la evolución de las brechas priorizadas"
                                         }
                                     ]
                                 }
