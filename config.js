@@ -36,7 +36,7 @@ export const CONFIG = {
    *    lateral (versión 3.15).
    * Es solo la apariencia: las actividades se guardan igual en ambos.
    */
-  formulario: 'lateral',
+  formulario: 'clasico',
 
   /**
    * Sincronización con la nube (Supabase).
