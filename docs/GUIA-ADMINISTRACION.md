@@ -539,27 +539,32 @@ habilita el ingreso con contraseña. Es un interruptor del panel, no SQL.
 
 ---
 
-## Apariencia del formulario: acordeón o clásico (versión 3.16)
+## Apariencia del formulario: lateral o clásico (versión 3.17)
 
 En `config.js`, la línea `formulario` decide cómo se ve el formulario de
 registro:
 
 ```js
-formulario: 'acordeon',   // las secciones como capas que se abren de a una
-formulario: 'clasico',    // todas abiertas, con el índice lateral (3.15)
+formulario: 'lateral',    // las secciones como tarjetas que pasan hacia los lados
+formulario: 'clasico',    // todas abiertas, una bajo otra, con el índice lateral (3.15)
 ```
 
-- **Acordeón:** las cinco secciones son capas superpuestas. La que se está
-  llenando se abre; las demás quedan recogidas mostrando un resumen de lo ya
-  escrito. «Continuar» pasa a la siguiente y marca la anterior como completa o
-  con faltas. La última capa, «Revisar y guardar», resume las cinco y tiene los
-  botones de guardar. Si al guardar falta algo, se abre sola la primera capa con
-  el problema y el cursor queda en el campo.
+- **Lateral:** cada sección es una tarjeta de alto fijo; se cambia de una a otra
+  hacia los lados («Continuar», «Anterior», arrastrando con el dedo o tocando la
+  vecina que asoma). La página no sube ni baja sola. Arriba, una barra con las
+  seis etapas marca con un recuadro azul la sección actual y el estado de cada
+  una (completa, pendiente o con datos faltantes); se puede tocar una etapa para
+  ir directo. La última tarjeta, «Revisar y guardar», resume las cinco y tiene
+  los botones de guardar. Si al guardar falta algo, la tarjeta con el problema
+  se desliza al centro y el cursor queda en el campo.
 - **Clásico:** el formulario de la versión 3.15.
 
 Es solo la apariencia: las actividades se guardan igual en los dos modos, así
 que se puede cambiar cuantas veces se quiera sin tocar Supabase. Tras cambiar
 la línea, commit y push como siempre.
+
+(La versión 3.16 tuvo un tercer modo, «acordeón», que se retiró en la 3.17. Si
+`config.js` todavía dijera `'acordeon'`, la plataforma usa el modo lateral.)
 
 ---
 

@@ -124,7 +124,7 @@ publica la nueva versión automáticamente.
 | Cambiar colores o tipografía | `css/tokens.css` |
 | Activar la base de datos compartida | `config.js` → `nube` + `docs/GUIA-SUPABASE.md` |
 | Agregar o mover a una persona | `docs/nomina.sql` |
-| Cambiar el formulario entre acordeón y clásico | `config.js` → `formulario` |
+| Cambiar el formulario entre lateral y clásico | `config.js` → `formulario` |
 | Encender o apagar la aprobación por jefatura o el análisis del PAC | «Más» → «Configuración de la plataforma» (ver `docs/GUIA-ADMINISTRACION.md`) |
 
 ---

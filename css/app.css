@@ -2205,93 +2205,94 @@ body.con-enfoque .asistente { display: none; }
 }
 
 /* ==================================================================== */
-/* 3.16 · Formulario como acordeón por capas                            */
+/* 3.17 · Formulario con desplazamiento lateral entre secciones         */
 /* ==================================================================== */
 
-.formulario--acordeon { gap: 0; --solape: 14px; --dur-capa: 520ms; }
-.formulario__marco.formulario__marco--acordeon { grid-template-columns: minmax(0, 1fr); gap: 0; }
+.formulario--lateral {
+  gap: var(--e-4);
+  --dur-lat: 480ms;
+  --curva-lat: cubic-bezier(0.22, 0.8, 0.2, 1);
+  /* Alto fijo: todo el formulario cabe en la pantalla y cada sección se
+     desplaza por dentro. La página no tiene que subir ni bajar. */
+  --alto-escenario: clamp(440px, calc(100dvh - var(--alto-cabecera, 0px) - 230px), 780px);
+}
+.formulario__marco.formulario__marco--lateral { grid-template-columns: minmax(0, 1fr); gap: 0; }
 
-.acordeon__progreso { display: grid; gap: var(--e-2); margin-bottom: var(--e-5); }
-.acordeon__progreso-texto { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--e-2); font-size: var(--t-sm); color: var(--ink-2); }
-.acordeon__progreso-titulo { font-weight: 700; color: var(--ink); }
-.acordeon__progreso .indice-form__barra { margin: 0; }
+/* Barra de etapas, con el marcador que se desliza a la sección actual. */
+.pasos-lat {
+  position: sticky; top: calc(var(--alto-cabecera, 0px) + var(--e-2)); z-index: 25;
+  padding: var(--e-2); border: 1px solid var(--borde); border-radius: var(--r-lg);
+  background: color-mix(in srgb, var(--superficie) 92%, transparent);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  box-shadow: var(--sombra-1);
+}
+.pasos-lat__pista { position: relative; }
+.pasos-lat__marcador {
+  position: absolute; top: 0; bottom: 0; left: 0; width: calc(100% / var(--n, 6));
+  border-radius: var(--r-md); background: var(--marca-suave);
+  box-shadow: inset 0 0 0 1px var(--marca-borde);
+  transition: transform var(--dur-lat) var(--curva-lat);
+}
+.pasos-lat__lista {
+  position: relative; list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(var(--n, 6), minmax(0, 1fr));
+}
+.pasos-lat__lista > li { min-width: 0; }
+.pasos-lat__paso {
+  width: 100%; min-height: 54px; display: flex; align-items: center; gap: var(--e-2);
+  padding: var(--e-1) var(--e-2); border: 0; border-radius: var(--r-md);
+  background: transparent; color: var(--ink); font: inherit; text-align: left; cursor: pointer;
+}
+.pasos-lat__paso:focus-visible { outline: none; box-shadow: var(--anillo); }
+.pasos-lat__num {
+  flex-shrink: 0; width: 30px; height: 30px; border-radius: 50%;
+  display: grid; place-items: center; font-size: var(--t-xs); font-weight: 700;
+  background: var(--superficie-3); color: var(--ink-2);
+  transition: background var(--dur-lat) ease, color var(--dur-lat) ease, box-shadow var(--transicion);
+}
+.pasos-lat__paso:hover .pasos-lat__num { box-shadow: 0 0 0 3px color-mix(in srgb, var(--marca) 18%, transparent); }
+.pasos-lat__paso--completa .pasos-lat__num, .pasos-lat__paso--lista .pasos-lat__num { background: var(--exito-suave); color: var(--exito-ink); }
+.pasos-lat__paso--falta .pasos-lat__num { background: var(--peligro-suave); color: var(--peligro-ink); }
+.pasos-lat__paso--antes .pasos-lat__num { background: var(--alerta-suave); color: var(--alerta-ink); }
+.pasos-lat__paso--actual .pasos-lat__num { background: var(--marca); color: #fff; }
+.pasos-lat__texto { min-width: 0; display: grid; }
+.pasos-lat__titulo { font-size: var(--t-sm); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pasos-lat__paso--actual .pasos-lat__titulo { color: var(--marca-ink); font-weight: 700; }
+.pasos-lat__estado { font-size: var(--t-xs); color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pasos-lat__paso--completa .pasos-lat__estado, .pasos-lat__paso--lista .pasos-lat__estado { color: var(--exito-ink); }
+.pasos-lat__paso--falta .pasos-lat__estado { color: var(--peligro-ink); font-weight: 600; }
+.pasos-lat__barra { height: 3px; margin: var(--e-2) var(--e-1) 0; border-radius: var(--r-full); background: var(--superficie-3); overflow: hidden; }
+.pasos-lat__barra > span { display: block; height: 100%; width: 0; background: var(--marca); border-radius: var(--r-full); transition: width var(--dur-lat) var(--curva-lat); }
 
-.capa {
-  position: relative;
-  transition: margin-top var(--dur-capa) cubic-bezier(0.22, 0.8, 0.2, 1),
-              transform var(--dur-capa) cubic-bezier(0.22, 0.8, 0.2, 1),
-              box-shadow var(--dur-capa) ease;
-  box-shadow: 0 -6px 18px rgba(16, 24, 40, 0.06), 0 2px 6px rgba(16, 24, 40, 0.04);
+/* Escenario: los paneles se mueven solo hacia los lados. */
+/* `clip` y no solo `hidden`: así ni el navegador puede desplazarlo de lado al
+   llevar el foco o la vista a algo que quedó fuera. */
+.lateral__escenario { position: relative; height: var(--alto-escenario); overflow: hidden; overflow: clip; touch-action: pan-y; }
+.formulario--lateral .panel-lat {
+  position: absolute; top: var(--e-2); bottom: var(--e-3); left: 50%;
+  width: min(1120px, 86%); margin: 0;
+  display: flex; flex-direction: column;
+  transform-origin: 50% 50%;
+  transition: transform var(--dur-lat) var(--curva-lat), opacity var(--dur-lat) var(--curva-lat), box-shadow var(--dur-lat) ease;
+  box-shadow: 0 8px 24px rgba(16, 24, 40, 0.06);
+  will-change: transform;
 }
-/* Recogidas, las capas se superponen un poco: un mazo. Abierta, se separa. */
-.formulario--acordeon > .capa + .capa { margin-top: calc(-1 * var(--solape)); }
-.formulario--acordeon > .capa + .capa--abierta,
-.formulario--acordeon > .capa--abierta + .capa { margin-top: var(--e-5); }
-.formulario--acordeon > .capa:not(.capa--abierta) { transform: scale(0.988); }
-.formulario--acordeon > .capa--abierta {
-  z-index: 20;
-  box-shadow: 0 0 0 3px rgba(42, 120, 214, 0.22), 0 24px 56px rgba(16, 24, 40, 0.14);
-}
-.formulario--acordeon > .capa[data-estado="falta"]:not(.capa--abierta) {
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--peligro) 45%, transparent), 0 -6px 18px rgba(16, 24, 40, 0.06);
-}
-.formulario--acordeon > .capa:nth-of-type(1) { z-index: 1; }
-.formulario--acordeon > .capa:nth-of-type(2) { z-index: 2; }
-.formulario--acordeon > .capa:nth-of-type(3) { z-index: 3; }
-.formulario--acordeon > .capa:nth-of-type(4) { z-index: 4; }
-.formulario--acordeon > .capa:nth-of-type(5) { z-index: 5; }
-.formulario--acordeon > .capa:nth-of-type(6) { z-index: 6; }
-.formulario--acordeon > .capa.capa--abierta { z-index: 20; }
+.formulario--lateral .panel-lat--activo { box-shadow: 0 24px 60px rgba(16, 24, 40, 0.14), 0 4px 12px rgba(16, 24, 40, 0.05); }
+.formulario--lateral .panel-lat[data-estado="falta"]:not(.panel-lat--activo) { box-shadow: 0 0 0 2px color-mix(in srgb, var(--peligro) 45%, transparent); }
+.panel-lat__cabecera { flex-shrink: 0; }
+.panel-lat__cabecera .seccion__titulo:focus { outline: none; }
+.panel-lat__cuerpo { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.panel-lat__ir { position: absolute; inset: 0; border: 0; background: transparent; cursor: pointer; display: none; }
+.formulario--lateral .panel-lat:not(.panel-lat--activo) .panel-lat__ir { display: block; }
+.panel-lat__ir:hover { background: color-mix(in srgb, var(--marca) 4%, transparent); }
+.lateral--arrastrando .panel-lat { transition: none; }
+.lateral--arrastrando { cursor: grabbing; user-select: none; }
 
-.capa__h { margin: 0; }
-.capa__cabecera {
-  width: 100%; display: flex; gap: var(--e-4); align-items: center;
-  min-height: 76px; padding: var(--e-4) var(--e-6);
-  border: 0; background: var(--superficie); color: var(--ink);
-  font: inherit; font-weight: 400; text-align: left; cursor: pointer;
-  transition: background var(--transicion);
-}
-.capa__titulo { font-weight: 700; }
-.capa__cabecera:hover { background: var(--superficie-2); }
-.capa__cabecera:focus-visible { outline: none; box-shadow: inset 0 0 0 3px rgba(42, 120, 214, 0.32); }
-.capa--abierta .capa__cabecera { background: var(--superficie-2); border-bottom: 1px solid var(--linea); }
-.capa__textos { flex: 1; min-width: 0; display: grid; gap: 2px; }
-.capa__titulo { display: block; }
-.capa__linea { display: block; font-size: var(--t-sm); color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.capa__marca { transition: background var(--transicion), color var(--transicion); }
-.capa[data-estado="completa"]:not(.capa--abierta) .capa__marca { background: var(--exito-suave); color: var(--exito-ink); }
-.capa[data-estado="falta"]:not(.capa--abierta) .capa__marca { background: var(--peligro-suave); color: var(--peligro-ink); }
-.capa[data-estado="pendiente"]:not(.capa--abierta) .capa__marca,
-.capa[data-estado="curso"]:not(.capa--abierta) .capa__marca { background: var(--superficie-3); color: var(--ink-2); }
-.capa--revision:not(.capa--abierta) .capa__marca { background: var(--alerta-suave); color: var(--alerta-ink); }
+.lateral__navegacion { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--e-3); }
+.lateral__navegacion .btn { min-height: 44px; }
+.lateral__navegacion .btn--primario { margin-left: auto; }
 
-.capa__estado {
-  flex-shrink: 0; padding: 3px 10px; border-radius: var(--r-full);
-  font-size: var(--t-xs); font-weight: 700; white-space: nowrap;
-}
-.capa__estado:empty { display: none; }
-.capa__estado--completa { background: var(--exito-suave); color: var(--exito-ink); }
-.capa__estado--curso { background: var(--info-suave); color: var(--info-ink); }
-.capa__estado--pendiente { background: var(--superficie-3); color: var(--ink-2); }
-.capa__estado--falta { background: var(--peligro-suave); color: var(--peligro-ink); animation: latido-falta 1.2s ease-out 2; }
-.capa__estado--antes { background: var(--alerta-suave); color: var(--alerta-ink); }
-@keyframes latido-falta {
-  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--peligro) 40%, transparent); }
-  100% { box-shadow: 0 0 0 10px transparent; }
-}
-.capa__flecha { flex-shrink: 0; display: grid; color: var(--ink-3); transition: transform var(--dur-capa) cubic-bezier(0.22, 0.8, 0.2, 1); }
-.capa--abierta .capa__flecha { transform: rotate(180deg); }
-
-/* El pliegue anima su alto real con grid-template-rows (0fr ↔ 1fr). */
-.capa__pliegue {
-  display: grid; grid-template-rows: 0fr; opacity: 0;
-  transition: grid-template-rows var(--dur-capa) cubic-bezier(0.22, 0.8, 0.2, 1), opacity var(--dur-capa) ease;
-}
-.capa--abierta .capa__pliegue { grid-template-rows: 1fr; opacity: 1; }
-.capa__interior { min-height: 0; overflow: hidden; }
-.capa__pie { display: flex; justify-content: flex-end; padding: 0 var(--e-6) var(--e-5); }
-
-/* Capa «Revisar y guardar». */
+/* Panel «Revisar y guardar». */
 .revision-capas { list-style: none; margin: 0; padding: var(--e-5) var(--e-6) var(--e-2); display: grid; gap: var(--e-2); }
 .revision-capas__fila { display: flex; gap: var(--e-3); align-items: center; padding: var(--e-2) var(--e-3); border-radius: var(--r-md); background: var(--superficie-2); }
 .revision-capas__icono { flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: var(--t-xs); font-weight: 700; background: var(--alerta-suave); color: var(--alerta-ink); }
@@ -2300,24 +2301,21 @@ body.con-enfoque .asistente { display: none; }
 .revision-capas__texto { flex: 1; min-width: 0; display: grid; }
 .revision-capas__titulo { font-size: var(--t-sm); font-weight: 650; }
 .revision-capas__linea { font-size: var(--t-xs); color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.formulario--acordeon .formulario__acciones {
+.formulario--lateral .formulario__acciones {
   position: static; box-shadow: none; border: 0; border-radius: 0;
   padding: var(--e-3) var(--e-6) var(--e-6); background: transparent; justify-content: flex-end;
 }
-.formulario--acordeon .aviso-edicion { margin-bottom: var(--e-4); }
 
-/* Al cargar, limpiar o abrir por un aviso, sin animación. */
-.formulario--sin-animar .capa, .formulario--sin-animar .capa__pliegue, .formulario--sin-animar .capa__flecha { transition: none !important; }
+/* Al cargar, limpiar o llegar desde el asistente, sin animación. */
+.formulario--sin-animar .panel-lat, .formulario--sin-animar .pasos-lat__marcador { transition: none !important; }
 
-@media (max-width: 720px) {
-  .capa__cabecera { padding: var(--e-3) var(--e-4); gap: var(--e-3); }
-  .capa__estado { display: none; }
-  .capa__pie, .revision-capas { padding-inline: var(--e-4); }
-  .formulario--acordeon .formulario__acciones { padding-inline: var(--e-4); }
+@media (max-width: 760px) {
+  .pasos-lat__texto { display: none; }
+  .pasos-lat__paso { justify-content: center; padding: var(--e-1); }
+  .formulario--lateral .panel-lat { width: 100%; }
+  .revision-capas, .formulario--lateral .formulario__acciones { padding-inline: var(--e-4); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .capa, .capa__pliegue, .capa__flecha { transition: none; }
-  .capa__estado--falta { animation: none; }
-  .formulario--acordeon > .capa:not(.capa--abierta) { transform: none; }
+  .formulario--lateral .panel-lat, .pasos-lat__marcador, .pasos-lat__barra > span, .pasos-lat__num { transition: none; }
 }
