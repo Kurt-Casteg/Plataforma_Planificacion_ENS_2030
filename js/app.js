@@ -1290,7 +1290,12 @@ function mostrarMasAcciones() {
           }
         }
       }),
-      perfil.permisos.puedeEliminar && el('button', {
+      // Solo sin sesión (modo local). Vaciar borra la copia de ESTE navegador:
+      // sin sesión es la única copia y el botón sirve; con sesión las
+      // actividades siguen en el servidor y vuelven al recargar, así que el
+      // botón no hacía nada útil y confundía («lo vacié y volvió todo»).
+      // Desde la versión 3.18.4 no lo ve ningún perfil con sesión.
+      !perfil.identificado && perfil.permisos.puedeEliminar && el('button', {
         class: 'btn btn--peligro', attrs: { type: 'button' }, text: `Vaciar el ${estado.plan.nombreCorto}`,
         on: {
           click: async (e) => {
