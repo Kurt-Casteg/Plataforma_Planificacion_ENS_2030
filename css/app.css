@@ -2421,7 +2421,7 @@ body.con-hoja .asistente { display: none; }
 }
 .campo:has(.selector-largo) { position: relative; }
 
-.selector-largo { display: grid; gap: var(--e-2); min-width: 0; }
+.selector-largo { position: relative; min-width: 0; }
 
 .selector-largo__disparador {
   display: flex; align-items: flex-start; gap: var(--e-3);
@@ -2447,19 +2447,42 @@ body.con-hoja .asistente { display: none; }
 .selector-largo__disparador--vacio .selector-largo__texto { color: var(--ink-3); }
 .selector-largo__disparador:disabled .selector-largo__codigo { background: transparent; color: inherit; }
 
+/* 3.19.2 · El panel flota sobre lo que está debajo (no lo empuja). Se abre
+   hacia arriba cuando abajo no hay espacio; el alto de la lista lo fija el
+   script según el espacio libre. */
 .selector-largo__panel {
-  display: grid; gap: var(--e-2); padding: var(--e-2);
+  position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 40;
+  display: flex; flex-direction: column; overflow: hidden;
   background: var(--superficie); border: 1px solid var(--borde-fuerte); border-radius: var(--r-md);
-  box-shadow: var(--sombra-2);
-  animation: selector-entra 160ms ease-out both;
+  box-shadow: 0 16px 32px -8px rgba(16, 24, 40, .18), 0 6px 12px -6px rgba(16, 24, 40, .10);
+  animation: selector-entra 150ms ease-out both;
 }
+.selector-largo__panel--arriba { top: auto; bottom: calc(100% + 6px); }
 .selector-largo__panel[hidden] { display: none; }
-/* Al abrir, el panel se trae a la vista dejando espacio para la cabecera fija
-   y para la barra de botones del formulario, que también es fija. */
-.selector-largo__panel { scroll-margin-top: calc(var(--alto-cabecera, 0px) + 16px); scroll-margin-bottom: 128px; }
 @keyframes selector-entra { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
-.selector-largo__buscador { min-height: 40px; }
-.selector-largo__lista { max-height: min(380px, 55vh); overflow-y: auto; overscroll-behavior: contain; display: grid; gap: 2px; }
+.selector-largo__fondo { display: none; }
+
+/* Buscador plano: integrado arriba de la lista, con lupa y una línea suave.
+   Sin anillo propio: el anillo azul queda solo en el campo. */
+.selector-largo__busqueda {
+  display: flex; align-items: center; gap: var(--e-3);
+  padding: 0 var(--e-4); min-height: 46px; border-bottom: 1px solid var(--linea); cursor: text;
+}
+.selector-largo__lupa { display: flex; color: var(--ink-3); }
+.selector-largo__buscador {
+  flex: 1; min-width: 0; min-height: 44px; border: 0; outline: none; background: transparent;
+  font: inherit; font-size: var(--t-sm); color: var(--ink);
+}
+.selector-largo__buscador::placeholder { color: var(--ink-3); }
+.selector-largo__lista {
+  max-height: 380px; overflow-y: auto; overscroll-behavior: contain;
+  display: grid; gap: 2px; padding: 4px 6px;
+  scrollbar-width: thin; scrollbar-color: var(--borde-fuerte) transparent;
+}
+.selector-largo__lista::-webkit-scrollbar { width: 8px; }
+.selector-largo__lista::-webkit-scrollbar-track { background: transparent; }
+.selector-largo__lista::-webkit-scrollbar-thumb { background: var(--borde-fuerte); border-radius: 8px; border: 2px solid var(--superficie); }
+.selector-largo__lista::-webkit-scrollbar-thumb:hover { background: var(--ink-3); }
 .selector-largo__opcion {
   display: flex; align-items: flex-start; gap: var(--e-3);
   width: 100%; padding: 0.55rem 0.7rem; border: 0; border-radius: 8px;
@@ -2480,8 +2503,34 @@ body.con-hoja .asistente { display: none; }
 .selector-largo__coincidencia { background: #fde9a8; color: #1d2733; border-radius: 3px; font-weight: 650; padding: 0 1px; }
 .selector-largo__vacio { padding: var(--e-3); color: var(--ink-2); font-size: var(--t-sm); }
 
+/* Para que el panel pueda sobresalir de su sección, las secciones ya no
+   recortan su contenido (la cabecera conserva sus esquinas redondeadas), y la
+   sección con una lista abierta queda por encima de las siguientes, que pueden
+   estar atenuadas. */
+.seccion { overflow: visible; }
+.seccion__cabecera { border-radius: var(--r-lg) var(--r-lg) 0 0; }
+.seccion:has(.selector-largo--abierto) { position: relative; z-index: 6; }
+
+/* Celular: la lista sube como una hoja desde abajo, sobre un fondo oscuro. */
+@media (max-width: 640px) {
+  /* Mientras está abierta, la hoja y su fondo se mueven a <body> (ver el
+     script): quedan sobre la hoja de edición y el modo enfoque (185-190) y
+     bajo los diálogos (200). */
+  .selector-largo__fondo--visible {
+    display: block; position: fixed; inset: 0; z-index: 194; background: rgba(15, 25, 40, .38);
+  }
+  .selector-largo__panel, .selector-largo__panel--arriba {
+    position: fixed; left: 0; right: 0; top: auto; bottom: 0; z-index: 195;
+    max-height: 82vh; border-radius: 18px 18px 0 0; animation: selector-hoja 220ms ease-out both;
+  }
+  .selector-largo__lista { max-height: calc(82vh - 64px) !important; }
+  /* El botón del asistente no tapa la hoja. */
+  body.con-selector-abierto .asistente { display: none; }
+}
+@keyframes selector-hoja { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: none; } }
+
 @media (prefers-reduced-motion: reduce) {
-  .selector-largo__panel { animation: none; }
+  .selector-largo__panel, .selector-largo__panel--arriba { animation: none; }
   .selector-largo__disparador::after { transition: none; }
 }
 @media print {

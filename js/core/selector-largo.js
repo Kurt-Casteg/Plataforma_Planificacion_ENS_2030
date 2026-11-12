@@ -15,10 +15,11 @@
  * siempre. Este módulo solo lo observa y, al elegir, le asigna el valor y
  * dispara `input` y `change`, igual que si la persona lo hubiera usado.
  *
- * El panel va en el flujo de la página (empuja lo de abajo) y no flotando:
- * las secciones del formulario recortan lo que se sale de ellas, y así
- * funciona igual en el formulario clásico, en el lateral y en la hoja de
- * edición.
+ * Desde la 3.19.2 el panel FLOTA sobre lo que está debajo, sin empujarlo.
+ * Antes de abrirse mide el espacio libre entre el campo y la barra de botones
+ * (o el borde de la hoja o del panel lateral): si abajo no caben unas cuantas
+ * opciones y arriba hay más espacio, se abre hacia arriba, y la lista toma el
+ * alto que quepa. En el celular se abre como una hoja desde abajo.
  */
 
 import { el } from './dom.js';
@@ -50,14 +51,28 @@ function resaltar(texto, consulta) {
 
 let contador = 0;
 
+const LUPA = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>';
+const ALTO_MAXIMO = 380;
+const ALTO_MINIMO = 140;
+const esCelular = () => matchMedia('(max-width: 640px)').matches;
+
+/** El contenedor más cercano que recorta lo que se sale (hoja de edición, panel lateral). */
+function contenedorQueRecorta(nodo) {
+  for (let n = nodo.parentElement; n && n !== document.body; n = n.parentElement) {
+    if (getComputedStyle(n).overflowY !== 'visible') return n;
+  }
+  return null;
+}
+
 /**
  * Convierte un <select> ya insertado en su campo en un selector de textos largos.
  * @param {HTMLSelectElement} select
  * @param {object} [o]
- * @param {number} [o.umbralBuscador] Desde cuántas opciones aparece el buscador.
+ * @param {'nunca'|'siempre'|number} [o.buscador] Cuándo aparece el buscador:
+ *   nunca, siempre, o desde cuántas opciones (por omisión, más de 8).
  * @returns {{ refrescar: Function, cerrar: Function }}
  */
-export function mejorarSelect(select, { umbralBuscador = 8 } = {}) {
+export function mejorarSelect(select, { buscador: reglaBuscador = 8 } = {}) {
   const id = select.id || `selector-${++contador}`;
   const etiqueta = select.closest('.campo')?.querySelector(`label[for="${id}"]`);
   if (etiqueta && !etiqueta.id) etiqueta.id = `${id}-etiqueta`;
@@ -80,7 +95,9 @@ export function mejorarSelect(select, { umbralBuscador = 8 } = {}) {
   texto.id = `${id}-valor`;
 
   const panel = el('div', { class: 'selector-largo__panel', id: idPanel, attrs: { hidden: true } });
-  const contenedor = el('div', { class: 'selector-largo' }, [disparador, panel]);
+  // Solo se ve en el celular, detrás de la hoja que sube desde abajo.
+  const fondo = el('div', { class: 'selector-largo__fondo', attrs: { 'aria-hidden': 'true' }, on: { click: () => cerrar({ devolverFoco: true }) } });
+  const contenedor = el('div', { class: 'selector-largo' }, [disparador, fondo, panel]);
   select.after(contenedor);
 
   let abierto = false;
@@ -97,6 +114,8 @@ export function mejorarSelect(select, { umbralBuscador = 8 } = {}) {
     codigo.textContent = tiene ? partes.codigo : '';
     codigo.hidden = !tiene || !partes.codigo;
     texto.textContent = tiene ? partes.texto : (op?.textContent || '');
+    // El texto completo al pasar el mouse, por si no cabe en dos líneas.
+    disparador.title = tiene ? (op?.textContent || '').trim() : '';
     disparador.classList.toggle('selector-largo__disparador--vacio', !tiene);
     disparador.disabled = select.disabled;
     const invalido = select.getAttribute('aria-invalid');
@@ -154,39 +173,91 @@ export function mejorarSelect(select, { umbralBuscador = 8 } = {}) {
     if (!todas.length) return;
     abierto = true;
     consulta = '';
-    const conBuscador = todas.length > umbralBuscador;
+    const conBuscador = reglaBuscador === 'siempre' || (reglaBuscador !== 'nunca' && todas.length > Number(reglaBuscador));
     lista = el('div', { class: 'selector-largo__lista', attrs: { role: 'listbox', 'aria-labelledby': etiqueta?.id || '' } });
-    buscador = conBuscador
-      ? el('input', {
-          class: 'campo__control selector-largo__buscador',
-          attrs: { type: 'search', autocomplete: 'off', 'aria-label': `Buscar entre ${todas.length} opciones`, placeholder: `Buscar entre ${todas.length} opciones…` },
-          on: { input: (e) => { consulta = e.target.value; pintarLista(); } }
-        })
-      : null;
-    panel.replaceChildren(...[buscador, lista].filter(Boolean));
+    let busqueda = null;
+    if (conBuscador) {
+      buscador = el('input', {
+        class: 'selector-largo__buscador',
+        attrs: { type: 'search', autocomplete: 'off', 'aria-label': `Buscar entre ${todas.length} opciones`, placeholder: `Buscar entre ${todas.length} opciones…` },
+        on: { input: (e) => { consulta = e.target.value; pintarLista(); } }
+      });
+      busqueda = el('label', { class: 'selector-largo__busqueda' }, [el('span', { class: 'selector-largo__lupa', html: LUPA }), buscador]);
+    } else buscador = null;
+    panel.replaceChildren(...[busqueda, lista].filter(Boolean));
     pintarLista();
     panel.hidden = false;
+    // En el celular la lista es una hoja fija al pie de la pantalla. Un ancestro
+    // con transform (la sección activa, el panel lateral) haría que «fija» se
+    // mida contra él, así que mientras está abierta vive en <body>.
+    if (esCelular()) {
+      document.body.append(fondo, panel);
+      fondo.classList.add('selector-largo__fondo--visible');
+      document.body.classList.add('con-selector-abierto');
+    }
+    ubicar();
     disparador.setAttribute('aria-expanded', 'true');
     contenedor.classList.add('selector-largo--abierto');
     document.addEventListener('pointerdown', alPulsarFuera, true);
+    addEventListener('resize', alCambiarTamano);
     requestAnimationFrame(() => {
       if (buscador) buscador.focus({ preventScroll: true });
       else (lista.querySelector('[aria-selected="true"]') || lista.querySelector('[role="option"]'))?.focus({ preventScroll: true });
-      // Que el panel quede a la vista, sin esconderse bajo la barra de botones
-      // (el margen está en la hoja de estilos: scroll-margin del panel).
-      panel.scrollIntoView({ block: 'nearest', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
     });
   }
+
+  /**
+   * Decide hacia dónde se abre y cuánto alto tiene la lista, según el espacio
+   * libre entre el campo y lo que lo limita: la cabecera fija y la barra de
+   * botones del formulario, o los bordes de la hoja o del panel lateral.
+   */
+  function ubicar() {
+    panel.classList.remove('selector-largo__panel--arriba');
+    lista.style.maxHeight = '';
+    if (esCelular()) return; // la hoja que sube desde abajo tiene su propio alto
+    const r = disparador.getBoundingClientRect();
+    let tope = 0;
+    let piso = innerHeight;
+    const scroll = contenedorQueRecorta(contenedor);
+    if (scroll) {
+      const c = scroll.getBoundingClientRect();
+      tope = Math.max(tope, c.top);
+      piso = Math.min(piso, c.bottom);
+    }
+    const cabecera = document.querySelector('.cabecera');
+    if (cabecera && !scroll) tope = Math.max(tope, cabecera.getBoundingClientRect().bottom);
+    const barra = contenedor.closest('form')?.querySelector('.formulario__acciones');
+    if (barra) {
+      const b = barra.getBoundingClientRect();
+      if (b.top > r.bottom && b.top < piso) piso = b.top;
+    }
+    const abajo = piso - r.bottom - 14;
+    const arriba = r.top - tope - 14;
+    const haciaArriba = abajo < 280 && arriba > abajo;
+    const extra = (panel.querySelector('.selector-largo__busqueda')?.offsetHeight || 0) + 16;
+    const alto = Math.max(ALTO_MINIMO, Math.min(ALTO_MAXIMO, (haciaArriba ? arriba : abajo) - extra));
+    panel.classList.toggle('selector-largo__panel--arriba', haciaArriba);
+    lista.style.maxHeight = `${alto}px`;
+  }
+
+  function alCambiarTamano() { cerrar(); }
 
   function cerrar({ devolverFoco = false } = {}) {
     if (!abierto) return;
     abierto = false;
     panel.hidden = true;
     panel.replaceChildren();
+    if (panel.parentElement !== contenedor) {
+      fondo.classList.remove('selector-largo__fondo--visible');
+      document.body.classList.remove('con-selector-abierto');
+      contenedor.append(fondo, panel);
+    }
     buscador = lista = null;
     disparador.setAttribute('aria-expanded', 'false');
     contenedor.classList.remove('selector-largo--abierto');
+    panel.classList.remove('selector-largo__panel--arriba');
     document.removeEventListener('pointerdown', alPulsarFuera, true);
+    removeEventListener('resize', alCambiarTamano);
     if (devolverFoco) disparador.focus({ preventScroll: true });
   }
 
@@ -200,8 +271,9 @@ export function mejorarSelect(select, { umbralBuscador = 8 } = {}) {
     }
   }
 
+  const dentro = (n) => Boolean(n) && (contenedor.contains(n) || panel.contains(n));
   function alPulsarFuera(e) {
-    if (!contenedor.contains(e.target)) cerrar();
+    if (!dentro(e.target) || e.target === fondo) cerrar();
   }
 
   function mover(paso, desde) {
@@ -232,9 +304,9 @@ export function mejorarSelect(select, { umbralBuscador = 8 } = {}) {
     // Escribir sobre la lista lleva al buscador.
     if (!enBuscador && buscador && e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) { buscador.focus(); }
   });
-  contenedor.addEventListener('focusout', (e) => {
-    if (abierto && e.relatedTarget && !contenedor.contains(e.relatedTarget)) cerrar();
-  });
+  const alSalirFoco = (e) => { if (abierto && e.relatedTarget && !dentro(e.relatedTarget)) cerrar(); };
+  contenedor.addEventListener('focusout', alSalirFoco);
+  panel.addEventListener('focusout', alSalirFoco);
 
   refrescar();
   return { refrescar, cerrar };

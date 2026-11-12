@@ -787,7 +787,10 @@ export class Formulario {
       });
       this.campos.set(nivel.id, select);
       const grupo = this.#envoltura({ ...nivel, ancho: LARGOS.has(nivel.id) ? 'completo' : 'medio' }, select);
-      mejorarSelect(select);
+      // Buscador: nunca en el objetivo estratégico (nueve opciones cortas) y
+      // siempre en el resultado inmediato, donde los textos son más largos y
+      // filtrar por una palabra ayuda aunque haya pocas opciones.
+      mejorarSelect(select, { buscador: { objetivoEstrategico: 'nunca', resultadoInmediato: 'siempre' }[nivel.id] ?? 8 });
       contenedor.append(grupo);
     }
 

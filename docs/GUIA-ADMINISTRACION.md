@@ -613,8 +613,10 @@ esperado** y el **resultado inmediato** usan un selector propio
 - Cerrado, muestra el código destacado y el texto en hasta dos líneas.
 - Abierto, despliega bajo el campo cada opción completa, en los renglones que
   necesite, con el código a la izquierda.
-- Con más de ocho opciones aparece un buscador: filtra mientras se escribe,
-  sin importar tildes, y resalta la palabra encontrada.
+- Buscador: filtra mientras se escribe, sin importar tildes, y resalta la
+  palabra encontrada. Desde la 3.19.2 aparece **siempre** en el resultado
+  inmediato, **nunca** en el objetivo estratégico, y en el tema, el objetivo de
+  impacto y el resultado esperado cuando hay más de ocho opciones.
 - Funciona con teclado (flechas, Inicio, Fin, Enter y Esc) y se cierra al hacer
   clic fuera.
 
@@ -626,10 +628,17 @@ listas normales: sus textos son cortos.
 
 El `<select>` original sigue en la página, oculto, y es el que se llena, se
 valida y se guarda: el selector solo cambia lo que se ve. Por eso no cambió
-nada en la base de datos ni en cómo se leen las actividades guardadas. El panel
-se abre en el flujo de la página (empuja lo que está debajo) en vez de flotar,
-porque las secciones del formulario recortan lo que se sale de ellas; así
-funciona igual en el formulario clásico, en el lateral y en la hoja de edición.
+nada en la base de datos ni en cómo se leen las actividades guardadas.
+
+Desde la versión 3.19.2 la lista **flota** sobre lo que está debajo, sin
+empujarlo (en la 3.19.0 y 3.19.1 se abría en el flujo de la página). Para eso
+las secciones del formulario ya no recortan su contenido. Antes de abrirse,
+la lista mide el espacio libre entre el campo y la barra de botones (o el borde
+de la hoja de edición o del panel lateral): si abajo no caben unas cuantas
+opciones y arriba hay más espacio, se abre hacia arriba, y toma el alto que
+quepa. El buscador es plano, con lupa, y la barra de desplazamiento es delgada.
+Al pasar el mouse sobre un campo cerrado se ve el texto completo. En el
+celular la lista sube como una hoja desde abajo.
 
 ## Editar desde el listado: la hoja lateral (versión 3.18)
 

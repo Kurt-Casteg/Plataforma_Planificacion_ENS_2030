@@ -17,8 +17,9 @@ const FOCUSABLES = 'a[href], button:not([disabled]), input:not([disabled]), sele
 const sinMovimiento = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 const CURVA = 'cubic-bezier(0.22, 0.8, 0.2, 1)';
 
-/** Un diálogo común (confirmar) o la ficha en modo enfoque abiertos encima: el teclado es suyo. */
-const hayAlgoEncima = () => Boolean(document.querySelector('.modal:not(.modal--saliendo), .enfoque:not(.enfoque--saliendo)'));
+/** Un diálogo común (confirmar), la ficha en modo enfoque o una lista abiertos encima: el teclado es suyo. */
+// También una lista de la cadena ENS abierta (3.19.2): su Esc la cierra a ella, no a la hoja.
+const hayAlgoEncima = () => Boolean(document.querySelector('.modal:not(.modal--saliendo), .enfoque:not(.enfoque--saliendo), .selector-largo--abierto'));
 
 /**
  * @param {object} o
