@@ -11,6 +11,7 @@ import { abrirEnfoque, navegacionEnfoque } from './enfoque.js';
 import { perfil } from './perfil.js';
 import { ajustes } from './ajustes.js';
 import { chipEstado, permisosSobre, lineaRevision } from './aprobacion.js';
+import { mejorarSelect } from './selector-largo.js';
 
 export class TablaActividades {
   constructor({ contenedor, plan, catalogos, ens, clasificador, acciones }) {
@@ -49,6 +50,10 @@ export class TablaActividades {
       filtroDepto,
       filtroTipo
     ]);
+    // Mismo selector que el resto de la plataforma (3.20), en versión compacta;
+    // «Todos los…» es una opción más de la lista.
+    mejorarSelect(filtroDepto, { compacto: true, incluirVacio: true });
+    mejorarSelect(filtroTipo, { compacto: true, incluirVacio: true });
 
     // Filtro por estado del circuito de aprobación: solo se ve con el circuito
     // encendido (se rehace en cada pintada porque los totales cambian).

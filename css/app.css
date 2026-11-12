@@ -2509,7 +2509,31 @@ body.con-hoja .asistente { display: none; }
    estar atenuadas. */
 .seccion { overflow: visible; }
 .seccion__cabecera { border-radius: var(--r-lg) var(--r-lg) 0 0; }
-.seccion:has(.selector-largo--abierto) { position: relative; z-index: 6; }
+.seccion:not(.panel-lat):has(.selector-largo--abierto) { position: relative; z-index: 6; }
+/* En el formulario lateral el panel ya está posicionado (absoluto) y el activo
+   queda encima; cambiarle la posición lo sacaría del escenario. */
+
+/* 3.20 · Todas las listas con el mismo selector.
+   Títulos de grupo (el clasificador del PAC viene agrupado por ítem). */
+.selector-largo__grupo {
+  margin: 0; padding: var(--e-3) 0.7rem var(--e-1);
+  font-size: var(--t-xs); font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-3);
+}
+.selector-largo__grupo:first-child { padding-top: var(--e-2); }
+
+/* Versión compacta (filtros del listado y del panel, cabecera): una línea, y
+   un panel que puede ser más ancho que el campo. */
+.selector-largo--compacto .selector-largo__disparador { align-items: center; padding-top: 0.45rem; padding-bottom: 0.45rem; }
+.selector-largo--compacto .selector-largo__disparador::after { top: 50%; margin-top: -6px; }
+.selector-largo--compacto .selector-largo__texto { -webkit-line-clamp: 1; white-space: nowrap; display: block; overflow: hidden; text-overflow: ellipsis; }
+.selector-largo--compacto .selector-largo__panel { right: auto; min-width: 100%; width: max-content; max-width: min(460px, calc(100vw - 32px)); }
+.selector-largo--compacto .selector-largo__panel.selector-largo__panel--derecha { left: auto; right: 0; }
+.selector-largo--compacto .selector-largo__opcion-texto { white-space: normal; }
+.panel-filtros .selector-largo--compacto { width: auto; }
+.cabecera__herramientas .selector-largo--compacto { width: auto; }
+.cabecera__herramientas .selector-largo__disparador.selector-perfil { padding-right: 2.2rem; max-width: 240px; }
+@media (max-width: 720px) { .cabecera__herramientas .selector-largo__disparador.selector-perfil { max-width: 150px; } }
+.selector-largo__disparador.selector-perfil .selector-largo__texto { font-weight: 600; }
 
 /* Celular: la lista sube como una hoja desde abajo, sobre un fondo oscuro. */
 @media (max-width: 640px) {

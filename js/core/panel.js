@@ -15,6 +15,7 @@ import { MESES, IDS_MESES, SUBTITULOS } from './modelo.js';
 import { monto, numero, recortar } from './formato.js';
 import { etiquetaDe } from './catalogos.js';
 import { abrirEnfoque, navegacionEnfoque } from './enfoque.js';
+import { mejorarSelect } from './selector-largo.js';
 
 /**
  * Chart.js se sirve desde el propio sitio (carpeta vendor/): la plataforma
@@ -113,6 +114,7 @@ export class Panel {
       this.botonLimpiar,
       this.resumenFiltro
     ]);
+    mejorarSelect(this.selectorDepto, { compacto: true, incluirVacio: true });
 
     this.kpis = el('div', { class: 'kpis' });
     this.zonaGraficos = el('div', { class: 'graficos' });

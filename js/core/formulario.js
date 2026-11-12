@@ -654,7 +654,10 @@ export class Formulario {
 
     const extras = [];
     if (campo.ayudaExtendida) extras.push(this.#ayudaExtendida(campo.ayudaExtendida));
-    return this.#envoltura(campo, control, extras);
+    const grupo = this.#envoltura(campo, control, extras);
+    // Todas las listas de la plataforma usan el mismo selector (3.20).
+    if (campo.tipo === 'select') mejorarSelect(control);
+    return grupo;
   }
 
   /**
@@ -994,6 +997,12 @@ export class Formulario {
       ].filter(Boolean)));
     }
 
+    // Categoría programática y programa con el mismo selector que el resto (3.20).
+    for (const st of SUBTITULOS) {
+      mejorarSelect(this.campos.get(`programatico${st}`));
+      mejorarSelect(this.campos.get(`programa${st}`));
+    }
+
     this.totalPresupuesto = el('output', { class: 'total__valor total__valor--destacado', text: monto(0) });
     this.errorPresupuesto = el('p', { class: 'campo__error', attrs: { hidden: true, role: 'alert' } });
 
@@ -1204,6 +1213,8 @@ export class Formulario {
         ].filter(Boolean))
       ]);
       grupo.__error = error;
+      // El clasificador usa el mismo selector que el resto de la plataforma (3.20).
+      if (nodo.tagName === 'SELECT') mejorarSelect(nodo);
       return grupo;
     };
 

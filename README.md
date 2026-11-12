@@ -61,7 +61,7 @@ que se publican en GitHub Pages y se abren en cualquier navegador moderno.
 │       ├── configuracion.js  «Más» → «Configuración de la plataforma» (Control de Gestión).
 │       ├── enfoque.js        Modo enfoque: ficha de actividad y gráficos ampliados al centro.
 │       ├── hoja.js           Hoja lateral para editar una actividad sin salir del listado.
-│       ├── selector-largo.js Lista para textos largos (OI, RE y RI de la cadena ENS), con buscador.
+│       ├── selector-largo.js Selector de todas las listas desplegables (textos largos, buscador, versión compacta).
 │       ├── exportar.js       Excel, CSV, respaldo e importación.
 │       ├── informe.js        Informe consolidado: cálculo y libro de Excel.
 │       ├── informe-vista.js  Informe consolidado: vista imprimible (PDF).

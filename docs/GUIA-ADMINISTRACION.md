@@ -622,9 +622,8 @@ esperado** y el **resultado inmediato** usan un selector propio
 
 Los tres campos van a todo el ancho. Desde la versión 3.19.1 el **objetivo
 estratégico** y el **tema** usan el mismo selector, para que toda la sección se
-vea de una sola forma; comparten la fila en dos mitades. Las demás listas de la
-plataforma (tipo de actividad, componente, presupuesto, PAC) siguen siendo
-listas normales: sus textos son cortos.
+vea de una sola forma; comparten la fila en dos mitades. Desde la versión 3.20
+lo usan también todas las demás listas (ver más abajo).
 
 El `<select>` original sigue en la página, oculto, y es el que se llena, se
 valida y se guarda: el selector solo cambia lo que se ve. Por eso no cambió
@@ -639,6 +638,31 @@ opciones y arriba hay más espacio, se abre hacia arriba, y toma el alto que
 quepa. El buscador es plano, con lupa, y la barra de desplazamiento es delgada.
 Al pasar el mouse sobre un campo cerrado se ve el texto completo. En el
 celular la lista sube como una hoja desde abajo.
+
+### Todas las listas con el mismo selector (versión 3.20)
+
+Desde la versión 3.20 **todas** las listas desplegables de la plataforma usan
+el mismo selector, para que se vean y se usen igual:
+
+- Formulario: departamento o unidad, tipo de actividad, componente
+  transversal, categoría programática y programa de cada subtítulo, y el
+  clasificador presupuestario de cada compra del PAC (con los títulos de grupo
+  por ítem y buscador).
+- Listado: filtros por departamento y por tipo.
+- Panel de análisis: filtro por departamento.
+- Cabecera: perfil activo y período (siguen pidiendo confirmación; si se
+  cancela, la lista vuelve a mostrar el valor anterior).
+
+Los filtros y la cabecera usan una versión **compacta**: una sola línea, y la
+lista abierta puede ser más ancha que el campo (sin salirse de la pantalla).
+En los filtros, «Todos los departamentos» / «Todos los tipos» aparece como
+primera opción para volver a ver todo. El buscador aparece solo en las listas
+de más de ocho opciones; nunca en perfil ni período.
+
+Igual que en la cadena, el `<select>` original sigue oculto en la página y es el
+que guarda el valor, así que no cambió nada en la base de datos ni en las
+exportaciones. En el formulario lateral se corrigió además que, al abrir una
+lista, el panel activo se descolocara.
 
 ## Editar desde el listado: la hoja lateral (versión 3.18)
 

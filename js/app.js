@@ -26,6 +26,7 @@ import { abrirConfiguracion } from './core/configuracion.js';
 import { abrirHoja } from './core/hoja.js';
 import { siguienteCodigo, previsualizarCodigo } from './core/codigos.js';
 import { Asistente, cargarContenidoAsistente } from './core/asistente.js';
+import { mejorarSelect } from './core/selector-largo.js';
 
 const estado = {
   plan: null,
@@ -271,6 +272,10 @@ function construirCascaron() {
       el('nav', { class: 'planes', attrs: { 'aria-label': 'Planes de planificación' }, id: 'navPlanes' })
     ])
   ]);
+  // Período y perfil con el mismo selector que el resto de la plataforma (3.20).
+  for (const sel of cabecera.querySelectorAll('#selectorPeriodo, #selectorPerfil')) {
+    mejorarSelect(sel, { compacto: true, buscador: 'nunca' });
+  }
 
   const principal = el('main', { class: 'envoltura contenido', id: 'contenidoPrincipal', attrs: { tabindex: '-1' } }, [
     el('div', { id: 'portada' }),

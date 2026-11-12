@@ -70,34 +70,52 @@ function contenedorQueRecorta(nodo) {
  * @param {object} [o]
  * @param {'nunca'|'siempre'|number} [o.buscador] Cuándo aparece el buscador:
  *   nunca, siempre, o desde cuántas opciones (por omisión, más de 8).
+ * @param {boolean} [o.compacto] Una sola línea y del ancho del contenido: para
+ *   filtros y la cabecera (3.20).
+ * @param {boolean} [o.incluirVacio] La opción sin valor («Todos los…») es una
+ *   elección más de la lista, como en los filtros.
  * @returns {{ refrescar: Function, cerrar: Function }}
  */
-export function mejorarSelect(select, { buscador: reglaBuscador = 8 } = {}) {
+export function mejorarSelect(select, { buscador: reglaBuscador = 8, compacto = false, incluirVacio = false } = {}) {
   const id = select.id || `selector-${++contador}`;
   const etiqueta = select.closest('.campo')?.querySelector(`label[for="${id}"]`);
   if (etiqueta && !etiqueta.id) etiqueta.id = `${id}-etiqueta`;
+  const nombreAccesible = etiqueta ? '' : (select.getAttribute('aria-label') || '');
   const idPanel = `${id}-lista`;
 
+  // Las clases propias de la lista (por ejemplo, las de la cabecera) pasan al
+  // botón, para que conserve su aspecto.
+  const clasesPropias = [...select.classList].filter((c) => c !== 'campo__control');
   select.classList.add('selector-largo__nativo');
   select.tabIndex = -1;
   select.setAttribute('aria-hidden', 'true');
+  // El <select> oculto se ubica contra su contenedor, no contra la página. Si
+  // la lista todavía no está en la página (la cabecera se arma antes de
+  // insertarse), se revisa en el cuadro siguiente.
+  const anclar = () => {
+    const padre = select.parentElement;
+    if (padre && padre.isConnected && getComputedStyle(padre).position === 'static') padre.style.position = 'relative';
+  };
+  anclar();
+  requestAnimationFrame(anclar);
 
   const codigo = el('span', { class: 'selector-largo__codigo' });
   const texto = el('span', { class: 'selector-largo__texto' });
   const disparador = el('button', {
-    class: 'campo__control selector-largo__disparador',
+    class: ['campo__control', 'selector-largo__disparador', ...clasesPropias].join(' '),
     attrs: {
       type: 'button', 'aria-haspopup': 'listbox', 'aria-expanded': 'false', 'aria-controls': idPanel,
-      'aria-labelledby': [etiqueta?.id, `${id}-valor`].filter(Boolean).join(' '),
-      'aria-describedby': select.getAttribute('aria-describedby') || ''
+      'aria-labelledby': etiqueta ? `${etiqueta.id} ${id}-valor` : null,
+      'aria-describedby': select.getAttribute('aria-describedby') || null
     }
   }, [codigo, texto]);
+  if (nombreAccesible) disparador.setAttribute('aria-label', nombreAccesible);
   texto.id = `${id}-valor`;
 
   const panel = el('div', { class: 'selector-largo__panel', id: idPanel, attrs: { hidden: true } });
   // Solo se ve en el celular, detrás de la hoja que sube desde abajo.
   const fondo = el('div', { class: 'selector-largo__fondo', attrs: { 'aria-hidden': 'true' }, on: { click: () => cerrar({ devolverFoco: true }) } });
-  const contenedor = el('div', { class: 'selector-largo' }, [disparador, fondo, panel]);
+  const contenedor = el('div', { class: `selector-largo${compacto ? ' selector-largo--compacto' : ''}` }, [disparador, fondo, panel]);
   select.after(contenedor);
 
   let abierto = false;
@@ -105,11 +123,15 @@ export function mejorarSelect(select, { buscador: reglaBuscador = 8 } = {}) {
   let buscador = null;
   let lista = null;
 
-  const opciones = () => [...select.options].filter((o) => o.value).map((o) => ({ valor: o.value, ...partir(o.textContent) }));
+  // Las opciones, con el título de su grupo cuando la lista viene agrupada
+  // (<optgroup>, como el clasificador presupuestario del PAC).
+  const opciones = () => [...select.options]
+    .filter((o) => o.value || (incluirVacio && o.textContent.trim()))
+    .map((o) => ({ valor: o.value, grupo: o.parentElement?.tagName === 'OPTGROUP' ? o.parentElement.label : '', ...partir(o.textContent) }));
 
   function refrescar() {
     const op = select.selectedOptions[0];
-    const tiene = Boolean(select.value);
+    const tiene = Boolean(select.value) || (incluirVacio && Boolean(op?.textContent.trim()));
     const partes = partir(op?.textContent || '');
     codigo.textContent = tiene ? partes.codigo : '';
     codigo.hidden = !tiene || !partes.codigo;
@@ -120,6 +142,10 @@ export function mejorarSelect(select, { buscador: reglaBuscador = 8 } = {}) {
     disparador.disabled = select.disabled;
     const invalido = select.getAttribute('aria-invalid');
     if (invalido) disparador.setAttribute('aria-invalid', invalido); else disparador.removeAttribute('aria-invalid');
+    // La lista puede estar oculta (la cabecera la muestra solo a algunos
+    // perfiles) y llevar marcas de estado que tiñen el botón.
+    contenedor.hidden = select.hidden;
+    for (const [k, v] of Object.entries(select.dataset)) disparador.dataset[k] = v;
     if (abierto && (select.disabled || !opciones().length)) cerrar();
   }
 
@@ -139,19 +165,29 @@ export function mejorarSelect(select, { buscador: reglaBuscador = 8 } = {}) {
       set(v) { d.set.call(this, v); programar(); }
     });
   }
-  new MutationObserver(programar).observe(select, { childList: true, subtree: true, attributes: true, attributeFilter: ['disabled', 'aria-invalid'] });
+  new MutationObserver(programar).observe(select, { childList: true, subtree: true, attributes: true, attributeFilter: ['disabled', 'aria-invalid', 'hidden', 'data-solest', 'data-distinto'] });
   select.addEventListener('change', programar);
-  document.addEventListener('reset', (e) => { if (e.target.contains?.(select)) setTimeout(refrescar); }, true);
+  const alReiniciar = (e) => {
+    // Un selector que ya no está en la página (una compra quitada) suelta el escucha.
+    if (!select.isConnected) { document.removeEventListener('reset', alReiniciar, true); return; }
+    if (e.target.contains?.(select)) setTimeout(refrescar);
+  };
+  document.addEventListener('reset', alReiniciar, true);
   // Quien lleve el foco al <select> (validación, asistente, la etiqueta) llega al botón.
   select.addEventListener('focus', () => disparador.focus({ preventScroll: true }));
 
   function pintarLista() {
     const todas = opciones();
     const q = normalizar(consulta.trim());
-    const visibles = q ? todas.filter((o) => normalizar(`${o.codigo} ${o.texto}`).includes(q)) : todas;
-    lista.replaceChildren(...visibles.map((o) => {
+    const visibles = q ? todas.filter((o) => normalizar(`${o.codigo} ${o.texto} ${o.grupo}`).includes(q)) : todas;
+    let grupoActual = null;
+    lista.replaceChildren(...visibles.flatMap((o) => {
       const elegida = o.valor === select.value;
-      return el('button', {
+      const titulo = o.grupo && o.grupo !== grupoActual
+        ? el('p', { class: 'selector-largo__grupo', attrs: { role: 'presentation' }, text: o.grupo })
+        : null;
+      grupoActual = o.grupo;
+      return [titulo, el('button', {
         class: `selector-largo__opcion${elegida ? ' selector-largo__opcion--elegida' : ''}`,
         attrs: { type: 'button', role: 'option', 'aria-selected': elegida ? 'true' : 'false', tabindex: '-1' },
         dataset: { valor: o.valor },
@@ -160,7 +196,7 @@ export function mejorarSelect(select, { buscador: reglaBuscador = 8 } = {}) {
         o.codigo && el('span', { class: 'selector-largo__opcion-codigo', text: o.codigo }),
         el('span', { class: 'selector-largo__opcion-texto' }, resaltar(o.texto, consulta)),
         el('span', { class: 'selector-largo__marca', attrs: { 'aria-hidden': 'true' }, text: elegida ? '✓' : '' })
-      ].filter(Boolean));
+      ].filter(Boolean))].filter(Boolean);
     }));
     if (!visibles.length) {
       lista.append(el('p', { class: 'selector-largo__vacio', text: `Ninguna opción contiene «${consulta.trim()}».` }));
@@ -174,7 +210,7 @@ export function mejorarSelect(select, { buscador: reglaBuscador = 8 } = {}) {
     abierto = true;
     consulta = '';
     const conBuscador = reglaBuscador === 'siempre' || (reglaBuscador !== 'nunca' && todas.length > Number(reglaBuscador));
-    lista = el('div', { class: 'selector-largo__lista', attrs: { role: 'listbox', 'aria-labelledby': etiqueta?.id || '' } });
+    lista = el('div', { class: 'selector-largo__lista', attrs: { role: 'listbox', 'aria-labelledby': etiqueta?.id || null, 'aria-label': etiqueta ? null : (nombreAccesible || null) } });
     let busqueda = null;
     if (conBuscador) {
       buscador = el('input', {
@@ -238,6 +274,9 @@ export function mejorarSelect(select, { buscador: reglaBuscador = 8 } = {}) {
     const alto = Math.max(ALTO_MINIMO, Math.min(ALTO_MAXIMO, (haciaArriba ? arriba : abajo) - extra));
     panel.classList.toggle('selector-largo__panel--arriba', haciaArriba);
     lista.style.maxHeight = `${alto}px`;
+    // Un panel más ancho que su campo (los compactos) no se sale por la derecha.
+    panel.classList.remove('selector-largo__panel--derecha');
+    if (panel.getBoundingClientRect().right > document.documentElement.clientWidth - 8) panel.classList.add('selector-largo__panel--derecha');
   }
 
   function alCambiarTamano() { cerrar(); }
@@ -255,7 +294,7 @@ export function mejorarSelect(select, { buscador: reglaBuscador = 8 } = {}) {
     buscador = lista = null;
     disparador.setAttribute('aria-expanded', 'false');
     contenedor.classList.remove('selector-largo--abierto');
-    panel.classList.remove('selector-largo__panel--arriba');
+    panel.classList.remove('selector-largo__panel--arriba', 'selector-largo__panel--derecha');
     document.removeEventListener('pointerdown', alPulsarFuera, true);
     removeEventListener('resize', alCambiarTamano);
     if (devolverFoco) disparador.focus({ preventScroll: true });
