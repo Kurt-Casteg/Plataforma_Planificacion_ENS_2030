@@ -9,6 +9,7 @@
 
 import { CONFIG } from '../../config.js';
 import { el, render, vaciar, llenarSelect, llenarSelectAgrupado, debounce } from './dom.js';
+import { mejorarSelect } from './selector-largo.js';
 import {
   MESES, IDS_MESES, SUBTITULOS, aNumero,
   normalizarActividad, validarActividad, revisarActividad, camposPendientes, nuevoId
@@ -772,6 +773,10 @@ export class Formulario {
     const contenedor = el('div', { class: 'cadena' });
     const detalle = el('div', { class: 'cadena__detalle', attrs: { hidden: true } });
 
+    // Desde el objetivo de impacto los textos son largos (un resultado
+    // inmediato promedia 170 caracteres): esos niveles van a todo el ancho y
+    // con el selector de textos largos, que los muestra completos.
+    const LARGOS = new Set(['objetivoImpacto', 'resultadoEsperado', 'resultadoInmediato']);
     for (const nivel of niveles) {
       const select = el('select', { class: 'campo__control', id: nivel.id, name: nivel.id });
       llenarSelect(select, [], { placeholder: nivel.vacio, deshabilitado: nivel.id !== 'objetivoEstrategico' });
@@ -780,10 +785,9 @@ export class Formulario {
         this.#actualizarCadena(nivel.id);
       });
       this.campos.set(nivel.id, select);
-      contenedor.append(this.#envoltura(
-        { ...nivel, ancho: nivel.id === 'resultadoInmediato' ? 'completo' : 'medio' },
-        select
-      ));
+      const grupo = this.#envoltura({ ...nivel, ancho: LARGOS.has(nivel.id) ? 'completo' : 'medio' }, select);
+      if (LARGOS.has(nivel.id)) mejorarSelect(select);
+      contenedor.append(grupo);
     }
 
     this.detalleENS = detalle;
@@ -1717,7 +1721,9 @@ export class Formulario {
           setTimeout(() => {
             primero.focus?.({ preventScroll: true });
             this.#mostrarEnPanel(primero);
-          }, suave ? 500 : 0);
+          // Sin animación igual se espera un momento: el panel recién activado
+          // necesita un cuadro para dejar de estar oculto y poder recibir el foco.
+          }, suave ? 500 : 80);
         } else this.#pintarPasos();
         return null;
       }

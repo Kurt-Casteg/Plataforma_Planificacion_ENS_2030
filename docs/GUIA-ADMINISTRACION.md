@@ -601,6 +601,34 @@ la línea, commit y push como siempre.
 
 ---
 
+## Listas de textos largos en la cadena ENS (versión 3.19)
+
+Los resultados inmediatos de la ENS 2027 tienen en promedio 170 caracteres y
+algunos pasan de 600. La lista desplegable del navegador muestra cada opción en
+una sola línea y la corta en el borde de la pantalla, así que no se alcanzaban
+a leer. Desde la versión 3.19, el **objetivo de impacto**, el **resultado
+esperado** y el **resultado inmediato** usan un selector propio
+(`js/core/selector-largo.js`):
+
+- Cerrado, muestra el código destacado y el texto en hasta dos líneas.
+- Abierto, despliega bajo el campo cada opción completa, en los renglones que
+  necesite, con el código a la izquierda.
+- Con más de ocho opciones aparece un buscador: filtra mientras se escribe,
+  sin importar tildes, y resalta la palabra encontrada.
+- Funciona con teclado (flechas, Inicio, Fin, Enter y Esc) y se cierra al hacer
+  clic fuera.
+
+Los tres campos van a todo el ancho. El objetivo estratégico, el tema y las
+demás listas de la plataforma siguen siendo listas normales: sus textos son
+cortos.
+
+El `<select>` original sigue en la página, oculto, y es el que se llena, se
+valida y se guarda: el selector solo cambia lo que se ve. Por eso no cambió
+nada en la base de datos ni en cómo se leen las actividades guardadas. El panel
+se abre en el flujo de la página (empuja lo que está debajo) en vez de flotar,
+porque las secciones del formulario recortan lo que se sale de ellas; así
+funciona igual en el formulario clásico, en el lateral y en la hoja de edición.
+
 ## Editar desde el listado: la hoja lateral (versión 3.18)
 
 «Editar» (en el listado o en la ficha de una actividad) abre la actividad en un
