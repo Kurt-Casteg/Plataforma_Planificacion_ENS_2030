@@ -773,9 +773,10 @@ export class Formulario {
     const contenedor = el('div', { class: 'cadena' });
     const detalle = el('div', { class: 'cadena__detalle', attrs: { hidden: true } });
 
-    // Desde el objetivo de impacto los textos son largos (un resultado
-    // inmediato promedia 170 caracteres): esos niveles van a todo el ancho y
-    // con el selector de textos largos, que los muestra completos.
+    // Toda la cadena usa el selector de textos largos, para que la sección se
+    // vea de una sola forma (3.19.1). Desde el objetivo de impacto los textos
+    // son largos (un resultado inmediato promedia 170 caracteres): esos niveles
+    // van a todo el ancho; el objetivo estratégico y el tema, cortos, comparten fila.
     const LARGOS = new Set(['objetivoImpacto', 'resultadoEsperado', 'resultadoInmediato']);
     for (const nivel of niveles) {
       const select = el('select', { class: 'campo__control', id: nivel.id, name: nivel.id });
@@ -786,14 +787,14 @@ export class Formulario {
       });
       this.campos.set(nivel.id, select);
       const grupo = this.#envoltura({ ...nivel, ancho: LARGOS.has(nivel.id) ? 'completo' : 'medio' }, select);
-      if (LARGOS.has(nivel.id)) mejorarSelect(select);
+      mejorarSelect(select);
       contenedor.append(grupo);
     }
 
     this.detalleENS = detalle;
     // Carga inicial de objetivos estratégicos.
     llenarSelect(this.campos.get('objetivoEstrategico'),
-      this.ens.objetivosEstrategicos.map((o) => ({ value: o.codigo, label: `${o.codigo}. ${o.nombre}` })),
+      this.ens.objetivosEstrategicos.map((o) => ({ value: o.codigo, label: `${o.codigo} — ${o.nombre}` })),
       { placeholder: 'Seleccionar objetivo…' });
 
     return el('div', { class: 'campo campo--completo' }, [contenedor, detalle]);

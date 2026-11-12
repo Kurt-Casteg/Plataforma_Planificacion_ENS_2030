@@ -2488,3 +2488,9 @@ body.con-hoja .asistente { display: none; }
   .selector-largo__panel { display: none !important; }
   .selector-largo__texto { -webkit-line-clamp: unset; display: block; }
 }
+
+/* 3.19.1 · Toda la cadena con el mismo selector. El objetivo estratégico y el
+   tema comparten la fila en dos mitades iguales; los demás niveles van a todo
+   el ancho. En pantallas angostas, uno debajo del otro. */
+.cadena { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 640px) { .cadena { grid-template-columns: minmax(0, 1fr); } }

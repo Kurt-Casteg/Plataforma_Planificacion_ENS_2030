@@ -618,9 +618,11 @@ esperado** y el **resultado inmediato** usan un selector propio
 - Funciona con teclado (flechas, Inicio, Fin, Enter y Esc) y se cierra al hacer
   clic fuera.
 
-Los tres campos van a todo el ancho. El objetivo estratégico, el tema y las
-demás listas de la plataforma siguen siendo listas normales: sus textos son
-cortos.
+Los tres campos van a todo el ancho. Desde la versión 3.19.1 el **objetivo
+estratégico** y el **tema** usan el mismo selector, para que toda la sección se
+vea de una sola forma; comparten la fila en dos mitades. Las demás listas de la
+plataforma (tipo de actividad, componente, presupuesto, PAC) siguen siendo
+listas normales: sus textos son cortos.
 
 El `<select>` original sigue en la página, oculto, y es el que se llena, se
 valida y se guarda: el selector solo cambia lo que se ve. Por eso no cambió
