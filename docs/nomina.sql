@@ -32,7 +32,7 @@
 --  cosmético: la base de datos aplica el que esté activo, así que alguien en
 --  modo Observador no puede escribir aunque tenga Control de Gestión.
 --
---  Total en esta versión: 40 personas en 10 departamentos.
+--  Total en esta versión: 40 personas en 11 departamentos.
 -- =============================================================================
 
 insert into public.usuarios_autorizados (correo, nombre, departamento, roles) values
@@ -54,9 +54,8 @@ insert into public.usuarios_autorizados (correo, nombre, departamento, roles) va
   ('paula.godoy@redsalud.gob.cl', 'Paula Godoy', 'dpto_accion_sanitaria', array['equipo']),
   ('ricardo.espinoza@redsalud.gob.cl', 'Ricardo Espinoza', 'dpto_accion_sanitaria', array['equipo']),
 
-  -- Departamento de Salud Pública (14)
+  -- Departamento de Salud Pública (13)
   ('gustavo.rojas.m@redsalud.gob.cl', 'Gustavo Rojas', 'dpto_salud_publica', array['jefatura']),
-  ('andrea.alarcon@redsalud.gob.cl', 'Andrea Alarcon', 'dpto_salud_publica', array['equipo']),
   ('claudia.dospital@redsalud.gob.cl', 'Claudia Dospital', 'dpto_salud_publica', array['equipo']),
   ('constanza.fuentesc@redsalud.gob.cl', 'Constanza Fuentes', 'dpto_salud_publica', array['equipo']),
   ('cristian.ortegam@redsalud.gob.cl', 'Cristian Ortega', 'dpto_salud_publica', array['equipo']),
@@ -92,6 +91,9 @@ insert into public.usuarios_autorizados (correo, nombre, departamento, roles) va
 
   -- Laboratorio de Salud Pública (1)
   ('marcelapaz.sanchez@redsalud.gob.cl', 'Marcela Sanchez', 'laboratorio_salud_publica', array['jefatura']),
+
+  -- Gabinete (1)
+  ('andrea.alarcon@redsalud.gob.cl', 'Andrea Alarcón', 'gabinete', array['equipo']),
 
   -- Emergencias y Desastres (1)
   ('claudio.lobos.c@redsalud.gob.cl', 'Claudio Lobos', 'emergencias_desastres', array['equipo']),
