@@ -121,7 +121,7 @@ Recorre esta lista con la dirección pública ya publicada:
 - [ ] Guardar una actividad de prueba funciona y aparece en el listado.
 - [ ] Los gráficos se dibujan.
 - [ ] «Exportar a Excel» descarga un archivo que abre correctamente.
-- [ ] «Respaldar (JSON)» descarga y luego «Importar» lo recupera.
+- [ ] «Respaldar (JSON)» descarga y luego «Importar» lo recupera (sin sesión en el listado; con sesión, Control de Gestión lo hace desde «Administración»).
 - [ ] Se ve bien en un teléfono.
 - [ ] Recargar la página conserva las actividades.
 

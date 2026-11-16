@@ -1092,6 +1092,7 @@ select.campo__control {
   .avisos,
   .asistente,
   .modal,
+  .menu,
   .ingreso,
   #avisoSesion,
   .saltar-al-contenido,
@@ -2567,3 +2568,49 @@ body.con-hoja .asistente { display: none; }
    el ancho. En pantallas angostas, uno debajo del otro. */
 .cadena { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 @media (max-width: 640px) { .cadena { grid-template-columns: minmax(0, 1fr); } }
+
+/* =============================================================================
+   3.21 · Menú «Más» y Administración
+   ============================================================================= */
+
+/* Botón que abre un menú: lleva su flecha, para que no parezca desactivado. */
+.btn--menu::after {
+  content: ''; width: 7px; height: 7px; margin-left: 2px; margin-top: -3px;
+  border-right: 2px solid currentColor; border-bottom: 2px solid currentColor;
+  transform: rotate(45deg); transition: transform var(--transicion);
+}
+.btn--menu[aria-expanded='true']::after { transform: rotate(-135deg); margin-top: 3px; }
+
+.menu {
+  position: absolute; z-index: 150;
+  min-width: 220px; max-width: min(380px, calc(100vw - 16px));
+  padding: var(--e-1);
+  background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-md);
+  box-shadow: 0 12px 32px rgba(16, 24, 40, 0.14), 0 2px 6px rgba(16, 24, 40, 0.06);
+  animation: menu-entra 120ms ease-out;
+}
+@keyframes menu-entra { from { opacity: 0; transform: translateY(-4px); } }
+.menu__item {
+  display: block; width: 100%; padding: 0.6rem 0.75rem;
+  font: inherit; font-size: var(--t-sm); text-align: left; color: var(--ink);
+  background: transparent; border: 0; border-radius: var(--r-sm); cursor: pointer;
+}
+.menu__item:hover, .menu__item:focus-visible { background: var(--superficie-3); outline: none; }
+.menu__item--peligro { color: var(--peligro); font-weight: 600; }
+.menu__separador { height: 1px; margin: var(--e-1) 0; background: var(--borde); }
+
+/* Cabecera: «Administración» se distingue de Tema y Ayuda. */
+.btn--admin { color: var(--marca); border-color: color-mix(in srgb, var(--marca) 35%, var(--borde)); }
+
+.admin-lista { display: grid; gap: var(--e-3); }
+.admin-opcion {
+  display: grid; gap: 4px; width: 100%; padding: var(--e-3) var(--e-4);
+  font: inherit; text-align: left; color: var(--ink);
+  background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-md); cursor: pointer;
+  transition: border-color var(--transicion), background var(--transicion);
+}
+.admin-opcion:hover:not(:disabled) { border-color: var(--marca); background: color-mix(in srgb, var(--marca) 4%, var(--superficie)); }
+.admin-opcion:focus-visible { outline: none; box-shadow: var(--anillo); border-color: var(--marca); }
+.admin-opcion:disabled { opacity: .55; cursor: not-allowed; }
+.admin-opcion__titulo { font-weight: 650; font-size: var(--t-sm); }
+.admin-opcion__texto { font-size: var(--t-xs); color: var(--ink-3); line-height: 1.45; }

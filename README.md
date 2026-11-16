@@ -58,7 +58,8 @@ que se publican en GitHub Pages y se abren en cualquier navegador moderno.
 │       ├── analisis-pac.js   Análisis del Plan Anual de Compras (calendario, holgura, compras parecidas, marco).
 │       ├── aprobacion.js     Circuito de aprobación: estados, bandeja de la jefatura, avance.
 │       ├── ajustes.js        Interruptores de la plataforma leídos desde Supabase.
-│       ├── configuracion.js  «Más» → «Configuración de la plataforma» (Control de Gestión).
+│       ├── configuracion.js  «Administración» → «Configuración de la plataforma» (Control de Gestión).
+│       ├── menu.js           Menú desplegable anclado a un botón («Más» del listado).
 │       ├── enfoque.js        Modo enfoque: ficha de actividad y gráficos ampliados al centro.
 │       ├── hoja.js           Hoja lateral para editar una actividad sin salir del listado.
 │       ├── selector-largo.js Selector de todas las listas desplegables (textos largos, buscador, versión compacta).
@@ -127,7 +128,7 @@ publica la nueva versión automáticamente.
 | Activar la base de datos compartida | `config.js` → `nube` + `docs/GUIA-SUPABASE.md` |
 | Agregar o mover a una persona | `docs/nomina.sql` |
 | Cambiar el formulario entre lateral y clásico | `config.js` → `formulario` |
-| Encender o apagar la aprobación por jefatura o el análisis del PAC | «Más» → «Configuración de la plataforma» (ver `docs/GUIA-ADMINISTRACION.md`) |
+| Encender o apagar la aprobación por jefatura o el análisis del PAC | «Administración» (cabecera) → «Configuración de la plataforma» (ver `docs/GUIA-ADMINISTRACION.md`) |
 
 ---
 

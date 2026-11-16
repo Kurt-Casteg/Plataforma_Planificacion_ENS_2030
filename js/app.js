@@ -27,6 +27,7 @@ import { abrirHoja } from './core/hoja.js';
 import { siguienteCodigo, previsualizarCodigo } from './core/codigos.js';
 import { Asistente, cargarContenidoAsistente } from './core/asistente.js';
 import { mejorarSelect } from './core/selector-largo.js';
+import { alternarMenu, cerrarMenu } from './core/menu.js';
 
 const estado = {
   plan: null,
@@ -118,6 +119,7 @@ alCargar(async () => {
     if (verificarPeriodo()) return;
     sincronizarSelectorPerfil();
     sincronizarSelectorPeriodo();
+    sincronizarAdministracion();
     aplicarPermisos();
     dibujarAccionesListado();
     estado.asistente?.actualizar();
@@ -255,6 +257,15 @@ function construirCascaron() {
                 ? 'Ver tu sesión'
                 : 'Las actividades se guardan en este navegador. Exporta un respaldo periódicamente.'
             }
+          }),
+          // Administración: solo Control de Gestión con sesión (versión 3.21).
+          // Nace oculto; lo muestra sincronizarAdministracion() al llegar la
+          // sesión.
+          el('button', {
+            class: 'btn btn--fantasma btn--admin', id: 'btnAdministracion',
+            attrs: { type: 'button', hidden: true, title: 'Configuración de la plataforma, respaldo e importación' },
+            text: 'Administración',
+            on: { click: mostrarAdministracion }
           }),
           el('button', {
             class: 'btn btn--fantasma', id: 'btnTema',
@@ -647,40 +658,37 @@ function prepararImpresion() {
 }
 
 function dibujarAccionesListado() {
+  cerrarMenu();
+  // Sin sesión el navegador es la única copia: ahí sí hacen falta «Respaldar»
+  // e «Importar». Con sesión el servidor es el respaldo, y el respaldo e
+  // importación institucionales quedan en «Administración» (versión 3.21).
+  const local = !perfil.identificado;
   render($('#accionesListado'),
     el('button', {
       class: 'btn btn--primario', attrs: { type: 'button' }, text: 'Exportar a Excel',
       on: { click: () => exportar('xlsx') }
     }),
-    el('button', {
-      class: 'btn btn--secundario', attrs: { type: 'button' }, text: 'Respaldar (JSON)',
-      on: { click: () => exportar('json') }
-    }),
-    // Exportar, respaldar e imprimir son lectura y quedan siempre disponibles.
-    // Importar escribe, así que sigue el permiso del perfil activo.
-    el('button', {
-      class: 'btn btn--secundario',
-      attrs: {
-        type: 'button',
-        disabled: !perfil.permisos.puedeImportar,
-        title: perfil.permisos.puedeImportar
-          ? 'Cargar actividades desde un respaldo JSON'
-          : `El perfil ${nombrePerfil(perfil.rol)} es de solo lectura: no puede importar actividades.`
-      },
-      text: 'Importar',
-      on: { click: importar }
-    }),
     // El informe consolidado cruza los dos planes y todos los departamentos:
-    // solo lo ve quien tiene esa responsabilidad institucional.
+    // solo lo ven los perfiles que miran la institución completa.
     PERFILES_CON_INFORME.has(perfil.rol) && el('button', {
       class: 'btn btn--secundario',
       attrs: { type: 'button', title: 'Informe consolidado de ambos planes y del Plan Anual de Compras' },
       text: 'Exportar informe',
       on: { click: exportarInforme }
     }),
+    local && el('button', {
+      class: 'btn btn--secundario', attrs: { type: 'button' }, text: 'Respaldar (JSON)',
+      on: { click: () => exportar('json') }
+    }),
+    local && el('button', {
+      class: 'btn btn--secundario',
+      attrs: { type: 'button', disabled: !perfil.permisos.puedeImportar, title: 'Cargar actividades desde un respaldo JSON' },
+      text: 'Importar',
+      on: { click: importar }
+    }),
     el('button', {
-      class: 'btn btn--fantasma', attrs: { type: 'button' }, text: 'Más',
-      on: { click: mostrarMasAcciones }
+      class: 'btn btn--secundario btn--menu', attrs: { type: 'button', 'aria-haspopup': 'menu', 'aria-expanded': 'false' }, text: 'Más',
+      on: { click: (e) => mostrarMasAcciones(e.currentTarget) }
     })
   );
 }
@@ -693,10 +701,11 @@ function dibujarAccionesListado() {
  * este informe recorre TODA la planificación de la institución. Por eso está
  * restringido: no es una función más de exportación, es la consolidación.
  *
- * Para dárselo a otro perfil —por ejemplo al Observador, que también ve toda la
- * institución— basta con agregar su identificador a este conjunto.
+ * Lo tienen Control de Gestión y, desde la versión 3.21, el Observador, que
+ * también ve toda la institución. Para dárselo a otro perfil basta con agregar
+ * su identificador a este conjunto.
  */
-const PERFILES_CON_INFORME = new Set(['control_gestion']);
+const PERFILES_CON_INFORME = new Set(['control_gestion', 'observador']);
 
 /**
  * Con el circuito de aprobación encendido, el informe puede ser el borrador de
@@ -1237,86 +1246,84 @@ function importar() {
 /* Menús auxiliares                                                    */
 /* ------------------------------------------------------------------ */
 
-function mostrarMasAcciones() {
-  // Un botón por cada ciclo anterior archivado en este navegador. Es lectura:
+function mostrarMasAcciones(boton) {
+  // Un ítem por cada ciclo anterior archivado en este navegador. Es lectura:
   // está disponible para cualquier perfil, incluido el Observador.
-  const botonesArchivo = almacen.archivos().map(({ anio, total }) => el('button', {
-    class: 'btn btn--secundario', attrs: { type: 'button' },
-    text: `Descargar actividades del ${anio} archivadas en este navegador (${numero(total)})`,
-    on: {
-      click: (e) => {
-        e.target.closest('.modal').querySelector('.modal__cerrar').click();
-        exportarArchivoCiclo(almacen.leerArchivo(anio), { anio, institucion: CONFIG.institucion });
-        avisar(`Respaldo del ${anio} descargado. Se puede volver a cargar con «Importar».`, 'exito');
-      }
+  const archivos = almacen.archivos().map(({ anio, total }) => ({
+    texto: `Descargar actividades del ${anio} archivadas en este navegador (${numero(total)})`,
+    alElegir: () => {
+      exportarArchivoCiclo(almacen.leerArchivo(anio), { anio, institucion: CONFIG.institucion });
+      avisar(`Respaldo del ${anio} descargado. Se puede volver a cargar con «Importar».`, 'exito');
     }
   }));
 
+  alternarMenu(boton, [
+    { texto: 'Exportar a CSV', alElegir: () => exportar('csv') },
+    // El menú ya se quitó al elegir; se esperan dos fotogramas para que el
+    // navegador haya repintado antes de abrir la impresión.
+    { texto: 'Imprimir o guardar como PDF', alElegir: () => requestAnimationFrame(() => requestAnimationFrame(() => print())) },
+    archivos.length && { separador: true },
+    ...archivos,
+    // Solo sin sesión (modo local). Vaciar borra la copia de ESTE navegador:
+    // sin sesión es la única copia y el botón sirve; con sesión las
+    // actividades siguen en el servidor y vuelven al recargar, así que el
+    // botón no hacía nada útil y confundía («lo vacié y volvió todo»).
+    // Desde la versión 3.18.4 no lo ve ningún perfil con sesión.
+    !perfil.identificado && perfil.permisos.puedeEliminar && { separador: true },
+    !perfil.identificado && perfil.permisos.puedeEliminar && {
+      texto: `Vaciar el ${estado.plan.nombreCorto}`, peligro: true,
+      alElegir: async () => {
+        const ok = await confirmar({
+          titulo: `Vaciar ${estado.plan.nombre}`,
+          mensaje: 'Se eliminarán todas las actividades de este plan en este navegador. Genera un respaldo antes si aún lo necesitas.',
+          textoConfirmar: 'Vaciar', peligro: true
+        });
+        if (!ok) return;
+        await almacen.vaciarPlan(estado.plan.id);
+        avisar('Plan vaciado.', 'info');
+      }
+    }
+  ]);
+}
+
+/* ------------------------------------------------------------------ */
+/* Administración (Control de Gestión)                                 */
+/* ------------------------------------------------------------------ */
+
+/** Muestra «Administración» en la cabecera solo a Control de Gestión con sesión. */
+function sincronizarAdministracion() {
+  const b = $('#btnAdministracion');
+  if (b) b.hidden = !(perfil.identificado && perfil.esControlDeGestion && perfil.nube);
+}
+
+/**
+ * Lo que cambia el funcionamiento de toda la plataforma o mueve datos en
+ * bloque. Antes estaba repartido entre «Más» y el listado (versión 3.21).
+ */
+function mostrarAdministracion() {
+  if (!(perfil.identificado && perfil.esControlDeGestion)) return;
+  const opcion = (titulo, descripcion, accion, { desactivada = false } = {}) => el('button', {
+    class: 'admin-opcion', attrs: { type: 'button', disabled: desactivada },
+    on: { click: (e) => { e.currentTarget.closest('.modal').querySelector('.modal__cerrar').click(); accion(); } }
+  }, [
+    el('span', { class: 'admin-opcion__titulo', text: titulo }),
+    el('span', { class: 'admin-opcion__texto', text: descripcion })
+  ]);
+
   abrirModal({
-    titulo: 'Más acciones',
-    ancho: '480px',
-    contenido: el('div', { style: { display: 'grid', gap: '12px' } }, [
-      // Interruptores del circuito de aprobación y del análisis del PAC.
-      perfil.esControlDeGestion && perfil.nube && el('button', {
-        class: 'btn btn--secundario', attrs: { type: 'button' }, text: 'Configuración de la plataforma',
-        on: {
-          click: (e) => {
-            e.target.closest('.modal').querySelector('.modal__cerrar').click();
-            abrirConfiguracion({ catalogos: estado.catalogos });
-          }
-        }
-      }),
-      ...botonesArchivo,
-      el('button', {
-        class: 'btn btn--secundario', attrs: { type: 'button' }, text: 'Exportar a CSV',
-        on: { click: (e) => { e.target.closest('.modal').querySelector('.modal__cerrar').click(); exportar('csv'); } }
-      }),
-      el('button', {
-        class: 'btn btn--secundario', attrs: { type: 'button' }, text: 'Imprimir o guardar como PDF',
-        // El diálogo se cierra ANTES de imprimir; si no, «Más acciones» y su
-        // fondo oscurecido se quedan sobre la vista previa.
-        //
-        // Se hace en dos tiempos a propósito. El clic en la × cierra bien —
-        // devuelve el foco, suelta los escuchas—, pero el nodo no desaparece
-        // hasta que termina su animación de salida, y ese `animationend` no es
-        // algo en lo que se pueda confiar para algo tan visible como esto. Así
-        // que además se quita a mano, y se esperan dos fotogramas para que el
-        // navegador ya haya repintado cuando abre la impresión.
-        //
-        // La red de seguridad final está en la hoja de estilos, que excluye
-        // `.modal` del papel: aunque todo esto fallara, el diálogo no saldría
-        // impreso.
-        on: {
-          click: (e) => {
-            const dialogo = e.target.closest('.modal');
-            dialogo.querySelector('.modal__cerrar').click();
-            dialogo.remove();
-            requestAnimationFrame(() => requestAnimationFrame(() => print()));
-          }
-        }
-      }),
-      // Solo sin sesión (modo local). Vaciar borra la copia de ESTE navegador:
-      // sin sesión es la única copia y el botón sirve; con sesión las
-      // actividades siguen en el servidor y vuelven al recargar, así que el
-      // botón no hacía nada útil y confundía («lo vacié y volvió todo»).
-      // Desde la versión 3.18.4 no lo ve ningún perfil con sesión.
-      !perfil.identificado && perfil.permisos.puedeEliminar && el('button', {
-        class: 'btn btn--peligro', attrs: { type: 'button' }, text: `Vaciar el ${estado.plan.nombreCorto}`,
-        on: {
-          click: async (e) => {
-            e.target.closest('.modal').querySelector('.modal__cerrar').click();
-            const ok = await confirmar({
-              titulo: `Vaciar ${estado.plan.nombre}`,
-              mensaje: 'Se eliminarán todas las actividades de este plan en este navegador. Genera un respaldo antes si aún lo necesitas.',
-              textoConfirmar: 'Vaciar', peligro: true
-            });
-            if (!ok) return;
-            await almacen.vaciarPlan(estado.plan.id);
-            avisar('Plan vaciado.', 'info');
-          }
-        }
-      })
-    ].filter(Boolean))
+    titulo: 'Administración',
+    ancho: '520px',
+    contenido: el('div', { class: 'admin-lista' }, [
+      opcion('Configuración de la plataforma',
+        'Encender o apagar el circuito de aprobación por jefatura y el análisis del Plan Anual de Compras.',
+        () => abrirConfiguracion({ catalogos: estado.catalogos })),
+      opcion(`Respaldar el ${estado.plan.nombreCorto} (JSON)`,
+        `Descarga todas las actividades del ${estado.plan.nombre} en un archivo que la plataforma puede volver a leer.`,
+        () => exportar('json')),
+      opcion('Importar actividades',
+        'Carga actividades desde un respaldo JSON. Entran como borrador en este navegador y se guardan en el servidor al volver a guardarlas.',
+        importar, { desactivada: !perfil.permisos.puedeImportar })
+    ])
   });
 }
 
@@ -1341,7 +1348,9 @@ function mostrarAyuda() {
       paso(5, 'Revisa y ajusta', 'En "Actividades registradas" puedes buscar, editar, duplicar o eliminar. «Editar» abre la actividad en un panel a la derecha: al guardar se cierra y el listado sigue donde estaba. «Ver» abre la ficha al centro de la pantalla: con «Siguiente» o las flechas ← → recorres las demás sin cerrarla, y con Esc vuelves. En el panel de análisis, «Ampliar» agranda cualquier gráfico con su tabla de datos.'),
       ajustes.circuitoActivo && paso(6, 'Envía a revisión de tu jefatura',
         '«Guardar y enviar a revisión» deja la actividad lista para que tu jefatura la apruebe u observe. Si aún no está lista, usa «Guardar como borrador». Si te la observan, verás el comentario bajo la fila: corrige y vuelve a enviar. Lo aprobado queda bloqueado.'),
-      paso(ajustes.circuitoActivo ? 7 : 6, 'Exporta y respalda', 'Usa "Exportar a Excel" para la entrega oficial. Usa "Respaldar (JSON)" para guardar una copia que puedas volver a importar aquí o enviar a Control de Gestión para consolidar.'),
+      paso(ajustes.circuitoActivo ? 7 : 6, perfil.identificado ? 'Exporta' : 'Exporta y respalda', perfil.identificado
+        ? 'Usa «Exportar a Excel» para descargar las actividades que ves. En «Más» están el CSV y la impresión. No necesitas respaldar: con la sesión iniciada tus actividades quedan guardadas en el servidor.'
+        : 'Usa «Exportar a Excel» para la entrega oficial. Usa «Respaldar (JSON)» para guardar una copia que puedas volver a importar aquí o enviar a Control de Gestión para consolidar.'),
       el('div', { class: 'nota nota--info' }, [
         el('p', {}, [
           el('strong', { text: 'Importante: ' }),

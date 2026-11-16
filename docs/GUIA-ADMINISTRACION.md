@@ -37,7 +37,8 @@ Con ese único cambio, desde la versión 3.9:
 - **Nada se pierde.** Si alguien había registrado actividades sin sesión (que
   nunca llegaron a la nube), las puede descargar desde «Más → Descargar
   actividades del <año> archivadas en este navegador» y, si hiciera falta,
-  volver a cargarlas con «Importar».
+  volver a cargarlas con «Importar» (sin sesión, en el listado; con sesión,
+  Control de Gestión lo hace desde «Administración»).
 
 Lo que **no** cambia solo, y hay que revisar cada año:
 
@@ -677,6 +678,30 @@ a medio llenar, queda guardada aparte y vuelve intacta al cerrar el panel.
 
 ---
 
+## Botones del listado y Administración (versión 3.21)
+
+Los botones se ordenaron según quién los necesita:
+
+| | Equipo | Jefatura | Observador | Control de Gestión | Sin sesión |
+|---|---|---|---|---|---|
+| Exportar a Excel | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Exportar informe (consolidado) | — | — | ✓ | ✓ | — |
+| «Más»: CSV, imprimir, ciclos archivados | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Respaldar (JSON) e Importar | — | — | — | en «Administración» | ✓ en el listado |
+| Configuración de la plataforma | — | — | — | en «Administración» | — |
+
+- **«Administración»** es un botón de la cabecera, junto a Tema y Ayuda, que solo
+  ve Control de Gestión con sesión. Reúne la configuración (circuito de
+  aprobación y análisis del PAC), el respaldo JSON del plan que se está viendo y
+  la importación de un respaldo.
+- **Respaldar e Importar** ya no aparecen a quien tiene sesión: el servidor es el
+  respaldo, y lo importado con sesión queda como borrador en ese navegador hasta
+  volver a guardarlo, lo que confundía. Sin sesión siguen en el listado, porque
+  ahí el navegador es la única copia.
+- **«Más»** dejó de ser una ventana: es un menú que se despliega bajo el botón
+  (flechas para recorrerlo, Esc o clic fuera para cerrarlo). Sin sesión incluye
+  además «Vaciar el PNS/PGI».
+
 ## Perfiles: qué puede hacer cada uno
 
 | Perfil | Ve | Modifica |
@@ -689,11 +714,12 @@ a medio llenar, queda guardada aparte y vuelve intacta al cerrar el panel.
 Con el circuito de aprobación encendido, `equipo` y `jefatura` no pueden editar
 ni eliminar lo ya aprobado (ver «Circuito de aprobación por jefatura»).
 
-Solo `control_gestion` ve el botón **«Exportar informe»**, el informe consolidado
-de ambos planes y del PAC (ver más abajo).
+`control_gestion` y `observador` ven el botón **«Exportar informe»**, el informe
+consolidado de ambos planes y del PAC (ver más abajo). Solo `control_gestion` ve
+**«Administración»** en la cabecera (ver «Botones del listado y Administración»).
 
-El **Observador** consulta, filtra, ve el panel de análisis, exporta a Excel, CSV
-y JSON, e imprime. No ve el formulario de registro ni los botones de editar,
+El **Observador** consulta, filtra, ve el panel de análisis, exporta a Excel y
+CSV, saca el informe consolidado (desde la versión 3.21) e imprime. No ve el formulario de registro ni los botones de editar,
 duplicar o eliminar, y tampoco puede importar ni vaciar un plan. Está pensado
 para cargos directivos y para Finanzas: gente que necesita el panorama completo
 sin riesgo de alterar el trabajo de los equipos.
@@ -727,7 +753,8 @@ Con el circuito encendido, cada actividad tiene un **estado**:
 
 ### Encenderlo, apagarlo y fijar un plazo
 
-**«Más» → «Configuración de la plataforma»** (solo Control de Gestión). El
+**«Administración» → «Configuración de la plataforma»** (en la cabecera, solo
+Control de Gestión). El
 interruptor «Exigir la aprobación de la jefatura» enciende o apaga el circuito,
 y el campo de plazo muestra una fecha a equipos y jefaturas (no bloquea nada).
 
@@ -773,7 +800,7 @@ junta las compras de los dos planes. Tiene cuatro bloques:
    *Solo aparece si se cargó el marco.* La jefatura ve solo el de su
    departamento; los equipos no lo ven.
 
-Todo se configura en **«Más» → «Configuración de la plataforma»**:
+Todo se configura en **«Administración» → «Configuración de la plataforma»**:
 
 - **Interruptor «Mostrar el análisis del Plan Anual de Compras»**: lo oculta
   completo, por ejemplo mientras no haya información de presupuesto.
@@ -1105,8 +1132,8 @@ tablas de datos de los gráficos.
 
 ## El informe consolidado («Exportar informe»)
 
-El botón **«Exportar informe»** aparece en la barra del listado y **solo lo ve el
-perfil Control de Gestión**. No es una exportación más: mientras «Exportar a
+El botón **«Exportar informe»** aparece en la barra del listado y **solo lo ven los
+perfiles Control de Gestión y Observador** (este último desde la versión 3.21). No es una exportación más: mientras «Exportar a
 Excel» entrega el plan que se está mirando, el informe recorre **toda la
 planificación de la institución** —los dos planes y el Plan Anual de Compras— sin
 importar en qué pestaña se esté.
