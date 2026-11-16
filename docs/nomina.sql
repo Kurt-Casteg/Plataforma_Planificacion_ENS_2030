@@ -38,11 +38,12 @@
 insert into public.usuarios_autorizados (correo, nombre, departamento, roles) values
 
   -- Departamento Control de Gestión (3)
-  ('albert.mercado@redsalud.gob.cl', 'Albert Mercado', 'dpto_control_gestion', array['control_gestion']),
-  ('juana.sanmartin@redsalud.gob.cl', 'Juana San Martin', 'dpto_control_gestion', array['control_gestion']),
+  ('albert.mercado@redsalud.gob.cl', 'Albert Mercado', 'dpto_control_gestion', array['jefatura']),
+  ('juana.sanmartin@redsalud.gob.cl', 'Juana San Martin', 'dpto_control_gestion', array['equipo']),
   ('kurt.castro@redsalud.gob.cl', 'Kurt Castro', 'dpto_control_gestion', array['control_gestion']),
   ('gbaeza2022@udec.cl', 'Gregorio Baeza', 'dpto_control_gestion', array['equipo','control_gestion','observador']),
   ('marcia.sanchez@redsalud.gob.cl', 'Marcia Sánchez', 'dpto_control_gestion', array['control_gestion','observador']),
+  ('nicole.contreras@redsalud.gob.cl', 'Nicole Contreras', 'dpto_control_gestion', array['equipo']),
 
   -- Departamento de Acción Sanitaria (8)
   ('marcela.cuadra@redsalud.gob.cl', 'Marcela Cuadra', 'dpto_accion_sanitaria', array['jefatura']),
@@ -63,7 +64,6 @@ insert into public.usuarios_autorizados (correo, nombre, departamento, roles) va
   ('estrella.aranda@redsalud.gob.cl', 'Estrella Aranda', 'dpto_salud_publica', array['equipo']),
   ('jessica.inzunza@redsalud.gob.cl', 'Jessica Inzunza', 'dpto_salud_publica', array['equipo']),
   ('lucy.cardenas@redsalud.gob.cl', 'Lucy Cardenas', 'dpto_salud_publica', array['equipo']),
-  ('nicole.contreras@redsalud.gob.cl', 'Nicole Contreras', 'dpto_salud_publica', array['equipo']),
   ('nicole.junodl@redsalud.gob.cl', 'Nicole Junod', 'dpto_salud_publica', array['equipo']),
   ('roberto.carillanca@redsalud.gob.cl', 'Roberto Carillanca', 'dpto_salud_publica', array['equipo']),
   ('victor.cadiz@redsalud.gob.cl', 'Victor Cadiz', 'dpto_salud_publica', array['equipo']),
