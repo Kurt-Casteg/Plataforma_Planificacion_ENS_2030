@@ -15,14 +15,12 @@ import { Formulario } from './core/formulario.js';
 import { TablaActividades } from './core/tabla.js';
 import { Panel } from './core/panel.js';
 import { avisar, confirmar, abrirModal, aplicarTema, alternarTema, temaActual, mostrarCargando } from './core/ui.js';
-import { exportarExcel, exportarCSV, exportarJSON, exportarArchivoCiclo, leerRespaldo } from './core/exportar.js';
 import { numero, fechaHora } from './core/formato.js';
 import { perfil, nombrePerfil, PERFILES } from './core/perfil.js';
 import { periodo } from './core/periodo.js';
 import { ajustes } from './core/ajustes.js';
 import { ZonaRevision, pedirObservacion, NOMBRE_ESTADO } from './core/aprobacion.js';
 import { AnalisisPac } from './core/analisis-pac.js';
-import { abrirConfiguracion } from './core/configuracion.js';
 import { abrirHoja } from './core/hoja.js';
 import { siguienteCodigo, previsualizarCodigo } from './core/codigos.js';
 import { Asistente, cargarContenidoAsistente } from './core/asistente.js';
@@ -271,7 +269,13 @@ function construirCascaron() {
             class: 'btn btn--fantasma', id: 'btnTema',
             attrs: { type: 'button', 'aria-label': 'Cambiar entre modo claro y oscuro' },
             text: 'Tema',
-            on: { click: () => { alternarTema(); avisar(`Modo ${document.documentElement.dataset.tema}.`, 'info', { duracion: 1600 }); } }
+            on: {
+              click: () => {
+                const tema = alternarTema();
+                const modo = `Modo ${document.documentElement.dataset.tema}`;
+                avisar(tema === 'auto' ? `${modo}, el de tu sistema.` : `${modo}.`, 'info', { duracion: 2200 });
+              }
+            }
           }),
           el('button', {
             class: 'btn btn--fantasma',
@@ -1145,23 +1149,26 @@ async function exportar(formato) {
     return;
   }
   const cerrar = mostrarCargando('Generando el archivo…');
+  // La exportación se descarga recién la primera vez que se usa.
+  let m = null;
   try {
+    m = await import('./core/exportar.js');
     if (formato === 'xlsx') {
-      const n = await exportarExcel(actividades, contexto());
+      const n = await m.exportarExcel(actividades, contexto());
       avisar(`Se exportaron ${numero(n)} actividades a Excel.`, 'exito');
     } else if (formato === 'csv') {
-      const n = exportarCSV(actividades, contexto());
+      const n = m.exportarCSV(actividades, contexto());
       avisar(`Se exportaron ${numero(n)} actividades a CSV.`, 'exito');
     } else {
-      const n = exportarJSON(actividades, contexto());
+      const n = m.exportarJSON(actividades, contexto());
       avisar(`Respaldo generado con ${numero(n)} actividades.`, 'exito');
     }
   } catch (e) {
     console.error(e);
-    if (formato === 'xlsx') {
+    if (formato === 'xlsx' && m) {
       avisar('No se pudo cargar la librería de Excel. Generando un CSV equivalente…', 'alerta');
       try {
-        exportarCSV(actividades, contexto());
+        m.exportarCSV(actividades, contexto());
       } catch {
         avisar('No fue posible generar el archivo.', 'error');
       }
@@ -1182,6 +1189,7 @@ function importar() {
 
     let entrantes;
     try {
+      const { leerRespaldo } = await import('./core/exportar.js');
       entrantes = await leerRespaldo(archivo, { planPorDefecto: estado.plan.id });
     } catch (e) {
       avisar(e.message, 'error', { duracion: 8000 });
@@ -1251,7 +1259,8 @@ function mostrarMasAcciones(boton) {
   // está disponible para cualquier perfil, incluido el Observador.
   const archivos = almacen.archivos().map(({ anio, total }) => ({
     texto: `Descargar actividades del ${anio} archivadas en este navegador (${numero(total)})`,
-    alElegir: () => {
+    alElegir: async () => {
+      const { exportarArchivoCiclo } = await import('./core/exportar.js');
       exportarArchivoCiclo(almacen.leerArchivo(anio), { anio, institucion: CONFIG.institucion });
       avisar(`Respaldo del ${anio} descargado. Se puede volver a cargar con «Importar».`, 'exito');
     }
@@ -1316,7 +1325,7 @@ function mostrarAdministracion() {
     contenido: el('div', { class: 'admin-lista' }, [
       opcion('Configuración de la plataforma',
         'Encender o apagar el circuito de aprobación por jefatura y el análisis del Plan Anual de Compras.',
-        () => abrirConfiguracion({ catalogos: estado.catalogos })),
+        () => import('./core/configuracion.js').then((m) => m.abrirConfiguracion({ catalogos: estado.catalogos }))),
       opcion(`Respaldar el ${estado.plan.nombreCorto} (JSON)`,
         `Descarga todas las actividades del ${estado.plan.nombre} en un archivo que la plataforma puede volver a leer.`,
         () => exportar('json')),

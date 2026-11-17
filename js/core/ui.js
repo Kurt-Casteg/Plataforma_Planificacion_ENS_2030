@@ -13,9 +13,10 @@ let contenedorAvisos;
 
 function zonaAvisos() {
   if (!contenedorAvisos) {
+    // Región con nombre: el lector de pantalla la encuentra siempre en el mismo lugar.
     contenedorAvisos = el('div', {
       class: 'avisos',
-      attrs: { role: 'status', 'aria-live': 'polite', 'aria-atomic': 'false' }
+      attrs: { role: 'region', 'aria-label': 'Avisos', 'aria-live': 'polite', 'aria-atomic': 'false' }
     });
     document.body.append(contenedorAvisos);
   }
@@ -26,10 +27,16 @@ const ICONOS = { exito: '✓', error: '!', info: 'i', alerta: '▲' };
 
 /**
  * Muestra un aviso flotante.
+ *
+ * Los errores no se van solos: quedan hasta que se cierran, para que nadie se
+ * pierda por qué algo no se guardó. Los demás se van al cumplir `duracion`,
+ * pero la cuenta se detiene mientras el mouse o el foco están sobre el aviso.
+ *
  * @param {string} mensaje
  * @param {'exito'|'error'|'info'|'alerta'} tipo
  */
 export function avisar(mensaje, tipo = 'info', { duracion = 4200 } = {}) {
+  const previo = document.activeElement;
   const aviso = el('div', { class: `aviso aviso--${tipo}` }, [
     el('span', { class: 'aviso__icono', text: ICONOS[tipo] || 'i', attrs: { 'aria-hidden': 'true' } }),
     el('p', { class: 'aviso__texto', text: mensaje }),
@@ -41,14 +48,62 @@ export function avisar(mensaje, tipo = 'info', { duracion = 4200 } = {}) {
     })
   ]);
 
-  const cerrar = () => {
+  let temporizador = null;
+  let restante = tipo === 'error' ? 0 : duracion;
+  let desde = 0;
+  const correr = () => { if (restante > 0) { desde = performance.now(); temporizador = setTimeout(cerrar, restante); } };
+  const pausar = () => {
+    if (!temporizador) return;
+    clearTimeout(temporizador);
+    temporizador = null;
+    restante = Math.max(1000, restante - (performance.now() - desde));
+  };
+  const reanudar = () => { if (!aviso.matches(':hover, :focus-within')) correr(); };
+
+  let cerrado = false;
+  function cerrar() {
+    if (cerrado) return;
+    cerrado = true;
+    clearTimeout(temporizador);
+    // Si el foco estaba en este aviso, pasa al siguiente o vuelve a donde estaba.
+    if (aviso.contains(document.activeElement)) {
+      const siguiente = [...zonaAvisos().children].find((a) => a !== aviso && !a.classList.contains('aviso--saliendo'));
+      const destino = siguiente?.querySelector('.aviso__cerrar') || (previo?.isConnected ? previo : null);
+      destino?.focus({ preventScroll: true });
+    }
     aviso.classList.add('aviso--saliendo');
     aviso.addEventListener('animationend', () => aviso.remove(), { once: true });
-  };
+  }
+
+  aviso.addEventListener('pointerenter', pausar);
+  aviso.addEventListener('pointerleave', reanudar);
+  aviso.addEventListener('focusin', pausar);
+  aviso.addEventListener('focusout', () => setTimeout(reanudar));
 
   zonaAvisos().append(aviso);
-  if (duracion) setTimeout(cerrar, duracion);
+  correr();
   return cerrar;
+}
+
+/* ------------------------------------------------------------------ */
+/* Fondo inactivo bajo una ventana                                     */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Deja inactivo (`inert`) todo lo que está detrás de `capa`: ni Tab ni el
+ * lector de pantalla llegan ahí, así que no hace falta atrapar el foco a mano.
+ * Devuelve la función que lo reactiva; las ventanas se cierran en orden
+ * inverso, así que cada una reactiva solo lo que ella desactivó.
+ *
+ * Por qué no <dialog>: su capa superior quedaría encima de los avisos y del
+ * «Cargando…», que tienen que verse mientras una ventana está abierta (por
+ * ejemplo, los errores de validación de la hoja de edición).
+ */
+export function bloquearFondo(capa) {
+  const nodos = [...document.body.children].filter((n) =>
+    n !== capa && !n.inert && !n.matches('.avisos, .cargando, script, noscript'));
+  for (const n of nodos) n.inert = true;
+  return () => { for (const n of nodos) n.inert = false; };
 }
 
 /* ------------------------------------------------------------------ */
@@ -97,21 +152,20 @@ export function abrirModal({ titulo, contenido, acciones = [], ancho = '', alCer
   const fondo = el('div', { class: 'modal', on: { mousedown: (e) => { if (e.target === fondo) cerrar(); } } }, [ventana]);
 
   const alTeclear = (e) => {
-    if (e.key === 'Escape') { e.preventDefault(); cerrar(); return; }
-    if (e.key !== 'Tab') return;
-    const focos = Array.from(ventana.querySelectorAll(FOCUSABLES)).filter((n) => n.offsetParent !== null);
-    if (!focos.length) return;
-    const primero = focos[0];
-    const ultimo = focos[focos.length - 1];
-    if (e.shiftKey && document.activeElement === primero) { e.preventDefault(); ultimo.focus(); }
-    else if (!e.shiftKey && document.activeElement === ultimo) { e.preventDefault(); primero.focus(); }
+    // Solo la ventana de más arriba responde a Esc: las de abajo quedaron inertes.
+    if (e.key === 'Escape' && !fondo.inert) { e.preventDefault(); cerrar(); }
   };
 
   let resolver;
   const cerrado = new Promise((r) => { resolver = r; });
+  let liberar = () => {};
+  let abierto = true;
 
   function cerrar(valor) {
+    if (!abierto) return;
+    abierto = false;
     document.removeEventListener('keydown', alTeclear, true);
+    liberar();
     fondo.classList.add('modal--saliendo');
     fondo.addEventListener('animationend', () => fondo.remove(), { once: true });
     document.body.classList.remove('sin-scroll');
@@ -123,6 +177,7 @@ export function abrirModal({ titulo, contenido, acciones = [], ancho = '', alCer
   const api = { cerrar, ventana, cuerpo, cerrado };
 
   document.body.append(fondo);
+  liberar = bloquearFondo(fondo);
   document.body.classList.add('sin-scroll');
   document.addEventListener('keydown', alTeclear, true);
   (ventana.querySelector(FOCUSABLES) || ventana).focus?.();
@@ -175,19 +230,33 @@ export function temaActual() {
   }
 }
 
+const temaDelSistema = () => (matchMedia('(prefers-color-scheme: dark)').matches ? 'oscuro' : 'claro');
+
+/** Pinta el tema indicado ('auto' sigue al sistema). No guarda nada. */
 export function aplicarTema(tema = temaActual()) {
-  const efectivo = tema === 'auto'
-    ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'oscuro' : 'claro')
-    : tema;
+  const efectivo = tema === 'auto' ? temaDelSistema() : tema;
   document.documentElement.dataset.tema = efectivo;
   document.documentElement.style.colorScheme = efectivo === 'oscuro' ? 'dark' : 'light';
-  try { localStorage.setItem(CLAVE_TEMA, tema); } catch { /* modo privado */ }
   return efectivo;
 }
 
+/**
+ * Cambia al tema contrario al que se ve. Si ese tema es el del sistema, se
+ * borra la preferencia y la plataforma vuelve a seguir al sistema; si no, se
+ * guarda tal cual. Así siempre hay forma de volver a «automático».
+ */
 export function alternarTema() {
-  const siguiente = document.documentElement.dataset.tema === 'oscuro' ? 'claro' : 'oscuro';
-  return aplicarTema(siguiente);
+  const objetivo = document.documentElement.dataset.tema === 'oscuro' ? 'claro' : 'oscuro';
+  const tema = objetivo === temaDelSistema() ? 'auto' : objetivo;
+  try {
+    if (tema === 'auto') localStorage.removeItem(CLAVE_TEMA);
+    else localStorage.setItem(CLAVE_TEMA, tema);
+  } catch { /* modo privado: el cambio dura hasta recargar */ }
+  aplicarTema(tema);
+  return tema;
 }
+
+/** Otra pestaña cambió el tema: se sigue el cambio. */
+addEventListener('storage', (e) => { if (e.key === CLAVE_TEMA) aplicarTema(temaActual()); });
 
 export { render, vaciar, $ };

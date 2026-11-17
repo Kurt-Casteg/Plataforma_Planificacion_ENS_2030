@@ -12,14 +12,13 @@
  *  - Por debajo de un diálogo común: si desde la ficha se abre uno (observar,
  *    confirmar), ese queda encima y el teclado le pertenece a él.
  *
- * Accesibilidad: es un diálogo modal (`role="dialog"`, `aria-modal`), atrapa
- * el foco con Tab, se cierra con Esc y devuelve el foco a donde estaba. Quien
- * pidió reducir el movimiento en su sistema la ve aparecer sin animación.
+ * Accesibilidad: es un diálogo modal (`role="dialog"`, `aria-modal`), lo de
+ * atrás queda inerte, se cierra con Esc y devuelve el foco a donde estaba.
+ * Quien pidió reducir el movimiento en su sistema la ve aparecer sin animación.
  */
 
 import { el, render } from './dom.js';
-
-const FOCUSABLES = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex]:not([tabindex="-1"])';
+import { bloquearFondo } from './ui.js';
 
 const sinMovimiento = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 const CURVA = 'cubic-bezier(0.2, 0.8, 0.2, 1)';
@@ -79,28 +78,23 @@ export function abrirEnfoque({ etiqueta, origen = null, ancho = '920px', clase =
     if (teniaFoco && !ventana.contains(document.activeElement)) ventana.focus();
   }
 
+  let liberar = () => {};
+
   function alTeclear(e) {
-    if (!api.abierto || hayDialogoEncima()) return;
+    if (!api.abierto || fondo.inert || hayDialogoEncima()) return;
     if (e.key === 'Escape') { e.preventDefault(); cerrar(); return; }
     if ((e.key === 'ArrowRight' || e.key === 'ArrowLeft') && alNavegar &&
         !e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey && !escribiendo(e.target)) {
       e.preventDefault();
       alNavegar(e.key === 'ArrowRight' ? 1 : -1);
-      return;
     }
-    if (e.key !== 'Tab') return;
-    const focos = Array.from(ventana.querySelectorAll(FOCUSABLES)).filter((n) => n.offsetParent !== null);
-    if (!focos.length) { e.preventDefault(); ventana.focus(); return; }
-    const primero = focos[0];
-    const ultimo = focos[focos.length - 1];
-    if (e.shiftKey && (document.activeElement === primero || document.activeElement === ventana)) { e.preventDefault(); ultimo.focus(); }
-    else if (!e.shiftKey && document.activeElement === ultimo) { e.preventDefault(); primero.focus(); }
   }
 
   function cerrar() {
     if (!api.abierto) return;
     api.abierto = false;
     document.removeEventListener('keydown', alTeclear, true);
+    liberar();
     document.body.classList.remove('con-enfoque');
     const quitar = () => fondo.remove();
     if (sinMovimiento()) quitar();
@@ -116,6 +110,7 @@ export function abrirEnfoque({ etiqueta, origen = null, ancho = '920px', clase =
   }
 
   document.body.append(fondo);
+  liberar = bloquearFondo(fondo);
   document.body.classList.add('con-enfoque');
   document.addEventListener('keydown', alTeclear, true);
 

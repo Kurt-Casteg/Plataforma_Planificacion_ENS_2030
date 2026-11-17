@@ -48,6 +48,7 @@ que se publican en GitHub Pages y se abren en cualquier navegador moderno.
 │
 ├── js/
 │   ├── app.js              Orquestador: une las piezas y define las acciones.
+│   ├── tema-inicial.js     Aplica el modo claro u oscuro antes de pintar (sin destello).
 │   ├── plans/index.js      ⭐ Definición declarativa de los planes (qué campos tiene cada uno).
 │   └── core/
 │       ├── modelo.js         Forma del dato, normalización, validación.
@@ -136,7 +137,10 @@ publica la nueva versión automáticamente.
 
 **Sin compilación.** JavaScript moderno con módulos nativos del navegador. Se
 publica tal cual, cualquier persona del equipo puede editarlo sin instalar Node,
-y no hay un paso intermedio que se pueda olvidar antes de desplegar.
+y no hay un paso intermedio que se pueda olvidar antes de desplegar. Para que el
+navegador no descubra los módulos de a uno, `index.html` los pide todos de
+entrada con `<link rel="modulepreload">`: si un módulo nuevo se importa al
+arrancar, agrégalo a esa lista.
 
 **Los datos no son código.** Los catálogos y la cadena de resultados ENS viven en
 archivos JSON. Actualizar los lineamientos del año siguiente ya no significa

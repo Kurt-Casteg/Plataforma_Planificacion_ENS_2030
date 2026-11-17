@@ -6,14 +6,14 @@
  * o cancelar, la hoja se va y el listado sigue exactamente donde estaba. Ya no
  * hay que subir hasta el formulario y volver a bajar a buscar la fila.
  *
- * Es un diálogo modal: atrapa el foco con Tab, Esc pide cerrarla y al cerrar
+ * Es un diálogo modal: lo de atrás queda inerte, Esc pide cerrarla y al cerrar
  * devuelve el foco a donde estaba. Quien decide si se puede cerrar (por
  * ejemplo, si hay cambios sin guardar) es quien la abrió, con `alPedirCerrar`.
  */
 
 import { el } from './dom.js';
+import { bloquearFondo } from './ui.js';
 
-const FOCUSABLES = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex]:not([tabindex="-1"])';
 const sinMovimiento = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 const CURVA = 'cubic-bezier(0.22, 0.8, 0.2, 1)';
 
@@ -30,16 +30,20 @@ const hayAlgoEncima = () => Boolean(document.querySelector('.modal:not(.modal--s
  */
 export function abrirHoja({ etiqueta, titulo, subtitulo = '', alPedirCerrar }) {
   const previo = document.activeElement;
-  const idTitulo = `hoja-titulo-${Math.random().toString(36).slice(2, 8)}`;
+  const sufijo = Math.random().toString(36).slice(2, 8);
+  const idEtiqueta = `hoja-etiqueta-${sufijo}`;
+  const idTitulo = `hoja-titulo-${sufijo}`;
 
   const cuerpo = el('div', { class: 'hoja__cuerpo' });
+  // El nombre es «etiqueta + título» («Editar actividad · Nombre»): con
+  // aria-label y aria-labelledby a la vez, el segundo anulaba al primero.
   const panel = el('div', {
     class: 'hoja__panel',
-    attrs: { role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': idTitulo, 'aria-label': etiqueta, tabindex: '-1' }
+    attrs: { role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': `${idEtiqueta} ${idTitulo}`, tabindex: '-1' }
   }, [
     el('header', { class: 'hoja__cabecera' }, [
       el('div', { class: 'hoja__textos' }, [
-        el('p', { class: 'hoja__etiqueta', text: etiqueta }),
+        el('p', { class: 'hoja__etiqueta', id: idEtiqueta, text: etiqueta }),
         el('h2', { class: 'hoja__titulo', id: idTitulo, text: titulo }),
         subtitulo && el('p', { class: 'hoja__subtitulo', text: subtitulo })
       ]),
@@ -56,17 +60,11 @@ export function abrirHoja({ etiqueta, titulo, subtitulo = '', alPedirCerrar }) {
   }, [panel]);
 
   const api = { cuerpo, panel, abierta: true, cerrar, entrar };
+  let liberar = () => {};
 
   function alTeclear(e) {
-    if (!api.abierta || hayAlgoEncima()) return;
-    if (e.key === 'Escape') { e.preventDefault(); alPedirCerrar?.(); return; }
-    if (e.key !== 'Tab') return;
-    const focos = Array.from(panel.querySelectorAll(FOCUSABLES)).filter((n) => n.offsetParent !== null && !n.closest('[inert]'));
-    if (!focos.length) return;
-    const primero = focos[0];
-    const ultimo = focos[focos.length - 1];
-    if (e.shiftKey && (document.activeElement === primero || document.activeElement === panel)) { e.preventDefault(); ultimo.focus(); }
-    else if (!e.shiftKey && document.activeElement === ultimo) { e.preventDefault(); primero.focus(); }
+    if (!api.abierta || fondo.inert || hayAlgoEncima()) return;
+    if (e.key === 'Escape') { e.preventDefault(); alPedirCerrar?.(); }
   }
 
   function entrar() {
@@ -80,6 +78,7 @@ export function abrirHoja({ etiqueta, titulo, subtitulo = '', alPedirCerrar }) {
     if (!api.abierta) return;
     api.abierta = false;
     document.removeEventListener('keydown', alTeclear, true);
+    liberar();
     document.body.classList.remove('con-hoja');
     const quitar = () => fondo.remove();
     if (sinMovimiento()) quitar();
@@ -92,6 +91,7 @@ export function abrirHoja({ etiqueta, titulo, subtitulo = '', alPedirCerrar }) {
   }
 
   document.body.append(fondo);
+  liberar = bloquearFondo(fondo);
   document.body.classList.add('con-hoja');
   document.addEventListener('keydown', alTeclear, true);
   return api;

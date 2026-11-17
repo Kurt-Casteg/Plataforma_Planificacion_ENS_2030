@@ -64,9 +64,10 @@
 
   /* --- Tipografía ----------------------------------------------------- */
   --fuente: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-  --t-xs:   0.75rem;
-  --t-sm:   0.8125rem;
-  --t-base: 0.9375rem;
+  /* 13 / 14 / 16 px: ningún texto de lectura baja de 13 px. */
+  --t-xs:   0.8125rem;
+  --t-sm:   0.875rem;
+  --t-base: 1rem;
   --t-md:   1.0625rem;
   --t-lg:   1.25rem;
   --t-xl:   1.5rem;

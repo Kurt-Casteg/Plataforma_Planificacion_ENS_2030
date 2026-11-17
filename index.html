@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="es-CL" data-tema="claro">
+<html lang="es-CL">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="light dark">
+  <script src="js/tema-inicial.js"></script>
   <meta name="author" content="Kurt Castro Ortega">
   <meta name="description" content="Plataforma institucional de la SEREMI de Salud de Ñuble para planificar, consolidar y analizar las actividades del Plan Nacional de Salud y del Plan de Gestión Institucional.">
   <meta name="robots" content="noindex">
@@ -44,6 +45,38 @@
   <link rel="stylesheet" href="css/app.css">
 
   <link rel="preload" href="data/catalogos.json" as="fetch" type="application/json" crossorigin>
+
+  <!--
+    Módulos que js/app.js necesita para arrancar. Sin esta lista el navegador
+    los descubre de a uno: baja app.js, ve qué importa, baja eso, ve qué
+    importa… Con ella los pide todos de una vez. Si un módulo nuevo se importa
+    al arrancar, agrégalo aquí; si falta, la plataforma funciona igual, solo
+    un poco más lenta. Los que se cargan bajo demanda (exportar, configuración,
+    sesión, nube, informe) no van.
+  -->
+  <link rel="modulepreload" href="js/app.js">
+  <link rel="modulepreload" href="config.js">
+  <link rel="modulepreload" href="js/plans/index.js">
+  <link rel="modulepreload" href="js/core/dom.js">
+  <link rel="modulepreload" href="js/core/ui.js">
+  <link rel="modulepreload" href="js/core/formato.js">
+  <link rel="modulepreload" href="js/core/modelo.js">
+  <link rel="modulepreload" href="js/core/periodo.js">
+  <link rel="modulepreload" href="js/core/perfil.js">
+  <link rel="modulepreload" href="js/core/ajustes.js">
+  <link rel="modulepreload" href="js/core/almacen.js">
+  <link rel="modulepreload" href="js/core/catalogos.js">
+  <link rel="modulepreload" href="js/core/codigos.js">
+  <link rel="modulepreload" href="js/core/selector-largo.js">
+  <link rel="modulepreload" href="js/core/menu.js">
+  <link rel="modulepreload" href="js/core/enfoque.js">
+  <link rel="modulepreload" href="js/core/hoja.js">
+  <link rel="modulepreload" href="js/core/aprobacion.js">
+  <link rel="modulepreload" href="js/core/analisis-pac.js">
+  <link rel="modulepreload" href="js/core/asistente.js">
+  <link rel="modulepreload" href="js/core/formulario.js">
+  <link rel="modulepreload" href="js/core/tabla.js">
+  <link rel="modulepreload" href="js/core/panel.js">
 </head>
 <body>
   <a class="saltar-al-contenido" href="#contenidoPrincipal">Saltar al contenido</a>

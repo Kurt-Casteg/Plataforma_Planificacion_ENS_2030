@@ -140,9 +140,9 @@ img { max-width: 100%; height: auto; }
   .cabecera__fila { flex-wrap: wrap; row-gap: var(--e-2); min-height: 0; }
   .cabecera__marca { flex: 1 1 100%; }
   .cabecera__titulo { white-space: normal; font-size: var(--t-base); }
-  .cabecera__subtitulo { font-size: 0.6875rem; letter-spacing: 0.04em; }
+  .cabecera__subtitulo { font-size: 0.75rem; letter-spacing: 0.04em; }
   .cabecera__herramientas { margin-left: 0; flex: 1 1 100%; flex-wrap: wrap; justify-content: flex-start; }
-  .indicador-almacen { font-size: 0.6875rem; }
+  .indicador-almacen { font-size: 0.75rem; }
 }
 
 /* --- Navegación de planes -------------------------------------------------- */
@@ -384,7 +384,7 @@ select.campo__control {
 }
 .meses__celda { display: grid; gap: var(--e-1); min-width: 0; }
 .meses__etiqueta {
-  font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.04em;
+  font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em;
   color: var(--ink-3); text-align: center;
 }
 .meses__entrada {
@@ -735,6 +735,7 @@ select.campo__control {
 .aviso__texto { flex: 1; font-size: var(--t-sm); color: var(--ink); }
 .aviso__cerrar {
   background: none; border: none; cursor: pointer; padding: 0 var(--e-1);
+  min-width: 24px; min-height: 24px;
   font-size: 18px; line-height: 1; color: var(--ink-3);
 }
 .aviso__cerrar:hover { color: var(--ink); }
@@ -861,7 +862,7 @@ select.campo__control {
   min-width: 20px; height: 20px; padding: 0 5px;
   display: grid; place-items: center;
   border-radius: var(--r-full);
-  font-size: 0.6875rem; font-weight: 700; font-variant-numeric: tabular-nums;
+  font-size: 0.75rem; font-weight: 700; font-variant-numeric: tabular-nums;
   background: var(--alerta); color: #21160a;
   border: 2px solid var(--superficie);
 }
@@ -987,7 +988,7 @@ select.campo__control {
 .asistente__item[open] > summary { border-radius: var(--r-sm) var(--r-sm) 0 0; }
 .asistente__item > p { padding: var(--e-3); font-size: var(--t-sm); }
 .asistente__etiqueta {
-  font-size: 0.625rem; text-transform: uppercase; letter-spacing: 0.05em;
+  font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;
   font-weight: 700; color: var(--ink-3);
 }
 
@@ -1223,7 +1224,7 @@ select.campo__control {
   display: inline-block; margin-left: var(--e-2);
   padding: 1px 8px; border-radius: var(--r-full);
   background: var(--marca-suave); color: var(--marca-ink);
-  font-size: 0.6875rem; font-weight: 650; letter-spacing: 0.02em;
+  font-size: 0.75rem; font-weight: 650; letter-spacing: 0.02em;
   text-transform: none; vertical-align: middle;
 }
 
@@ -1920,8 +1921,9 @@ body.con-ingreso .asistente { display: none; }
 .apac-cal__etiqueta { font-size: var(--t-xs); font-weight: 650; color: var(--ink-3); text-align: center; letter-spacing: 0.03em; }
 @media (max-width: 640px) {
   .apac-cal { height: 160px; gap: 3px; }
-  .apac-cal__valor { font-size: 0.625rem; }
-  .apac-cal__etiqueta { font-size: 0.625rem; }
+  /* Doce columnas en el ancho de un celular: el único lugar bajo 12 px. */
+  .apac-cal__valor { font-size: 0.6875rem; }
+  .apac-cal__etiqueta { font-size: 0.6875rem; }
 }
 
 /* Listas de compras con poca holgura. */
@@ -2081,7 +2083,7 @@ body.con-enfoque .asistente { display: none; }
 .mini-crono__barra--vacia { min-height: 0; background: transparent; }
 .mini-crono__etiquetas {
   display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 4px; padding: 4px 8px 0;
-  font-size: 10px; font-weight: 700; color: var(--ink-3); text-align: center;
+  font-size: 0.6875rem; font-weight: 700; color: var(--ink-3); text-align: center;
 }
 
 .foco__montos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--e-2); margin-bottom: var(--e-2); }
@@ -2584,13 +2586,26 @@ body.con-hoja .asistente { display: none; }
 }
 .btn--menu[aria-expanded='true']::after { transform: rotate(-135deg); margin-top: 3px; }
 
+/* Es un popover: vive en la capa superior, así que no necesita z-index. Se
+   anulan el centrado y los bordes que el navegador le da a todo popover. */
 .menu {
-  position: absolute; z-index: 150;
+  position: fixed; inset: auto; margin: 0;
+  z-index: 150; /* solo cuenta en navegadores sin popover */
   min-width: 220px; max-width: min(380px, calc(100vw - 16px));
   padding: var(--e-1);
+  color: var(--ink);
   background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-md);
   box-shadow: 0 12px 32px rgba(16, 24, 40, 0.14), 0 2px 6px rgba(16, 24, 40, 0.06);
   animation: menu-entra 120ms ease-out;
+}
+/* Bajo el botón y alineado a su borde derecho; si no cabe, se da vuelta. */
+@supports (position-area: block-end) {
+  .menu {
+    position-anchor: --menu-abierto;
+    position-area: block-end span-inline-start;
+    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+    margin-block: 6px;
+  }
 }
 @keyframes menu-entra { from { opacity: 0; transform: translateY(-4px); } }
 .menu__item {

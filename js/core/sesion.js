@@ -9,7 +9,7 @@
 
 import { CONFIG } from '../../config.js';
 import { el, render } from './dom.js';
-import { abrirModal, avisar, confirmar, mostrarCargando } from './ui.js';
+import { abrirModal, avisar, confirmar, mostrarCargando, bloquearFondo } from './ui.js';
 import { almacen } from './almacen.js';
 import { perfil } from './perfil.js';
 import { periodo } from './periodo.js';
@@ -399,23 +399,20 @@ function mostrarPantallaIngreso(nube) {
     if (e.key === 'Escape') { e.preventDefault(); cerrar(); }
   }
 
-  // Lo que queda detrás no se puede alcanzar con Tab ni con el lector de
-  // pantalla. No se usa <dialog> porque su capa superior taparía los avisos,
-  // que tienen que verse sobre la tarjeta.
-  const inertes = [...document.body.children].filter((n) => !n.inert && !n.classList.contains('avisos'));
+  let liberar = () => {};
 
   function cerrar() {
     clearInterval(temporizador);
     omitirIngreso();
     document.removeEventListener('keydown', alTeclear, true);
-    for (const n of inertes) n.inert = false;
+    liberar();
     pantalla.remove();
     document.body.classList.remove('sin-scroll', 'con-ingreso');
     (anterior && document.contains(anterior) ? anterior : document.getElementById('contenidoPrincipal'))?.focus?.();
   }
 
-  for (const n of inertes) n.inert = true;
   document.body.append(pantalla);
+  liberar = bloquearFondo(pantalla);
   document.body.classList.add('sin-scroll', 'con-ingreso');
   document.addEventListener('keydown', alTeclear, true);
   entrada.focus();
