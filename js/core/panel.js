@@ -235,7 +235,8 @@ export class Panel {
   /* ---------------------------------------------------------------- */
 
   #tarjeta(id, titulo, subtitulo, { ancho = false, alto = false } = {}) {
-    const lienzo = el('canvas', { id: `lienzo-${id}`, attrs: { role: 'img', 'aria-label': `${titulo}. ${subtitulo}` } });
+    // El dibujo no se puede leer: el nombre avisa dónde están los números.
+    const lienzo = el('canvas', { id: `lienzo-${id}`, attrs: { role: 'img', 'aria-label': `${titulo}. ${subtitulo}. Los datos están en la tabla que sigue al gráfico.` } });
     const detalle = el('details', { class: 'tabla-datos' }, [
       el('summary', { text: 'Ver los datos en tabla' })
     ]);
@@ -390,6 +391,8 @@ export class Panel {
     const resumen = ref.detalle.firstElementChild;
     vaciar(ref.detalle);
     ref.detalle.append(resumen, el('table', {}, [
+      // Quien recorre las tablas con el lector de pantalla sabe de qué gráfico es cada una.
+      el('caption', { class: 'visualmente-oculto', text: ref.titulo }),
       el('thead', {}, [el('tr', {}, encabezados.map((h) => el('th', { text: h, attrs: { scope: 'col' } })))]),
       el('tbody', {}, filas.map((f) => el('tr', {}, f.map((c, i) =>
         i === 0 ? el('th', { text: String(c), attrs: { scope: 'row' } }) : el('td', { text: String(c) })

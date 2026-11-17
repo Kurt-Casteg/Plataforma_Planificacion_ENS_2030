@@ -756,7 +756,7 @@ select.campo__control {
 
 .modal__ventana {
   display: flex; flex-direction: column;
-  width: 100%; max-width: 640px; max-height: min(86vh, 900px);
+  width: 100%; max-width: 640px; max-height: min(86dvh, 900px);
   background: var(--superficie); border-radius: var(--r-lg);
   box-shadow: var(--sombra-3); overflow: hidden;
 }
@@ -870,7 +870,7 @@ select.campo__control {
 
 .asistente__panel {
   width: min(400px, calc(100vw - var(--e-8)));
-  max-height: min(620px, calc(100vh - 140px));
+  max-height: min(620px, calc(100dvh - 140px));
   display: flex; flex-direction: column;
   background: var(--superficie);
   border: 1px solid var(--borde); border-radius: var(--r-lg);
@@ -1009,8 +1009,10 @@ select.campo__control {
 }
 
 @media (max-width: 720px) {
-  .asistente { right: var(--e-4); bottom: var(--e-4); left: var(--e-4); align-items: flex-end; }
-  .asistente__panel { width: 100%; max-height: calc(100vh - 120px); }
+  /* La barra de «Guardar actividad» va pegada abajo (66px de alto): el botón
+     del asistente flota sobre ella en vez de tapar «Limpiar formulario». */
+  .asistente { right: var(--e-4); bottom: calc(66px + var(--e-3)); left: var(--e-4); align-items: flex-end; }
+  .asistente__panel { width: 100%; max-height: calc(100dvh - 170px); }
 }
 
 @media print { .asistente { display: none !important; } }
@@ -2551,9 +2553,9 @@ body.con-hoja .asistente { display: none; }
   }
   .selector-largo__panel, .selector-largo__panel--arriba {
     position: fixed; left: 0; right: 0; top: auto; bottom: 0; z-index: 195;
-    max-height: 82vh; border-radius: 18px 18px 0 0; animation: selector-hoja 220ms ease-out both;
+    max-height: 82dvh; border-radius: 18px 18px 0 0; animation: selector-hoja 220ms ease-out both;
   }
-  .selector-largo__lista { max-height: calc(82vh - 64px) !important; }
+  .selector-largo__lista { max-height: calc(82dvh - 64px) !important; }
   /* El botón del asistente no tapa la hoja. */
   body.con-selector-abierto .asistente { display: none; }
 }

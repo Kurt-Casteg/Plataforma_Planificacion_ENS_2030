@@ -13,7 +13,11 @@ import { MESES, IDS_MESES, SUBTITULOS, normalizarActividad, textoSGC, NOMBRE_EST
 import { nombreArchivo } from './formato.js';
 import { etiquetaDe, buscarAsignacion } from './catalogos.js';
 
-/** Solo la copia local: código de terceros servido desde un CDN no se verifica. */
+/**
+ * SheetJS 0.20.3, solo la copia local: código de terceros servido desde un CDN
+ * no se verifica. Las versiones nuevas ya no se publican en npm (se quedó en
+ * 0.18.5, con vulnerabilidades conocidas): se descargan de cdn.sheetjs.com.
+ */
 const SHEETJS = new URL('../../vendor/xlsx.full.min.js', import.meta.url).href;
 
 let promesaXLSX = null;
