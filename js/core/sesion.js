@@ -399,15 +399,22 @@ function mostrarPantallaIngreso(nube) {
     if (e.key === 'Escape') { e.preventDefault(); cerrar(); }
   }
 
+  // Lo que queda detrás no se puede alcanzar con Tab ni con el lector de
+  // pantalla. No se usa <dialog> porque su capa superior taparía los avisos,
+  // que tienen que verse sobre la tarjeta.
+  const inertes = [...document.body.children].filter((n) => !n.inert && !n.classList.contains('avisos'));
+
   function cerrar() {
     clearInterval(temporizador);
     omitirIngreso();
     document.removeEventListener('keydown', alTeclear, true);
+    for (const n of inertes) n.inert = false;
     pantalla.remove();
     document.body.classList.remove('sin-scroll', 'con-ingreso');
     (anterior && document.contains(anterior) ? anterior : document.getElementById('contenidoPrincipal'))?.focus?.();
   }
 
+  for (const n of inertes) n.inert = true;
   document.body.append(pantalla);
   document.body.classList.add('sin-scroll', 'con-ingreso');
   document.addEventListener('keydown', alTeclear, true);

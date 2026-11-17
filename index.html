@@ -10,8 +10,8 @@
 
   <!--
     Política de seguridad de contenido.
-    Las librerías (Chart.js y SheetJS) se sirven desde este mismo sitio, en
-    vendor/. Las CDN solo quedan permitidas como respaldo. 'unsafe-inline' NO
+    Las librerías (Chart.js, SheetJS y Supabase) se sirven desde este mismo
+    sitio, en vendor/: ningún script viene de otro dominio. 'unsafe-inline' NO
     está habilitado para scripts: no hay JavaScript escrito dentro del HTML,
     lo que cierra la vía principal de inyección de código.
   -->
@@ -26,10 +26,10 @@
   -->
   <meta http-equiv="Content-Security-Policy" content="
     default-src 'self';
-    script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://esm.sh;
+    script-src 'self';
     style-src 'self' 'unsafe-inline';
     img-src 'self' data:;
-    connect-src 'self' https://*.supabase.co wss://*.supabase.co https://esm.sh;
+    connect-src 'self' https://*.supabase.co wss://*.supabase.co;
     font-src 'self';
     object-src 'none';
     base-uri 'self';

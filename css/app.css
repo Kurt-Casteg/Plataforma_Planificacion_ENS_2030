@@ -61,7 +61,7 @@ img { max-width: 100%; height: auto; }
 
 .saltar-al-contenido {
   position: absolute; left: var(--e-4); top: -100px; z-index: 200;
-  background: var(--marca); color: #fff; padding: var(--e-3) var(--e-5);
+  background: var(--marca); color: var(--sobre-marca); padding: var(--e-3) var(--e-5);
   border-radius: var(--r-md); font-weight: 600; text-decoration: none;
   transition: top var(--transicion);
 }
@@ -160,7 +160,7 @@ img { max-width: 100%; height: auto; }
 }
 .plan-tab:hover { background: var(--superficie-3); color: var(--ink); }
 .plan-tab[aria-current='page'] {
-  background: var(--marca); border-color: var(--marca); color: #fff;
+  background: var(--marca); border-color: var(--marca); color: var(--sobre-marca);
 }
 .plan-tab__contador {
   font-variant-numeric: tabular-nums; font-size: var(--t-xs);
@@ -194,7 +194,7 @@ img { max-width: 100%; height: auto; }
 .btn:active { transform: translateY(1px); }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-.btn--primario { background: var(--marca); color: #fff; }
+.btn--primario { background: var(--marca); color: var(--sobre-marca); }
 .btn--primario:hover:not(:disabled) { background: var(--marca-hover); }
 
 .btn--secundario { background: var(--superficie); color: var(--ink); border-color: var(--borde-fuerte); }
@@ -244,7 +244,7 @@ img { max-width: 100%; height: auto; }
 .seccion__numero {
   display: grid; place-items: center; flex-shrink: 0;
   width: 30px; height: 30px; border-radius: 50%;
-  background: var(--marca); color: #fff;
+  background: var(--marca); color: var(--sobre-marca);
   font-size: var(--t-sm); font-weight: 700; font-variant-numeric: tabular-nums;
 }
 .seccion__titulo { font-size: var(--t-md); }
@@ -272,7 +272,10 @@ img { max-width: 100%; height: auto; }
   transition: border-color var(--transicion), box-shadow var(--transicion);
 }
 .campo__control:hover:not(:disabled) { border-color: var(--ink-3); }
-.campo__control:focus { outline: none; border-color: var(--marca); box-shadow: var(--anillo); }
+/* Anillos de foco: `box-shadow` desaparece en el modo de alto contraste de
+   Windows; el contorno transparente no se ve normalmente, pero en ese modo el
+   sistema lo pinta con su propio color. Por eso nunca `outline: none`. */
+.campo__control:focus { outline: 2px solid transparent; border-color: var(--marca); box-shadow: var(--anillo); }
 .campo__control:disabled { background: var(--superficie-3); color: var(--ink-3); cursor: not-allowed; }
 .campo__control::placeholder { color: var(--ink-3); }
 
@@ -393,7 +396,7 @@ select.campo__control {
   transition: border-color var(--transicion), box-shadow var(--transicion);
 }
 .meses__entrada:hover:not(:disabled) { border-color: var(--ink-3); }
-.meses__entrada:focus { outline: none; border-color: var(--marca); box-shadow: var(--anillo); }
+.meses__entrada:focus { outline: 2px solid transparent; border-color: var(--marca); box-shadow: var(--anillo); }
 .meses__entrada:disabled { background: var(--superficie-3); color: var(--ink-3); }
 
 @media (max-width: 900px) { .meses { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
@@ -725,7 +728,7 @@ select.campo__control {
 .aviso__icono {
   display: grid; place-items: center; flex-shrink: 0;
   width: 20px; height: 20px; border-radius: 50%; margin-top: 1px;
-  font-size: 11px; font-weight: 700; color: #fff; background: var(--info);
+  font-size: 11px; font-weight: 700; color: var(--sobre-marca); background: var(--info);
 }
 .aviso--exito .aviso__icono { background: var(--exito); }
 .aviso--error .aviso__icono, .aviso--alerta .aviso__icono { background: var(--peligro); }
@@ -1255,7 +1258,7 @@ button.indicador-almacen:disabled { cursor: default; font-weight: 500; }
    llegando a ninguna parte. El estado «local» (nube desactivada a propósito)
    conserva su aspecto tranquilo: ahí trabajar en el navegador es lo esperado. */
 button.indicador-almacen[data-estado='sin-sesion'] {
-  background: var(--marca); color: #fff; border-color: var(--marca);
+  background: var(--marca); color: var(--sobre-marca); border-color: var(--marca);
   padding: var(--e-2) var(--e-4);
   font-size: var(--t-sm); font-weight: 650;
   border-radius: var(--r-md);
@@ -1267,7 +1270,7 @@ button.indicador-almacen[data-estado='sin-sesion']:hover:not(:disabled) {
   background: var(--marca-hover); border-color: var(--marca-hover);
 }
 button.indicador-almacen[data-estado='sin-sesion']:focus-visible {
-  outline: none; box-shadow: var(--anillo);
+  outline: 2px solid transparent; box-shadow: var(--anillo);
 }
 
 /* --- Aviso «sin sesión» sobre el formulario ------------------------------- */
@@ -1792,8 +1795,8 @@ body.con-ingreso .asistente { display: none; }
 }
 .filtro-estados__opcion:hover { background: var(--superficie-3); color: var(--ink); }
 .filtro-estados__opcion--activa,
-.filtro-estados__opcion--activa:hover { background: var(--marca); border-color: var(--marca); color: #fff; }
-.filtro-estados__opcion:focus-visible { outline: none; box-shadow: var(--anillo); }
+.filtro-estados__opcion--activa:hover { background: var(--marca); border-color: var(--marca); color: var(--sobre-marca); }
+.filtro-estados__opcion:focus-visible { outline: 2px solid transparent; box-shadow: var(--anillo); }
 
 /* Observación de la jefatura: bajo la fila y en el detalle. */
 .tabla tbody tr.fila--observada td { border-bottom-color: transparent; }
@@ -1942,7 +1945,7 @@ body.con-ingreso .asistente { display: none; }
   list-style: none;
 }
 .apac-grupo > details > summary::-webkit-details-marker { display: none; }
-.apac-grupo > details > summary:focus-visible { outline: none; box-shadow: var(--anillo); border-radius: var(--r-md); }
+.apac-grupo > details > summary:focus-visible { outline: 2px solid transparent; box-shadow: var(--anillo); border-radius: var(--r-md); }
 .apac-grupo__titulo { font-weight: 650; font-size: var(--t-sm); }
 .apac-grupo__titulo::after { content: ' ▸'; color: var(--ink-3); }
 .apac-grupo > details[open] .apac-grupo__titulo::after { content: ' ▾'; }
@@ -2038,7 +2041,7 @@ body.con-enfoque .asistente { display: none; }
   font: inherit; font-size: 24px; line-height: 1; cursor: pointer;
 }
 .enfoque__cerrar:hover { background: var(--superficie-3); color: var(--ink); }
-.enfoque__cerrar:focus-visible { outline: none; box-shadow: var(--anillo); }
+.enfoque__cerrar:focus-visible { outline: 2px solid transparent; box-shadow: var(--anillo); }
 .enfoque__cuerpo { padding: var(--e-5) var(--e-6) var(--e-6); overflow-y: auto; flex: 1; min-height: 0; }
 .enfoque__pie {
   display: flex; flex-wrap: wrap; gap: var(--e-3); align-items: center; justify-content: space-between;
@@ -2121,7 +2124,7 @@ body.con-enfoque .asistente { display: none; }
   cursor: pointer;
 }
 .grafico__ampliar:hover { background: var(--marca-suave); color: var(--marca-ink); }
-.grafico__ampliar:focus-visible { outline: none; box-shadow: var(--anillo); }
+.grafico__ampliar:focus-visible { outline: 2px solid transparent; box-shadow: var(--anillo); }
 .grafico { transition: box-shadow var(--transicion), transform var(--transicion); }
 .grafico:hover { box-shadow: var(--sombra-2); }
 
@@ -2163,7 +2166,7 @@ body.con-enfoque .asistente { display: none; }
   transition: background var(--transicion), color var(--transicion);
 }
 .indice-form__paso:hover { background: var(--superficie-3); }
-.indice-form__paso:focus-visible { outline: none; box-shadow: var(--anillo); }
+.indice-form__paso:focus-visible { outline: 2px solid transparent; box-shadow: var(--anillo); }
 .indice-form__paso--actual, .indice-form__paso--actual:hover { background: var(--marca-suave); color: var(--marca-ink); font-weight: 700; }
 .indice-form__marca {
   flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%;
@@ -2171,7 +2174,7 @@ body.con-enfoque .asistente { display: none; }
   background: var(--superficie-3); color: var(--ink-2);
 }
 .indice-form__paso--completa .indice-form__marca { background: var(--exito-suave); color: var(--exito-ink); }
-.indice-form__paso--actual .indice-form__marca { background: var(--marca); color: #fff; }
+.indice-form__paso--actual .indice-form__marca { background: var(--marca); color: var(--sobre-marca); }
 .indice-form__texto { min-width: 0; }
 .indice-form__estado { display: block; font-size: var(--t-xs); font-weight: 400; color: var(--ink-3); }
 .indice-form__paso--actual .indice-form__estado { color: var(--marca-ink); }
@@ -2244,7 +2247,7 @@ body.con-enfoque .asistente { display: none; }
   padding: var(--e-1) var(--e-2); border: 0; border-radius: var(--r-md);
   background: transparent; color: var(--ink); font: inherit; text-align: left; cursor: pointer;
 }
-.pasos-lat__paso:focus-visible { outline: none; box-shadow: var(--anillo); }
+.pasos-lat__paso:focus-visible { outline: 2px solid transparent; box-shadow: var(--anillo); }
 .pasos-lat__num {
   flex-shrink: 0; width: 30px; height: 30px; border-radius: 50%;
   display: grid; place-items: center; font-size: var(--t-xs); font-weight: 700;
@@ -2255,7 +2258,7 @@ body.con-enfoque .asistente { display: none; }
 .pasos-lat__paso--completa .pasos-lat__num, .pasos-lat__paso--lista .pasos-lat__num { background: var(--exito-suave); color: var(--exito-ink); }
 .pasos-lat__paso--falta .pasos-lat__num { background: var(--peligro-suave); color: var(--peligro-ink); }
 .pasos-lat__paso--antes .pasos-lat__num { background: var(--alerta-suave); color: var(--alerta-ink); }
-.pasos-lat__paso--actual .pasos-lat__num { background: var(--marca); color: #fff; }
+.pasos-lat__paso--actual .pasos-lat__num { background: var(--marca); color: var(--sobre-marca); }
 .pasos-lat__texto { min-width: 0; display: grid; }
 .pasos-lat__titulo { font-size: var(--t-sm); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pasos-lat__paso--actual .pasos-lat__titulo { color: var(--marca-ink); font-weight: 700; }
@@ -2471,7 +2474,7 @@ body.con-hoja .asistente { display: none; }
 }
 .selector-largo__lupa { display: flex; color: var(--ink-3); }
 .selector-largo__buscador {
-  flex: 1; min-width: 0; min-height: 44px; border: 0; outline: none; background: transparent;
+  flex: 1; min-width: 0; min-height: 44px; border: 0; outline: 2px solid transparent; background: transparent;
   font: inherit; font-size: var(--t-sm); color: var(--ink);
 }
 .selector-largo__buscador::placeholder { color: var(--ink-3); }
@@ -2492,13 +2495,13 @@ body.con-hoja .asistente { display: none; }
 }
 .selector-largo__opcion + .selector-largo__opcion { box-shadow: 0 -1px 0 var(--linea); }
 .selector-largo__opcion:hover { background: var(--superficie-2); }
-.selector-largo__opcion:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--marca); }
+.selector-largo__opcion:focus-visible { outline: 2px solid transparent; outline-offset: -2px; box-shadow: inset 0 0 0 2px var(--marca); }
 .selector-largo__opcion--elegida { background: var(--marca-suave); }
 .selector-largo__opcion-codigo {
   flex-shrink: 0; min-width: 4.4em; padding: 1px 8px; border-radius: 6px; text-align: center;
   background: var(--superficie-3); color: var(--marca-ink); font-weight: 700; font-variant-numeric: tabular-nums;
 }
-.selector-largo__opcion--elegida .selector-largo__opcion-codigo { background: var(--marca); color: #fff; }
+.selector-largo__opcion--elegida .selector-largo__opcion-codigo { background: var(--marca); color: var(--sobre-marca); }
 .selector-largo__opcion-texto { flex: 1; min-width: 0; }
 .selector-largo__marca { flex-shrink: 0; width: 1em; color: var(--marca); font-weight: 700; }
 .selector-largo__coincidencia { background: #fde9a8; color: #1d2733; border-radius: 3px; font-weight: 650; padding: 0 1px; }
@@ -2595,7 +2598,8 @@ body.con-hoja .asistente { display: none; }
   font: inherit; font-size: var(--t-sm); text-align: left; color: var(--ink);
   background: transparent; border: 0; border-radius: var(--r-sm); cursor: pointer;
 }
-.menu__item:hover, .menu__item:focus-visible { background: var(--superficie-3); outline: none; }
+.menu__item:hover { background: var(--superficie-3); }
+.menu__item:focus-visible { background: var(--superficie-3); outline: 2px solid transparent; outline-offset: -2px; }
 .menu__item--peligro { color: var(--peligro); font-weight: 600; }
 .menu__separador { height: 1px; margin: var(--e-1) 0; background: var(--borde); }
 
@@ -2610,7 +2614,7 @@ body.con-hoja .asistente { display: none; }
   transition: border-color var(--transicion), background var(--transicion);
 }
 .admin-opcion:hover:not(:disabled) { border-color: var(--marca); background: color-mix(in srgb, var(--marca) 4%, var(--superficie)); }
-.admin-opcion:focus-visible { outline: none; box-shadow: var(--anillo); border-color: var(--marca); }
+.admin-opcion:focus-visible { outline: 2px solid transparent; box-shadow: var(--anillo); border-color: var(--marca); }
 .admin-opcion:disabled { opacity: .55; cursor: not-allowed; }
 .admin-opcion__titulo { font-weight: 650; font-size: var(--t-sm); }
 .admin-opcion__texto { font-size: var(--t-xs); color: var(--ink-3); line-height: 1.45; }

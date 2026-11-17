@@ -16,7 +16,7 @@
 
   --ink:              #0b0b0b;
   --ink-2:            #52514e;
-  --ink-3:            #898781;
+  --ink-3:            #6e6d69;   /* 5,3:1 sobre blanco (WCAG AA texto) */
   --ink-inv:          #ffffff;
 
   --borde:            #e1e2e6;
@@ -24,12 +24,14 @@
   --linea:            #eceef1;
 
   /* --- Marca ---------------------------------------------------------- */
-  --marca:            #2a78d6;
-  --marca-hover:      #256abf;
-  --marca-activo:     #1c5cab;
+  --marca:            #256abf;   /* 5,4:1 con texto blanco y como texto sobre blanco */
+  --marca-hover:      #1c5cab;
+  --marca-activo:     #184f95;
   --marca-suave:      #eaf2fd;
   --marca-borde:      #b7d3f6;
   --marca-ink:        #184f95;
+  /* Texto sobre un relleno de --marca (botones primarios, pestaña activa). */
+  --sobre-marca:      #ffffff;
 
   /* --- Series de datos (validadas para daltonismo) -------------------- */
   --serie-1:          #2a78d6;   /* Subtítulo 21 */
@@ -51,14 +53,14 @@
   --peligro:          #d03b3b;
   --peligro-suave:    #fdeceb;
   --peligro-ink:      #9c1f1f;
-  --info:             #2a78d6;
+  --info:             #256abf;
   --info-suave:       #eaf2fd;
   --info-ink:         #184f95;
 
   /* --- Gráficos ------------------------------------------------------- */
   --grafico-rejilla:  #eceef1;
   --grafico-eje:      #c9cbd1;
-  --grafico-texto:    #898781;
+  --grafico-texto:    #6e6d69;
 
   /* --- Tipografía ----------------------------------------------------- */
   --fuente: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
@@ -116,6 +118,9 @@
   --marca-suave:      rgba(57, 135, 229, 0.14);
   --marca-borde:      #2f5488;
   --marca-ink:        #9ec5f4;
+  /* Ningún azul sirve a la vez como texto sobre fondo oscuro y como relleno
+     con texto blanco: sobre el relleno, el texto va oscuro (5,4:1). */
+  --sobre-marca:      #0b0b0b;
 
   --serie-1:          #3987e5;
   --serie-2:          #d95926;

@@ -20,12 +20,8 @@ import { mejorarSelect } from './selector-largo.js';
 /**
  * Chart.js se sirve desde el propio sitio (carpeta vendor/): la plataforma
  * funciona en redes institucionales que bloquean CDN externas y sin internet.
- * La CDN queda solo como respaldo.
  */
-const CHART_JS = [
-  new URL('../../vendor/chart.umd.js', import.meta.url).href,
-  'https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js'
-];
+const CHART_JS = new URL('../../vendor/chart.umd.js', import.meta.url).href;
 
 /**
  * Copia profunda de una configuración de Chart.js que conserva las funciones
@@ -47,19 +43,13 @@ let promesaChart = null;
 /** Carga Chart.js una sola vez y solo cuando hay algo que graficar. */
 function cargarChartJs() {
   if (globalThis.Chart) return Promise.resolve(globalThis.Chart);
-  if (promesaChart) return promesaChart;
-  promesaChart = CHART_JS.reduce(
-    (cadena, url) => cadena.catch(() => new Promise((resolve, reject) => {
-      const s = document.createElement('script');
-      s.src = url;
-      s.referrerPolicy = 'no-referrer';
-      s.onload = () => (globalThis.Chart ? resolve(globalThis.Chart) : reject(new Error('Chart no disponible')));
-      s.onerror = () => reject(new Error(`No se pudo cargar ${url}`));
-      document.head.append(s);
-    })),
-    Promise.reject(new Error('inicio'))
-  ).catch((e) => { promesaChart = null; throw e; });
-
+  promesaChart ??= new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = CHART_JS;
+    s.onload = () => (globalThis.Chart ? resolve(globalThis.Chart) : reject(new Error('Chart no disponible')));
+    s.onerror = () => reject(new Error(`No se pudo cargar ${CHART_JS}`));
+    document.head.append(s);
+  }).catch((e) => { promesaChart = null; throw e; });
   return promesaChart;
 }
 

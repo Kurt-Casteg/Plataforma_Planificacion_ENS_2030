@@ -77,7 +77,7 @@ que se publican en GitHub Pages y se abren en cualquier navegador moderno.
 │   ├── tokens.css          ⭐ Colores, tipografía y espaciado. Cambiar la identidad visual se hace aquí.
 │   └── app.css             Estilos de los componentes.
 │
-├── vendor/                 Chart.js y SheetJS servidos desde el propio sitio.
+├── vendor/                 Chart.js, SheetJS y Supabase servidos desde el propio sitio.
 ├── assets/                 Logotipo.
 └── docs/                   Guías, esquema SQL y ⭐ nomina.sql (quién usa la plataforma).
 ```

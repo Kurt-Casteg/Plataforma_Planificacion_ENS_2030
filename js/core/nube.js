@@ -14,7 +14,26 @@ import { CONFIG } from '../../config.js';
 import { periodo } from './periodo.js';
 import { normalizarActividad } from './modelo.js';
 
-const CDN = 'https://esm.sh/@supabase/supabase-js@2';
+/**
+ * supabase-js 2.118.0 (build UMD) servida desde vendor/, como Chart.js y
+ * SheetJS. Para actualizarla, reemplaza el archivo por el `dist/umd/supabase.js`
+ * de la versión nueva publicada en npm y cambia el número en este comentario.
+ */
+const SUPABASE_JS = new URL('../../vendor/supabase.umd.js', import.meta.url).href;
+
+let promesaSupabase = null;
+/** Carga la librería una sola vez; expone el global `supabase`. */
+function cargarSupabase() {
+  if (globalThis.supabase?.createClient) return Promise.resolve(globalThis.supabase);
+  promesaSupabase ??= new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = SUPABASE_JS;
+    s.onload = () => (globalThis.supabase?.createClient ? resolve(globalThis.supabase) : reject(new Error('Supabase no disponible')));
+    s.onerror = () => reject(new Error(`No se pudo cargar ${SUPABASE_JS}`));
+    document.head.append(s);
+  }).catch((e) => { promesaSupabase = null; throw e; });
+  return promesaSupabase;
+}
 
 /** Intentos de WebSocket antes de renunciar al tiempo real. */
 const MAX_REINTENTOS_TIEMPO_REAL = 3;
@@ -61,7 +80,7 @@ async function obtenerCliente() {
       `Se usará "${url}". Corrígela en config.js para evitar confusiones.`
     );
   }
-  const { createClient } = await import(/* @vite-ignore */ CDN);
+  const { createClient } = await cargarSupabase();
   cliente = createClient(url, CONFIG.nube.anonKey, {
     auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
     realtime: {

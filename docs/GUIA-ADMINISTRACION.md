@@ -1250,13 +1250,16 @@ delete from public.correlativos where anio = 2026 and departamento = 'dpto_salud
 Abre `css/tokens.css`. Los valores relevantes están arriba:
 
 ```css
---marca:       #2a78d6;   /* color principal: botones, enlaces, acentos */
---marca-hover: #256abf;   /* el mismo, un paso más oscuro */
+--marca:        #256abf;   /* color principal: botones, enlaces, acentos */
+--marca-hover:  #1c5cab;   /* el mismo, un paso más oscuro */
+--sobre-marca:  #ffffff;   /* texto sobre un botón o pestaña de color --marca */
 ```
 
 Si cambias `--marca`, ajusta también `--marca-hover`, `--marca-activo`,
 `--marca-suave` (muy claro, para fondos) y `--marca-ink` (muy oscuro, para texto
 sobre fondo claro), y repite el ajuste en el bloque `[data-tema='oscuro']`.
+`--marca` necesita un contraste de al menos 4,5:1 en dos sentidos: como texto
+sobre blanco (enlaces) y con `--sobre-marca` encima (botones primarios).
 
 **Antes de cambiar los colores de los gráficos** (`--serie-1` y `--serie-2`):
 esas dos tonalidades están elegidas para ser distinguibles por personas con

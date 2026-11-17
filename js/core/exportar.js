@@ -13,32 +13,21 @@ import { MESES, IDS_MESES, SUBTITULOS, normalizarActividad, textoSGC, NOMBRE_EST
 import { nombreArchivo } from './formato.js';
 import { etiquetaDe, buscarAsignacion } from './catalogos.js';
 
-/** Copia local primero; las CDN quedan como respaldo. */
-const SHEETJS = [
-  new URL('../../vendor/xlsx.full.min.js', import.meta.url).href,
-  'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'
-];
+/** Solo la copia local: código de terceros servido desde un CDN no se verifica. */
+const SHEETJS = new URL('../../vendor/xlsx.full.min.js', import.meta.url).href;
 
 let promesaXLSX = null;
 
-/** Carga SheetJS bajo demanda, con una fuente alternativa si la primera falla. */
+/** Carga SheetJS bajo demanda. */
 export function cargarXLSX() {
   if (globalThis.XLSX) return Promise.resolve(globalThis.XLSX);
-  if (promesaXLSX) return promesaXLSX;
-
-  promesaXLSX = SHEETJS.reduce(
-    (cadena, url) => cadena.catch(() => new Promise((resolve, reject) => {
-      const s = document.createElement('script');
-      s.src = url;
-      s.referrerPolicy = 'no-referrer';
-      s.onload = () => (globalThis.XLSX ? resolve(globalThis.XLSX) : reject(new Error('XLSX no disponible')));
-      s.onerror = () => reject(new Error(`No se pudo cargar ${url}`));
-      document.head.append(s);
-    })),
-    Promise.reject(new Error('inicio'))
-  ).catch((e) => { promesaXLSX = null; throw e; });
-
+  promesaXLSX ??= new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = SHEETJS;
+    s.onload = () => (globalThis.XLSX ? resolve(globalThis.XLSX) : reject(new Error('XLSX no disponible')));
+    s.onerror = () => reject(new Error(`No se pudo cargar ${SHEETJS}`));
+    document.head.append(s);
+  }).catch((e) => { promesaXLSX = null; throw e; });
   return promesaXLSX;
 }
 
